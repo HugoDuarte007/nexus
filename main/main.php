@@ -56,6 +56,7 @@ if (!$publicacoes) {
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="../style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Nexus | Página Inicial</title>
     <style>
         /* Estilos gerais */
@@ -166,7 +167,7 @@ if (!$publicacoes) {
             margin: 0;
         }
 
-        .modal-header .close {
+        .close {
             background: none;
             border: none;
             font-size: 24px;
@@ -342,31 +343,7 @@ if (!$publicacoes) {
         </div>
     <?php endif; ?>
 
-    <header>
-        <nav class="navbar">
-            <a href="../main/main.php" style="color:white;text-decoration: none;">
-                <h1 class="logo">Nexus</h1>
-            </a>
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Pesquisar utilizadores..."
-                    onkeyup="searchUsers()">
-            </div>
-            <button class="styled-button message-button" title="Mensagens"
-                onclick="window.location.href='../mensagens/mensagens.php'">
-                <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="white"
-                    class="rotated-icon">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                </svg>
-            </button>
-            <button class="styled-button" title="Publicar" style="font-size:33px;" onclick="abrirModal()">+</button>
-            <button class="styled-button" title="Perfil" onclick="window.location.href='../perfil/perfil.php'">
-                <div class="user-info">
-                    <span><?php echo htmlspecialchars($utilizador); ?></span>
-                    <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
-                </div>
-            </button>
-        </nav>
-    </header>
+    <?php require '../partials/header.php'; ?>
 
     <!-- Modal para criar publicação -->
     <div id="modalPublicacao" class="modal">
@@ -410,27 +387,54 @@ if (!$publicacoes) {
     <!-- Modal para visualizar publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao">
-            <div class="modal-header">
-                <h2>Publicação</h2>
-                <button class="close" onclick="fecharModalVerPublicacao()">✖</button>
-            </div>
             <div class="modal-body" id="conteudoPublicacao">
-                <!-- Conteúdo da publicação será inserido aqui via JavaScript -->
+                <div style="display: flex; justify-content: space-between;">
+                    <div class="post-header">
+                        <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture">
+                        <span id="username" class="username"></span>
+                        <span id="data" class="post-time" style="margin-left: 10px;"></span>
+                    </div>
+                    <button class="close" onclick="fecharPublicacao()">✖</button>
+                </div>
+
+                <div class="post-content">
+                    <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
+                    <img id="imagem" src="" class="post-image" style="display: none;"
+                        alt="Imagem da publicação">
+                </div>
+
+                <div id="comentarios" class="w-full overflow-y-auto" style="max-height: 200px;">
+                    // apaerecerasd coetnosario
+                </div>
+
+                <form class="flex flex-row w-full gap-2" method="POST" action="interacoes/comentar.php">
+                    <input type="text" hidden name="idpublicacao" id="idpublicacao" value="">
+                    <input class="flex-1" type="text" name="comentario" id="">
+                    <input class="hover:bg-blue-50" type="submit" value="Comentar">
+                </form>
             </div>
         </div>
     </div>
 
     <div class="posts">
         <?php while ($pub = mysqli_fetch_assoc($publicacoes)): ?>
-            <div class="post" onclick="abrirModalPublicacao(<?= $pub['idpublicacao'] ?>)">
+
+            <?php
+
+            $sql = "SELECT * FROM comentario WHERE idpublicacao = ".$pub['idpublicacao'];
+            $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
+
+            ?>
+
+            <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
                 <div class="post-header">
-                    <img src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
+                    <img id="ft_perfil" src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
                         alt="Foto de Perfil" class="profile-picture">
-                    <span class="username"><?= htmlspecialchars($pub['user']); ?></span>
-                    <span class="post-time"
+                    <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
+                    <span id="data" class="post-time"
                         style="margin-left: 10px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
 
-                    <button class="guardar-button" title="Guardar" style="width: auto;" onclick="event.stopPropagation()">
+                    <button class="guardar-button" title="Guardar" style="width: auto;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                             <path fill="#0e2b3b" d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z" />
                         </svg>
@@ -438,29 +442,27 @@ if (!$publicacoes) {
                 </div>
 
                 <div class="post-content">
-                    <p class="post-descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
-                    <?php if (!empty($pub['media'])): ?>
-                        <img src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-image"
-                            alt="Imagem da publicação">
-                    <?php endif; ?>
+                    <p class="post-descricao" id="descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
+                    <img id="imagem" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-image"
+                        alt="Imagem da publicação" style="display: <?= empty($pub['media']) ? 'none' : 'block' ?>">
                 </div>
 
                 <div class="post-actions">
-                    <button class="action-button" title="Comentar" onclick="event.stopPropagation()">
+                    <button class="action-button" title="Comentar" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="#0e2b3b"
                                 d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
                         </svg>
-                        <span style="margin-left: 5px;">3</span>
+                        <span style="margin-left: 5px;"><?= count($comentarios) ?></span>
                     </button>
-                    <button class="action-button" title="Republicar" onclick="event.stopPropagation()">
+                    <button class="action-button" title="Republicar">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="#0e2b3b"
                                 d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
                         </svg>
                         <span style="margin-left: 5px;">2</span>
                     </button>
-                    <button class="action-button" title="Gostar" onclick="event.stopPropagation()">
+                    <button class="action-button" title="Gostar">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="#0e2b3b" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 
         2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
@@ -476,70 +478,60 @@ if (!$publicacoes) {
     </div>
 
     <script>
-        // Função para abrir o modal de visualização da publicação
-        function abrirModalPublicacao(idPublicacao) {
-            // Aqui você pode fazer uma requisição AJAX para buscar os detalhes completos da publicação
-            // ou usar os dados já carregados na página (simplificado neste exemplo)
-            
-            // Encontra a publicação clicada
-            const publicacao = document.querySelector(`.post[onclick="abrirModalPublicacao(${idPublicacao})"]`);
-            
-            // Clona o conteúdo da publicação para o modal
-            const conteudo = publicacao.cloneNode(true);
-            
-            // Remove o evento de clique para evitar recursão
-            conteudo.removeAttribute('onclick');
-            
-            // Adiciona a seção de comentários
-            const comentariosHTML = `
-                <div class="comentarios-container">
-                    <h3>Comentários</h3>
-                    
-                    <div class="comentario">
-                        <img src="<?= $foto_base64 ?>" alt="Avatar" class="comentario-avatar">
-                        <div class="comentario-conteudo">
-                            <div class="comentario-autor"><?= htmlspecialchars($utilizador) ?></div>
-                            <div class="comentario-texto">Esta publicação é incrível!</div>
-                        </div>
-                    </div>
-                    
-                    <div class="comentario">
-                        <img src="default.png" alt="Avatar" class="comentario-avatar">
-                        <div class="comentario-conteudo">
-                            <div class="comentario-autor">OutroUtilizador</div>
-                            <div class="comentario-texto">Concordo plenamente!</div>
-                        </div>
-                    </div>
-                    
-                    <form class="comentario-form">
-                        <input type="text" class="comentario-input" placeholder="Adicione um comentário...">
-                        <button type="submit" class="comentario-submit">Comentar</button>
-                    </form>
-                </div>
-            `;
-            
-            conteudo.innerHTML += comentariosHTML;
-            
-            // Adiciona o conteúdo ao modal
-            document.getElementById('conteudoPublicacao').innerHTML = '';
-            document.getElementById('conteudoPublicacao').appendChild(conteudo);
-            
-            // Exibe o modal
-            document.getElementById("modalVerPublicacao").style.display = "flex";
+        var modalVerPublicacao = document.getElementById('modalVerPublicacao');
+        var modalComentarios = modalVerPublicacao.querySelector('#comentarios');
+
+        function carregarComentarios(pubid) {
+
+
         }
 
-        function fecharModalVerPublicacao() {
-            document.getElementById("modalVerPublicacao").style.display = "none";
+        function abrirPublicacao(pubid) {
+            var publicacao = document.querySelector('#post_' + pubid);
+            var ft_perfil = publicacao.querySelector('#ft_perfil');
+            var username = publicacao.querySelector('#username');
+            var data = publicacao.querySelector('#data');
+            var descricao = publicacao.querySelector('#descricao');
+            var img = publicacao.querySelector('#imagem');
+
+            var modal_ft_perfil = modalVerPublicacao.querySelector('#ft_perfil');
+            var modal_username = modalVerPublicacao.querySelector('#username');
+            var modal_data = modalVerPublicacao.querySelector('#data');
+            var modal_descricao = modalVerPublicacao.querySelector('#descricao');
+            var modal_img = modalVerPublicacao.querySelector('#imagem');
+            var modal_idpublicacao = modalVerPublicacao.querySelector('#idpublicacao');
+
+            modal_ft_perfil.src = ft_perfil.src;
+            modal_username.innerHTML = username.innerHTML;
+            modal_data.innerHTML = data.innerHTML;
+            modal_descricao.innerHTML = descricao.innerHTML;
+
+            modal_img.src = img.src;
+            modal_img.style.display = img.style.display;
+
+            modal_idpublicacao.value = pubid;
+
+            modalVerPublicacao.style.display = 'flex';
+
+
+            var pub = publicacao.querySelector('#pub');
+            console.log(pub);
         }
 
+        function fecharPublicacao() {
+            modalVerPublicacao.style.display = 'none';
+        }
+    </script>
+
+    <script>
         function darLike(idPublicacao) {
             fetch('../interacoes/like.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
-            })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
+                })
                 .then(response => response.text())
                 .then(data => {
                     console.log(data);
@@ -557,7 +549,7 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.src = e.target.result;
                     container.style.display = "block";
                 }
@@ -569,7 +561,7 @@ if (!$publicacoes) {
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => {
                 let notificacao = document.getElementById("notificacao");
                 if (notificacao) {
@@ -578,46 +570,13 @@ if (!$publicacoes) {
             }, 1500);
         });
 
-        function abrirModal() {
-            document.getElementById("modalPublicacao").style.display = "flex";
-        }
-
-        function fecharModal() {
-            document.getElementById("modalPublicacao").style.display = "none";
-        }
-
         function fecharNotificacao() {
             let notificacao = document.getElementById("notificacao");
             if (notificacao) {
                 notificacao.style.display = "none";
             }
         }
-
-        function searchUsers() {
-            let input = document.getElementById("searchInput").value.toLowerCase().trim();
-            let users = document.querySelectorAll(".username");
-            let post_descricaos = document.querySelectorAll(".post-descricao");
-
-            users.forEach(user => {
-                let post = user.closest(".post");
-                let descricao = post.querySelector(".post-descricao");
-
-                post.style.display = "none";
-
-                if (descricao.textContent.toLowerCase().includes(input)) {
-                    post.style.display = "block";
-                }
-            });
-
-            post_descricaos.forEach(descricao => {
-                let post = descricao.closest(".post");
-
-                if (descricao.textContent.toLowerCase().includes(input)) {
-                    post.style.display = "block";
-                }
-            })
-        }
     </script>
 </body>
 
-</html> 
+</html>

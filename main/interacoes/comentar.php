@@ -1,21 +1,22 @@
 <?php
 session_start();
-require "../ligabd.php";
+require "../../ligabd.php";
 
 header('Content-Type: application/json');
 
 if (!isset($_SESSION["user"])) {
-    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado 0']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Método não permitido']);
+
+    echo json_encode(['success' => false, 'error' => 'Método não permitido 1']);
     exit();
 }
 
 if (!isset($_POST['idpublicacao']) || !isset($_POST['comentario'])) {
-    echo json_encode(['success' => false, 'error' => 'Dados incompletos']);
+    echo json_encode(['success' => false, 'error' => 'Dados incompletos 2']);
     exit();
 }
 
@@ -44,3 +45,5 @@ if (mysqli_query($con, $sql)) {
 } else {
     echo json_encode(['success' => false, 'error' => mysqli_error($con)]);
 }
+
+header("Location: ../main.php");

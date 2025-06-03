@@ -152,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="progress-bar"></div>
         </div>
     <?php endif; ?>
-    <br><br><br><br><br><br><br>
+    
     <div class="container">
         <img src="imagens/background.jpg" alt="Background" class="background">
         <div class="logo">
@@ -163,10 +163,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <a href="login.php"><button class="Login">Entrar</button></a>
             <a href="signup.php"><button class="Registar">Registar</button></a>
         </div>
-    </div><br><br><br><br><br><br><br><br>
+    </div>
 
     <script>
-
         document.addEventListener("DOMContentLoaded", () => {
             const notificacao = document.getElementById("notificacao");
             if (notificacao) {
@@ -201,7 +200,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </form>
             </div>
         </div>
-        <br>
+        
         <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span
                 property="dct:title">Nexus</span> by <span property="cc:attributionName">Hugo Duarte</span> is licensed
             under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank"

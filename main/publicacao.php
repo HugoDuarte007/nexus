@@ -174,7 +174,6 @@ $publicacoes = mysqli_query($con, $sql);
             color: white;
             transition: 0.3s ease;
         }
-
     </style>
 </head>
 
@@ -186,18 +185,8 @@ $publicacoes = mysqli_query($con, $sql);
         </div>
     <?php endif; ?>
 
-    <header>
-        <nav class="navbar">
-            <a href="../main/main.php" style="color:white;text-decoration: none;">
-                <h1 class="logo">Nexus</h1>
-            </a>
-            <button class="styled-button" onclick="window.location.href='../perfil/perfil.php'">
-                <div class="user-info">
-                    <span><?php echo htmlspecialchars($utilizador); ?></span>
-                    <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
-                </div>
-            </button>
-        </nav>
-    </header>
+
+    <?php require '../partials/header.php'; ?>
 </body>
-</html>     
+
+</html>

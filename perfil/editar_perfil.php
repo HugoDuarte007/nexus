@@ -33,21 +33,11 @@ $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_pe
     <link rel="stylesheet" type="text/css" href="../main/style.css">
     <title>Nexus | Perfil</title>
 </head>
-<header>
-    <nav class="navbar">
-        <a href="../main/main.php" style="color:white;text-decoration: none;">
-            <h1 class="logo">Nexus</h1>
-        </a>
-        <button class="styled-button" onclick="window.location.href='perfil.php'">
-            <div class="user-info">
-                <span><?php echo htmlspecialchars($utilizador); ?></span>
-                <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
-            </div>
-        </button>
-    </nav>
-</header>
+
 
 <body>
+
+    <?php require '../partials/header.php'; ?>
 
 </body>
 

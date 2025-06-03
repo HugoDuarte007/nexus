@@ -182,23 +182,11 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
         }
     </style>
 </head>
-<header>
-    <nav class="navbar">
-
-        <a href="../main/main.php" style="color:white;text-decoration: none;">
-            <h1 class="logo">Nexus</h1>
-        </a>
-        <button class="styled-button" onclick="window.location.href='perfil.php'">
-            <div class="user-info">
-                <span><?php $utilizador = $_SESSION["user"];
-                echo htmlspecialchars($utilizador); ?></span>
-                <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
-            </div>
-        </button>
-    </nav>
-</header>
 
 <body>
+
+    <?php require '../partials/header.php'; ?>
+    
     <div class="cover-wrapper" onclick="document.getElementById('fileInputCapa').click();">
         <img src="<?php echo $perfil_foto_capa_base64; ?>" alt="Foto de Capa" class="cover-photo">
         <?php if ($perfil_utilizador == $utilizador): ?>
@@ -215,7 +203,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
         <?php if ($perfil_utilizador == $utilizador): ?>
             <button class="definicoes" onclick="window.location.href='editar_perfil.php'"></button>
         <?php endif; ?>
-        
+
         <div class="profile-picture-wrapper" onclick="document.getElementById('fileInput').click();">
             <img src="<?php echo $perfil_foto_base64; ?>" alt="Foto de Perfil" class="profile-picture-large">
 
@@ -248,9 +236,9 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             formData.append("file", fileInput.files[0]);
 
             fetch(uploadUrl, {
-                method: "POST",
-                body: formData
-            })
+                    method: "POST",
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
