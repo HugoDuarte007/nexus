@@ -1,0 +1,200 @@
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        color: black;
+        text-align: center;
+    }
+
+    .container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 0px;
+    }
+
+    @keyframes slideUpFadeIn {
+        0% {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .form-container {
+        margin: 0 auto;
+        margin-top: 20px;
+        margin-right: 15%;
+        background-color: rgba(0, 0, 0, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        color: white;
+        animation: slideUpFadeIn 0.8s ease-out forwards;
+    }
+
+    .platforms {
+        position: absolute;
+        left: 13%;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 500px;
+        height: auto;
+    }
+
+    .column {
+        flex: 1;
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .form-group a {
+        color: #2679a5;
+        font-weight: bold;
+    }
+
+    .input,
+    .date-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background-color: #fff;
+    }
+
+    input {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        border: 1px solid black;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .close-button:hover {
+        color: #1a5371;
+        transform: scale(1.6);
+    }
+
+    .logo img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        height: 300px;
+        margin-right: 50%;
+    }
+
+    .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    h1 {
+        margin: 0;
+    }
+
+    #botaoRegistar{
+        padding: 10px 20px;
+                font-size: 1rem;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                background-color: white;
+                color: #0e2b3b;
+                transition: 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                width: 100%;
+                border: 1px solid #0e2b3b;
+    }
+
+    #botaoRegistar:hover {
+        background-color: #0e2b3b;
+        color: white;
+    }
+
+    .buttons {
+        margin-top: 30px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .buttons button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        background-color: black;
+        color: white;
+        transition: 0.3s ease;
+        border: 1px solid black;
+    }
+
+    .buttons button:hover {
+        background-color: white;
+        color: black;
+    }
+
+    footer {
+        color: #0e2b3b;
+        padding: 20px 0;
+        font-size: 16px;
+        text-align: center;
+        margin-top: 0px;
+    }
+
+
+
+    .footerbutton{
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        background-color: transparent;
+        color: white;
+        transition: 0.3s ease;
+        display: inline-block;
+    }
+    .footerbutton:hover{
+        background-color: white;
+        color: #0e2b3b;
+        transition: 0.3s ease;
+    }
