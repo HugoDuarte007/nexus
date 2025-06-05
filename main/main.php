@@ -402,8 +402,20 @@ if (!$publicacoes) {
                     <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
                 </div>
 
-                <div id="comentarios" class="w-full overflow-y-auto" style="max-height: 200px;">
-                    // apaerecerasd coetnosario
+                <div class="w-full text-left pt-2 pb-12 text-2xl"><b>Comentários: </b></div>
+
+                <div id="comentarios" class="w-full overflow-y-auto py-4" style="max-height: 200px;">
+                    <div id="comentario" class="hidden">
+                        <div class="post-header">
+                            <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture">
+                            <span id="username" class="username"></span>
+                            <span id="data" class="post-time" style="margin-left: 10px;"></span>
+                        </div>
+                        <div class="post-content">
+                            <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
+                            <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
+                        </div>
+                    </div>
                 </div>
 
                 <form class="flex flex-row w-full gap-2" method="POST" action="interacoes/comentar.php">
@@ -478,11 +490,12 @@ if (!$publicacoes) {
     </div>
 
     <script>
-            const modalVerPublicacao = document.getElementById('modalVerPublicacao');
-            const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
+        const modalVerPublicacao = document.getElementById('modalVerPublicacao');
+        const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
+        const ComentarioTemplate = modalComentarios.querySelector('#comentario');
 
-            function abrirPublicacao(pubid) {
-        const publicacao = document.querySelector('#post_' + pubid);
+        function abrirPublicacao(pubid) {
+            const publicacao = document.querySelector('#post_' + pubid);
 
             // Buscar elementos da publicação
             const ft_perfil = publicacao.querySelector('#ft_perfil').src;
@@ -501,10 +514,10 @@ if (!$publicacoes) {
             const imagemModal = document.getElementById("imagem");
             if (mostrarImagem) {
                 imagemModal.src = imagem;
-            imagemModal.style.display = "block";
-        } else {
+                imagemModal.style.display = "block";
+            } else {
                 imagemModal.style.display = "none";
-        }
+            }
 
             // Definir o id da publicação no formulário
             document.getElementById("idpublicacao").value = pubid;
@@ -513,81 +526,76 @@ if (!$publicacoes) {
             carregarComentarios(pubid);
 
             modalVerPublicacao.style.display = 'flex';
-    }
-
-            function carregarComentarios(pubid) {
-                fetch(`interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
-                    .then(response => response.text())
-                    .then(data => {
-                        modalComentarios.innerHTML = data;
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar comentários:', error);
-                        modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
-                    });
-    }
-
-            function fecharPublicacao() {
-                modalVerPublicacao.style.display = 'none';
-    }
-
-
-            function abrirPublicacao(pubid) {
-            var publicacao = document.querySelector('#post_' + pubid);
-            var ft_perfil = publicacao.querySelector('#ft_perfil');
-            var username = publicacao.querySelector('#username');
-            var data = publicacao.querySelector('#data');
-            var descricao = publicacao.querySelector('#descricao');
-            var img = publicacao.querySelector('#imagem');
-
-            var modal_ft_perfil = modalVerPublicacao.querySelector('#ft_perfil');
-            var modal_username = modalVerPublicacao.querySelector('#username');
-            var modal_data = modalVerPublicacao.querySelector('#data');
-            var modal_descricao = modalVerPublicacao.querySelector('#descricao');
-            var modal_img = modalVerPublicacao.querySelector('#imagem');
-            var modal_idpublicacao = modalVerPublicacao.querySelector('#idpublicacao');
-
-            modal_ft_perfil.src = ft_perfil.src;
-            modal_username.innerHTML = username.innerHTML;
-            modal_data.innerHTML = data.innerHTML;
-            modal_descricao.innerHTML = descricao.innerHTML;
-
-            modal_img.src = img.src;
-            modal_img.style.display = img.style.display;
-
-            modal_idpublicacao.value = pubid;
-
-            modalVerPublicacao.style.display = 'flex';
-
-
-            var pub = publicacao.querySelector('#pub');
-            console.log(pub);
         }
 
-            function fecharPublicacao() {
-                modalVerPublicacao.style.display = 'none';
+        function carregarComentario(data) {
+            var comentario = ComentarioTemplate.cloneNode(true);
+            modalComentarios.appendChild(comentario);
+
+            // console.log(data);
+
+            comentario.classList.remove('hidden');
+            comentario.querySelector('#ft_perfil').src = data["ft_perfil"];
+            comentario.querySelector('#username').innerHTML = data["user"];
+            comentario.querySelector('#data').innerHTML = data["data"];
+            comentario.querySelector('#descricao').innerHTML = data['conteudo'];
+
+            return comentario;
+        }
+
+        function clearComentarios() {
+            var Comentarios = Array.from(modalComentarios.children);
+
+            Comentarios.forEach(comentario => {
+                if (comentario.classList.contains('hidden')) {
+                    return;
+                }
+
+                modalComentarios.removeChild(comentario);
+            });
+        }
+
+        function carregarComentarios(pubid) {
+
+            clearComentarios();
+
+            fetch(`interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
+                .then(response => response.text())
+                .then(data => {
+                    JSON.parse(data).forEach(comentario => {
+                        carregarComentario(comentario);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar comentários:', error);
+                    modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
+                });
+        }
+
+        function fecharPublicacao() {
+            modalVerPublicacao.style.display = 'none';
         }
     </script>
 
     <script>
-            function darLike(idPublicacao) {
-                fetch('../interacoes/like.php', {
+        function darLike(idPublicacao) {
+            fetch('../interacoes/like.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
                 })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error('Erro ao dar like:', error);
-                    });
+                .then(response => response.text())
+                .then(data => {
+                    // console.log(data);
+                })
+                .catch(error => {
+                    console.error('Erro ao dar like:', error);
+                });
         }
 
-            function preverImagem() {
+        function preverImagem() {
             const input = document.getElementById('imagemInput');
             const preview = document.getElementById('previewImagem');
             const container = document.getElementById('previewContainer');
@@ -595,29 +603,29 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            container.style.display = "block";
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = "block";
                 }
 
-            reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(input.files[0]);
             } else {
                 container.style.display = "none";
-            preview.src = "#";
+                preview.src = "#";
             }
         }
 
-            document.addEventListener("DOMContentLoaded", function() {
-                setTimeout(() => {
-                    let notificacao = document.getElementById("notificacao");
-                    if (notificacao) {
-                        notificacao.classList.add("mostrar");
-                    }
-                }, 1500);
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                let notificacao = document.getElementById("notificacao");
+                if (notificacao) {
+                    notificacao.classList.add("mostrar");
+                }
+            }, 1500);
         });
 
-            function fecharNotificacao() {
-                let notificacao = document.getElementById("notificacao");
+        function fecharNotificacao() {
+            let notificacao = document.getElementById("notificacao");
             if (notificacao) {
                 notificacao.style.display = "none";
             }

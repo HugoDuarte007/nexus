@@ -10,12 +10,12 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
-    <link rel="stylesheet" type="text/css" href="../style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <title>Nexus | Admin</title>
 </head>
 
 <body>
-    <br><br><br><br><br>
+
     <div class="container">
         <div class="logo">
             <img class="logo" src="../imagens/logo.png" alt="Nexus Logo">
@@ -31,9 +31,13 @@ session_start();
                 <input type="hidden" name="botaoLogout" value="true">
             </form>
         </div>
-</body><br><br><br><br><br><br>
-<footer>
-    © 2025 Nexus. Todos os direitos reservados.
-</footer>
+
+        <div class="flex-1"></div>
+    </div>
+
+    <footer>
+        © 2025 Nexus. Todos os direitos reservados.
+    </footer>
+</body>
 
 </html>
