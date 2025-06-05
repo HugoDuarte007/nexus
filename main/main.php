@@ -399,8 +399,7 @@ if (!$publicacoes) {
 
                 <div class="post-content">
                     <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
-                    <img id="imagem" src="" class="post-image" style="display: none;"
-                        alt="Imagem da publicação">
+                    <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
                 </div>
 
                 <div id="comentarios" class="w-full overflow-y-auto" style="max-height: 200px;">
@@ -421,14 +420,15 @@ if (!$publicacoes) {
 
             <?php
 
-            $sql = "SELECT * FROM comentario WHERE idpublicacao = ".$pub['idpublicacao'];
+            $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
             $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
 
             ?>
 
             <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
                 <div class="post-header">
-                    <img id="ft_perfil" src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
+                    <img id="ft_perfil"
+                        src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
                         alt="Foto de Perfil" class="profile-picture">
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
                     <span id="data" class="post-time"
@@ -478,15 +478,61 @@ if (!$publicacoes) {
     </div>
 
     <script>
-        var modalVerPublicacao = document.getElementById('modalVerPublicacao');
-        var modalComentarios = modalVerPublicacao.querySelector('#comentarios');
+            const modalVerPublicacao = document.getElementById('modalVerPublicacao');
+            const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
 
-        function carregarComentarios(pubid) {
+            function abrirPublicacao(pubid) {
+        const publicacao = document.querySelector('#post_' + pubid);
 
+            // Buscar elementos da publicação
+            const ft_perfil = publicacao.querySelector('#ft_perfil').src;
+            const username = publicacao.querySelector('#username').innerText;
+            const data = publicacao.querySelector('#data').innerText;
+            const descricao = publicacao.querySelector('#descricao').innerText;
+            const imagem = publicacao.querySelector('#imagem').src;
+            const mostrarImagem = publicacao.querySelector('#imagem').style.display !== "none";
 
+            // Preencher dados no modal
+            document.getElementById("ft_perfil").src = ft_perfil;
+            document.getElementById("username").innerText = username;
+            document.getElementById("data").innerText = data;
+            document.getElementById("descricao").innerText = descricao;
+
+            const imagemModal = document.getElementById("imagem");
+            if (mostrarImagem) {
+                imagemModal.src = imagem;
+            imagemModal.style.display = "block";
+        } else {
+                imagemModal.style.display = "none";
         }
 
-        function abrirPublicacao(pubid) {
+            // Definir o id da publicação no formulário
+            document.getElementById("idpublicacao").value = pubid;
+
+            // Limpa e carrega comentários
+            carregarComentarios(pubid);
+
+            modalVerPublicacao.style.display = 'flex';
+    }
+
+            function carregarComentarios(pubid) {
+                fetch(`interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        modalComentarios.innerHTML = data;
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar comentários:', error);
+                        modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
+                    });
+    }
+
+            function fecharPublicacao() {
+                modalVerPublicacao.style.display = 'none';
+    }
+
+
+            function abrirPublicacao(pubid) {
             var publicacao = document.querySelector('#post_' + pubid);
             var ft_perfil = publicacao.querySelector('#ft_perfil');
             var username = publicacao.querySelector('#username');
@@ -518,30 +564,30 @@ if (!$publicacoes) {
             console.log(pub);
         }
 
-        function fecharPublicacao() {
-            modalVerPublicacao.style.display = 'none';
+            function fecharPublicacao() {
+                modalVerPublicacao.style.display = 'none';
         }
     </script>
 
     <script>
-        function darLike(idPublicacao) {
-            fetch('../interacoes/like.php', {
+            function darLike(idPublicacao) {
+                fetch('../interacoes/like.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
                 })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.error('Erro ao dar like:', error);
-                });
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.error('Erro ao dar like:', error);
+                    });
         }
 
-        function preverImagem() {
+            function preverImagem() {
             const input = document.getElementById('imagemInput');
             const preview = document.getElementById('previewImagem');
             const container = document.getElementById('previewContainer');
@@ -549,29 +595,29 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    container.style.display = "block";
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            container.style.display = "block";
                 }
 
-                reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(input.files[0]);
             } else {
                 container.style.display = "none";
-                preview.src = "#";
+            preview.src = "#";
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            setTimeout(() => {
-                let notificacao = document.getElementById("notificacao");
-                if (notificacao) {
-                    notificacao.classList.add("mostrar");
-                }
-            }, 1500);
+            document.addEventListener("DOMContentLoaded", function() {
+                setTimeout(() => {
+                    let notificacao = document.getElementById("notificacao");
+                    if (notificacao) {
+                        notificacao.classList.add("mostrar");
+                    }
+                }, 1500);
         });
 
-        function fecharNotificacao() {
-            let notificacao = document.getElementById("notificacao");
+            function fecharNotificacao() {
+                let notificacao = document.getElementById("notificacao");
             if (notificacao) {
                 notificacao.style.display = "none";
             }
