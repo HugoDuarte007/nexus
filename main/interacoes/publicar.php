@@ -55,8 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Inserir na BD
-    $sql = "INSERT INTO publicacao (idutilizador, media, descricao, data, likes)
-            VALUES ('$idutilizador', " . ($nomeImagem ? "'$nomeImagem'" : "NULL") . ", '$descricao', '$data', 0)";
+    $sql = "INSERT INTO publicacao (idutilizador, media, descricao, data)
+            VALUES ('$idutilizador', " . ($nomeImagem ? "'$nomeImagem'" : "NULL") . ", '$descricao', '$data')";
 
     if ($con->query($sql) === TRUE) {
         header("Location: ../main/main.php");

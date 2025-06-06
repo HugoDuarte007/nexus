@@ -130,8 +130,7 @@ if (!$publicacoes) {
             margin-bottom: 15px;
         }
 
-        /* Modal de publicação */
-        .modal {
+         .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -151,9 +150,8 @@ if (!$publicacoes) {
             width: 600px;
             max-width: 90%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
             border: 1px solid #0e2b3b;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         .modal-header {
@@ -167,26 +165,41 @@ if (!$publicacoes) {
             margin: 0;
         }
 
-        .close {
+        .modal-header .close {
             background: none;
             border: none;
             font-size: 24px;
             cursor: pointer;
         }
 
-        /* Modal de visualização de publicação */
-        .modal-publicacao {
-            width: 700px;
-            max-width: 95%;
+        .modal-body textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 10px;
         }
 
-        .modal-publicacao .post-content {
-            margin-bottom: 20px;
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
         }
 
-        .modal-publicacao .post-image {
-            max-width: 100%;
-            margin-left: 0;
+        .modal-footer button {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: #0e2b3b;
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .modal-footer button:hover {
+            background-color: #1a3d4d;
         }
 
         .comentarios-container {
@@ -401,10 +414,14 @@ if (!$publicacoes) {
                     <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
                     <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
                 </div>
-
+                <form class="flex flex-row w-full gap-2" method="POST" action="interacoes/comentar.php">
+                    <input type="text" hidden name="idpublicacao" id="idpublicacao" value="">
+                    <input class="flex-1" type="text" name="comentario" id="">
+                    <input class="hover:bg-blue-50" type="submit" value="Comentar">
+                </form><br>
                 <div class="w-full text-left pt-2 pb-12 text-2xl"><b>Comentários: </b></div>
 
-                <div id="comentarios" class="w-full overflow-y-auto py-4" style="max-height: 200px;">
+                <div id="comentarios" class="w-full overflow-y-auto py-4">
                     <div id="comentario" class="hidden">
                         <div class="post-header">
                             <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture">
@@ -413,16 +430,11 @@ if (!$publicacoes) {
                         </div>
                         <div class="post-content">
                             <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
-                            <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
+                            <img id="imagem" src="" class="post-image" style="display: none;"
+                                alt="Imagem da publicação">
                         </div>
                     </div>
                 </div>
-
-                <form class="flex flex-row w-full gap-2" method="POST" action="interacoes/comentar.php">
-                    <input type="text" hidden name="idpublicacao" id="idpublicacao" value="">
-                    <input class="flex-1" type="text" name="comentario" id="">
-                    <input class="hover:bg-blue-50" type="submit" value="Comentar">
-                </form>
             </div>
         </div>
     </div>
@@ -575,17 +587,24 @@ if (!$publicacoes) {
         function fecharPublicacao() {
             modalVerPublicacao.style.display = 'none';
         }
+        function abrirModal() {
+            document.getElementById("modalPublicacao").style.display = "flex";
+        }
+
+        function fecharModal() {
+            document.getElementById("modalPublicacao").style.display = "none";
+        }
     </script>
 
     <script>
         function darLike(idPublicacao) {
             fetch('../interacoes/like.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
-                })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
+            })
                 .then(response => response.text())
                 .then(data => {
                     // console.log(data);
@@ -603,7 +622,7 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     container.style.display = "block";
                 }
@@ -615,7 +634,7 @@ if (!$publicacoes) {
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
                 let notificacao = document.getElementById("notificacao");
                 if (notificacao) {
