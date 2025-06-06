@@ -130,7 +130,8 @@ if (!$publicacoes) {
             margin-bottom: 15px;
         }
 
-         .modal {
+        /* Modal de publicação */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -150,8 +151,9 @@ if (!$publicacoes) {
             width: 600px;
             max-width: 90%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
             border: 1px solid #0e2b3b;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -165,41 +167,26 @@ if (!$publicacoes) {
             margin: 0;
         }
 
-        .modal-header .close {
+        .close {
             background: none;
             border: none;
             font-size: 24px;
             cursor: pointer;
         }
 
-        .modal-body textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-            margin-bottom: 10px;
+        /* Modal de visualização de publicação */
+        .modal-publicacao {
+            width: 700px;
+            max-width: 95%;
         }
 
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
+        .modal-publicacao .post-content {
+            margin-bottom: 20px;
         }
 
-        .modal-footer button {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background-color: #0e2b3b;
-            color: white;
-            transition: 0.3s ease;
-        }
-
-        .modal-footer button:hover {
-            background-color: #1a3d4d;
+        .modal-publicacao .post-image {
+            max-width: 100%;
+            margin-left: 0;
         }
 
         .comentarios-container {
@@ -345,6 +332,78 @@ if (!$publicacoes) {
         .guardar-button:hover {
             background-color: #e6f0f5;
         }
+
+        .modalPublicacao {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modalPublicacao-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 600px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+            border: 1px solid #0e2b3b;
+        }
+
+        .modalPublicacao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modalPublicacao-header h2 {
+            margin: 0;
+        }
+
+        .modalPublicacao-header .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modalPublicacao-body textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .modalPublicacao-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modalPublicacao-footer button {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: #0e2b3b;
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .modalPublicacao-footer button:hover {
+            background-color: #1a3d4d;
+        }
     </style>
 </head>
 
@@ -359,14 +418,14 @@ if (!$publicacoes) {
     <?php require '../partials/header.php'; ?>
 
     <!-- Modal para criar publicação -->
-    <div id="modalPublicacao" class="modal">
+    <div id="modalPublicacao" class="modalPublicacao">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Criar Publicação</h2>
                 <button class="close" onclick="fecharModal()">✖</button>
             </div>
             <div class="modal-body">
-                <form action="publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
+                <form action="interacoes/publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
                     <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?" required></textarea>
 
                     <!-- Botão para escolher imagem -->
@@ -587,6 +646,9 @@ if (!$publicacoes) {
         function fecharPublicacao() {
             modalVerPublicacao.style.display = 'none';
         }
+    </script>
+
+    <script>
         function abrirModal() {
             document.getElementById("modalPublicacao").style.display = "flex";
         }
@@ -594,9 +656,6 @@ if (!$publicacoes) {
         function fecharModal() {
             document.getElementById("modalPublicacao").style.display = "none";
         }
-    </script>
-
-    <script>
         function darLike(idPublicacao) {
             fetch('../interacoes/like.php', {
                 method: 'POST',

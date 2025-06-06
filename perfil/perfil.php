@@ -69,8 +69,9 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
     <style>
         .cover-wrapper {
             position: relative;
-            width: 80%;
-            left: 152px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
             height: 45vh;
             overflow: hidden;
             cursor: pointer;
@@ -105,12 +106,15 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
 
         .profile-container {
             text-align: center;
-            padding: 20px;
+            padding: 100px 20px 20px;
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .profile-picture-wrapper {
             position: absolute;
-            top: calc(50vh - 75px);
+            top: -75px;
             left: 50%;
             transform: translateX(-50%);
             cursor: pointer;
@@ -123,6 +127,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             object-fit: cover;
             border: 3px solid #0e2b3b;
             transition: 0.3s ease;
+            background-color: #fff;
         }
 
         .profile-picture-overlay {
@@ -155,8 +160,64 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             background-size: contain;
         }
 
-        #fileInput {
+        #fileInput,
+        #fileInputCapa {
             display: none;
+        }
+
+        .definicoes {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: transparent;
+            background-image: url("definicoes.png");
+            background-size: 100%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .definicoes:hover {
+            transform: rotate(60deg);
+        }
+
+        .profile-info h2 {
+            margin: 20px 0 5px;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+            word-wrap: break-word;
+        }
+
+        /* Responsivo para ecrãs pequenos */
+        @media (max-width: 600px) {
+            .profile-container {
+                padding-top: 120px;
+            }
+
+            .profile-picture-large {
+                width: 120px;
+                height: 120px;
+            }
+
+            .definicoes {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .camera-icon {
+                width: 30px;
+                height: 30px;
+            }
         }
 
         .definicoes {
@@ -186,7 +247,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
 <body>
 
     <?php require '../partials/header.php'; ?>
-    
+
     <div class="cover-wrapper" onclick="document.getElementById('fileInputCapa').click();">
         <img src="<?php echo $perfil_foto_capa_base64; ?>" alt="Foto de Capa" class="cover-photo">
         <?php if ($perfil_utilizador == $utilizador): ?>
@@ -236,9 +297,9 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             formData.append("file", fileInput.files[0]);
 
             fetch(uploadUrl, {
-                    method: "POST",
-                    body: formData
-                })
+                method: "POST",
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
