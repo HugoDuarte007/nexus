@@ -5,48 +5,6 @@
     font-family: Arial, sans-serif;
 }
 
-
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.search-container {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    margin: 0 20px; /* Adiciona um pouco de espaço ao redor da barra de pesquisa */
-}
-
-.search-bar {
-    width: 50%; /* Ajuste a largura conforme necessário */
-    padding: 10px;
-    border-radius: 20px;
-    border: none;
-    outline: none;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.user-info span {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-}
-
 .styled-button {
     padding: 10px 20px;
     font-size: 1rem;

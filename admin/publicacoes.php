@@ -29,6 +29,7 @@ $resultado = mysqli_query($con, $sql);
 <!DOCTYPE html>
 <html lang="pt">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <meta charset="UTF-8">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
     <title>Nexus | Gestão de Publicações</title>

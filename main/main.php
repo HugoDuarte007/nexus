@@ -51,6 +51,7 @@ if (!$publicacoes) {
 <html lang="pt">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
@@ -518,9 +519,9 @@ if (!$publicacoes) {
                         alt="Foto de Perfil" class="profile-picture">
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
                     <p id="data" class="post-time"
-                        style="margin-left: 10px; max-height: 20px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
+                        style="max-height: 20px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
 
-                    
+
                 </div>
 
                 <div class="post-content">
@@ -552,7 +553,7 @@ if (!$publicacoes) {
         3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
         6.86-8.55 11.54L12 21.35z" />
                         </svg>
-                        <span style="margin-left: 5px;"><?= count($like ) ?></span>
+                        <span style="margin-left: 5px;"><?= count($like) ?></span>
                     </button>
                     <button class="guardar-button" title="Guardar" style="width: auto;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -660,14 +661,15 @@ if (!$publicacoes) {
         function fecharModal() {
             document.getElementById("modalPublicacao").style.display = "none";
         }
+
         function darLike(idPublicacao) {
             fetch('../interacoes/like.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
-            })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
+                })
                 .then(response => response.text())
                 .then(data => {
                     // console.log(data);
@@ -685,7 +687,7 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.src = e.target.result;
                     container.style.display = "block";
                 }
@@ -697,7 +699,7 @@ if (!$publicacoes) {
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => {
                 let notificacao = document.getElementById("notificacao");
                 if (notificacao) {
