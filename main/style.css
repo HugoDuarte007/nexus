@@ -5,15 +5,7 @@
     font-family: Arial, sans-serif;
 }
 
-.navbar {
-    background: #0e2b3b;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
+
 
 .logo {
     font-size: 24px;

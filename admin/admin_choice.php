@@ -12,6 +12,13 @@ session_start();
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
     <link rel="stylesheet" type="text/css" href="style.css">
     <title>Nexus | Admin</title>
+    <style>
+        footer {
+            background-color: transparent;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>

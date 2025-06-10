@@ -506,6 +506,9 @@ if (!$publicacoes) {
             $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
             $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
 
+            $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
+            $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
+
             ?>
 
             <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
@@ -514,14 +517,10 @@ if (!$publicacoes) {
                         src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
                         alt="Foto de Perfil" class="profile-picture">
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
-                    <span id="data" class="post-time"
-                        style="margin-left: 10px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
+                    <p id="data" class="post-time"
+                        style="margin-left: 10px; max-height: 20px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
 
-                    <button class="guardar-button" title="Guardar" style="width: auto;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="#0e2b3b" d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z" />
-                        </svg>
-                    </button>
+                    
                 </div>
 
                 <div class="post-content">
@@ -553,7 +552,12 @@ if (!$publicacoes) {
         3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
         6.86-8.55 11.54L12 21.35z" />
                         </svg>
-                        <span style="margin-left: 5px;">5</span>
+                        <span style="margin-left: 5px;"><?= count($like ) ?></span>
+                    </button>
+                    <button class="guardar-button" title="Guardar" style="width: auto;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="#0e2b3b" d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z" />
+                        </svg>
                     </button>
                 </div>
             </div>
