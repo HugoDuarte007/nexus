@@ -125,7 +125,7 @@ $resultado = mysqli_query($con, $sql);
         <?php endwhile; ?>
     </table>
 
-    <div class="paginacao">
+    <div class="paginacao" style="text-align: center; margin: 20px;">
         <?php if ($paginaAtual > 1): ?>
             <a href="?pagina=<?= $paginaAtual - 1 ?>">⬅ Anterior</a>
         <?php endif; ?>

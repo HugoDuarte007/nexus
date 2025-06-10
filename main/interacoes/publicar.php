@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Europe/Lisbon'); 
-require "../ligabd.php";
+require "../../ligabd.php";
 
 // Redirecionar se não estiver autenticado
 if (!isset($_SESSION["user"])) {
@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             VALUES ('$idutilizador', " . ($nomeImagem ? "'$nomeImagem'" : "NULL") . ", '$descricao', '$data')";
 
     if ($con->query($sql) === TRUE) {
-        header("Location: ../main/main.php");
+        header("Location: ../main.php");
         exit();
     } else {
         echo "Erro ao publicar: " . $con->error;

@@ -74,20 +74,7 @@ if (!$resultado) {
             margin-bottom: 20px;
         }
 
-        .paginacao a {
-            padding: 8px 12px;
-            background-color: #0e2b3b;
-            color: white;
-            border: 1px solid #0e2b3b;
-            text-decoration: none;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .paginacao a:hover {
-            background-color: white;
-            color: #0e2b3b;
-        }
+        
     </style>
 </head>
 
