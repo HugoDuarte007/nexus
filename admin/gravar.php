@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $telemovel = test_input($_POST["telemovel"]);
     $data_nascimento = test_input($_POST["data_nascimento"]);
     $password = test_input($_POST["password"]);
+    $pais = test_input($_POST["pais"]);
     $id_tipos_utilizador = test_input($_POST["id_tipos_utilizador"]);
 }
 
@@ -46,6 +47,7 @@ $gravar = "
         telemovel = '$telemovel', 
         data_nascimento = '$data_nascimento', 
         $g_pass
+        pais = '$pais',
         id_tipos_utilizador = '$id_tipos_utilizador'
     WHERE 
         email = '$email'

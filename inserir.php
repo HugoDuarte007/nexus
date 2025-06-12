@@ -101,7 +101,8 @@ if (isset($_POST["verificarCodigo"])) {
         . $dados["email"] . "', '"
         . $dados["user"] . "', '"
         . $dados["telemovel"] . "', '"
-        . $dados["data_nascimento"] . "',  '$dataRegistro', password('" . $dados["password"] . "'), NULL, NULL, '1')";
+        . $dados["data_nascimento"] . "',  '$dataRegistro', password('" . $dados["password"] . "'), '"
+        . $dados["pais"] . "', NULL, NULL, '1')";
 
     if (!mysqli_query($con, $sql_inserir)) {
         $_SESSION["erro"] = "Erro ao registrar usuário.";

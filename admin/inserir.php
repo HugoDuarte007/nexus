@@ -12,9 +12,11 @@
     $nome = $_POST["nome"];
     $email = $_POST["email"];
     $telemovel = $_POST["telemovel"];
-    $idade = $_POST["idade"];
+    $data_nascimento = $_POST["data_nascimento"];
+    $pais = $_POST["pais"];
     $password = $_POST["password"];
     $id_tipos_utilizador = $_POST["id_tipos_utilizador"];
+    $dataRegistro = date("Y-m-d");
 
     // Verificar se o utilizador ou o email já existem
     $sql_existe = "SELECT * FROM utilizador WHERE user = '$user' OR email = '$email'";
@@ -36,8 +38,8 @@
     }
 
     // Inserir novo utilizador
-    $sql_inserir = "INSERT INTO utilizador (idutilizador, nome, email, user, telemovel, idade, pass, ft_perfil, id_tipos_utilizador) 
-                    VALUES (NULL, '$nome', '$email', '$user', '$telemovel', '$idade', PASSWORD('$password'), NULL, NULL, '$id_tipos_utilizador')";
+    $sql_inserir = "INSERT INTO utilizador (idutilizador, nome, email, user, telemovel, data_nascimento, data_registo, pass, pais, ft_perfil, ft_capa, id_tipos_utilizador) 
+                    VALUES (NULL, '$nome', '$email', '$user', '$telemovel', '$data_nascimento', '$dataRegistro', PASSWORD('$password'), '$pais', NULL, NULL, '$id_tipos_utilizador')";
 
     $inserir = mysqli_query($con, $sql_inserir); 
 

@@ -17,6 +17,23 @@ session_start();
             margin-right: 10px;
 
         }
+
+        .link-button {
+            background: none;
+            border: none;
+            color: rgb(28, 80, 109);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .link-button:hover {
+            color: #005cbf;
+            text-decoration: none;
+        }
+    </style>
     </style>
 </head>
 
@@ -42,11 +59,14 @@ session_start();
                     </div>
                 </div>
                 <div class="form-group">
+
                     <div class="column">
                         <button type="submit" id="botaoRegistar" name="verificarCodigo" class="buttons">Verificar
                             Código</button>
                     </div>
                 </div>
+
+
             </form>
         </div>
     </div>

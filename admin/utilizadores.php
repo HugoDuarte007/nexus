@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../ligabd.php";
+require "../partials/paises.php";
 
 // Verifica se o utilizador está autenticado e é admin
 if (!isset($_SESSION["user"]) || $_SESSION["id_tipos_utilizador"] != 0) {
@@ -74,12 +75,10 @@ if (!$resultado) {
             text-align: center;
             margin-bottom: 20px;
         }
-
-        
     </style>
 </head>
 
-<body>
+<body><br>
     <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Utilizadores</h1>
     <script>
         var botaoAcao = "";
@@ -108,11 +107,38 @@ if (!$resultado) {
             <th>Email</th>
             <th>Telemóvel</th>
             <th>Idade</th>
+            <th>País</th>
             <th>Tipo de Utilizador</th>
             <th></th>
             <th>Ações</th>
             <th></th>
         </tr>
+        <form id="formInserir" action="inserir.php" method="post" onsubmit="return true">
+            <tr>
+                <td><input name="nome" type="text" placeholder="Nome" required></td>
+                <td><input name="user" type="text" placeholder="Username" required></td>
+                <td><input name="password" type="password" placeholder="Password" required></td>
+                <td><input name="email" type="email" placeholder="Email" required></td>
+                <td><input name="telemovel" type="text" placeholder="Telemóvel" required></td>
+                <td><input name='data_nascimento' type='date' value='<?= $registo["data_nascimento"] ?>'></td>
+                <td>
+                    <select name='pais' required>
+                        <?php foreach ($paises as $pais): ?>
+                            <option value="<?= $pais ?>"><?= htmlspecialchars($pais) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+                <td>
+                    <select name="id_tipos_utilizador">
+                        <option value="0">Administrador</option>
+                        <option value="1">Utilizador</option>
+                    </select>
+                </td>
+                <td colspan="3" style="text-align: center;">
+                    <button id='botaoRegistar' type="submit">Adicionar utilizador</button>
+                </td>
+            </tr>
+        </form>
 
         <?php while ($registo = mysqli_fetch_array($resultado)): ?>
             <form id='form<?= $registo["idutilizador"] ?>' action='' method='post' enctype='multipart/form-data'
@@ -127,6 +153,16 @@ if (!$resultado) {
                     <td><input readonly name='email' type='email' value='<?= $registo["email"] ?>' required></td>
                     <td><input name='telemovel' type='text' value='<?= $registo["telemovel"] ?>' required></td>
                     <td><input name='data_nascimento' type='date' value='<?= $registo["data_nascimento"] ?>'></td>
+                    <td>
+                        <select name='pais' required>
+                            <?php foreach ($paises as $pais): ?>
+                                <option value="<?= $pais ?>" <?= $registo["pais"] == $pais ? "selected" : "" ?>>
+                                    <?= htmlspecialchars($pais) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+
                     <td>
                         <select name='id_tipos_utilizador'>
                             <option value='0' <?= $registo["id_tipos_utilizador"] == 0 ? "selected" : "" ?>>Administrador
@@ -162,7 +198,7 @@ if (!$resultado) {
     </div>
     <div style="height:100px;">
 
-            </div>
+    </div>
     <footer>
         <div class="footer-container">
             <a href="utilizadores.php"><button class="footerbutton">Utilizadores</button></a>

@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+<?php session_start(); 
+include 'partials/paises.php';
+
+?>  
+
 <!DOCTYPE html>
 <html lang="pt">
 
@@ -102,6 +106,17 @@
                 </div>
                 <div class="form-group">
                     <div class="column">
+                        <select name="pais" id="pais" class="input">
+                            <option value="" disabled selected>Escolhe o país*</option>
+                            <?php foreach ($paises as $pais): ?>
+                                <option value="<?= htmlspecialchars($pais) ?>"><?= htmlspecialchars($pais) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="notificacao" id="erro-pais">Por favor, escolhe um país.</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="column">
                         <div style="position: relative;">
                             <input type="password" name="password" id="password" class="input"
                                 placeholder="Palavra-Passe*">
@@ -110,8 +125,6 @@
                                 Mostrar
                             </button>
                         </div>
-
-
                         <div class="notificacao" id="erro-password">
                             A palavra-passe deve conter pelo menos 8 caracteres, incluindo maiúscula, minúscula, número
                             e caractere especial.
