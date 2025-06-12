@@ -57,6 +57,31 @@
 
     <!-- Estilo CSS -->
     <style>
+        
+.styled-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: transparent;
+    color: white;
+    transition: 0.3s ease;
+    display: flex;
+    align-items: center;
+    width: auto;
+}
+
+.styled-button:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.styled-button .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
         .navbar {
             background: #0e2b3b;
             display: flex;

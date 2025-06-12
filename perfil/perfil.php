@@ -71,13 +71,10 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
         .cover-wrapper {
             position: relative;
             width: 100%;
-            max-width: 1000px;
             margin: 0 auto;
             height: 45vh;
             overflow: hidden;
             cursor: pointer;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
         }
 
         .cover-photo {
