@@ -3,7 +3,6 @@
 <html lang="pt">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="imagens/favicon.ico" type="image/png">
@@ -84,7 +83,7 @@
                 </div>
                 <div class="form-group">
                     <div class="column">
-                        <input type="text" name="user" class="input" placeholder="Nome de Utilizador*" >
+                        <input type="text" name="user" class="input" placeholder="Nome de Utilizador*">
                     </div>
                 </div>
                 <div class="form-group">
@@ -96,14 +95,23 @@
                 </div>
                 <div class="form-group">
                     <div class="column">
-                        <input type="date" name="data_nascimento" id="data_nascimento" class="input" >
+                        <input type="date" name="data_nascimento" id="data_nascimento" class="input">
                         <div class="notificacao" id="erro-idade">Deve ter pelo menos 16 anos e inserir uma data válida.
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="column">
-                        <input type="password" name="password" id="password" class="input" placeholder="Palavra-Passe*">
+                        <div style="position: relative;">
+                            <input type="password" name="password" id="password" class="input"
+                                placeholder="Palavra-Passe*">
+                            <button type="button" id="togglePassword"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #555; font-size: 12px; cursor: pointer;">
+                                Mostrar
+                            </button>
+                        </div>
+
+
                         <div class="notificacao" id="erro-password">
                             A palavra-passe deve conter pelo menos 8 caracteres, incluindo maiúscula, minúscula, número
                             e caractere especial.
@@ -129,7 +137,15 @@
     </div>
 
     <script>
-        
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            const passwordInput = document.getElementById("password");
+            const isPassword = passwordInput.type === "password";
+
+            passwordInput.type = isPassword ? "text" : "password";
+            this.textContent = isPassword ? "Ocultar" : "Mostrar";
+        });
+
+
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("signupForm");
             const inputs = {
@@ -200,7 +216,7 @@
 
                 if (valido) {
                     input.error.style.display = "none";
-                input.element.classList.remove("campo-erro");
+                    input.element.classList.remove("campo-erro");
                 } else {
                     input.error.style.display = "block";
                     input.element.classList.add("campo-erro");

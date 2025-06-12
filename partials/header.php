@@ -48,7 +48,7 @@
                 </div>
                 <div id="dropdownMenu" class="dropdown-content">
                     <a href="../perfil/perfil.php">Ver perfil</a>
-                    <a href="../configuracoes/config.php">Definições</a>
+                    <a href="../perfil/editar_perfil.php">Definições</a>
                     <a href="../logout.php">Terminar sessão</a>
                 </div>
             </div>

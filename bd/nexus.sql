@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 03-Jun-2025 às 23:00
+-- Tempo de geração: 10-Jun-2025 às 21:11
 -- Versão do servidor: 10.4.32-MariaDB
 -- versão do PHP: 8.2.12
 
@@ -53,6 +53,20 @@ CREATE TABLE `comentario` (
   `data` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Extraindo dados da tabela `comentario`
+--
+
+INSERT INTO `comentario` (`idcomentario`, `idutilizador`, `idpublicacao`, `conteudo`, `data`) VALUES
+(1, 2, 38, 'bot', '2025-06-05 15:47:25'),
+(2, 2, 38, 'a', '2025-06-05 15:47:30'),
+(4, 2, 38, 'zddoca bot', '2025-06-05 16:54:06'),
+(5, 2, 38, 'a', '2025-06-07 00:00:39'),
+(6, 2, 38, 'a', '2025-06-07 00:00:43'),
+(7, 2, 38, 'a', '2025-06-07 00:00:45'),
+(8, 2, 39, 'possangte', '2025-06-07 00:05:41'),
+(9, 2, 39, '', '2025-06-07 00:05:48');
+
 -- --------------------------------------------------------
 
 --
@@ -60,10 +74,18 @@ CREATE TABLE `comentario` (
 --
 
 CREATE TABLE `likes` (
-  `id_utilizador` int(11) NOT NULL,
-  `id_publicacao` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `idutilizador` int(11) NOT NULL,
+  `idpublicacao` int(11) NOT NULL,
   `data` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Extraindo dados da tabela `likes`
+--
+
+INSERT INTO `likes` (`id`, `idutilizador`, `idpublicacao`, `data`) VALUES
+(1, 2, 40, '2025-06-10 20:46:37');
 
 -- --------------------------------------------------------
 
@@ -115,8 +137,9 @@ INSERT INTO `publicacao` (`idpublicacao`, `idutilizador`, `media`, `descricao`, 
 (33, 64, '', 'boda', '2025-05-27 12:53:06'),
 (34, 2, '', 'O SILVA É UM BURRO DO CRLH', '2025-05-27 13:11:48'),
 (36, 2, 'nexus_2.jpg', 'AAAAAAAAAAAA', '2025-05-27 16:52:42'),
-(37, 14, 'nexus_3.jpg', '3130', '2025-05-27 17:02:17'),
-(38, 64, 'nexus_1.png', 'Super Account', '2025-05-27 17:12:42');
+(38, 64, 'nexus_1.png', 'Super Account', '2025-05-27 17:12:42'),
+(39, 2, 'nexus_5.jpg', 'bahhhhhhhhhhhh', '2025-06-07 00:05:34'),
+(40, 2, 'nexus_1.jpg', 'esd', '2025-06-10 19:09:24');
 
 -- --------------------------------------------------------
 
@@ -214,6 +237,12 @@ ALTER TABLE `comentario`
   ADD KEY `idpublicacao` (`idpublicacao`);
 
 --
+-- Índices para tabela `likes`
+--
+ALTER TABLE `likes`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices para tabela `listadestinatarios`
 --
 ALTER TABLE `listadestinatarios`
@@ -270,7 +299,13 @@ ALTER TABLE `banidos`
 -- AUTO_INCREMENT de tabela `comentario`
 --
 ALTER TABLE `comentario`
-  MODIFY `idcomentario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idcomentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `likes`
+--
+ALTER TABLE `likes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `listadestinatarios`
@@ -288,7 +323,7 @@ ALTER TABLE `mensagem`
 -- AUTO_INCREMENT de tabela `publicacao`
 --
 ALTER TABLE `publicacao`
-  MODIFY `idpublicacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `idpublicacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de tabela `utilizador`
