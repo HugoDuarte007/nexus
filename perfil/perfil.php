@@ -14,6 +14,7 @@ if (isset($_GET["id"])) {
     $idperfil = $_GET["id"];
 }
 
+// Obter dados do perfil visualizado
 $query = "SELECT * FROM utilizador WHERE idutilizador = '$idperfil'";
 $result = mysqli_query($con, $query);
 if ($result) {
@@ -22,9 +23,15 @@ if ($result) {
     $perfil_foto_capa = $row['ft_capa'] ?? null;
     $perfil_nome = $row['nome'] ?? "Nome não disponível";
     $perfil_utilizador = $row['user'] ?? "Username não disponível";
-    setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
+    $perfil_telemovel = $row['telemovel'] ?? null;
+    $perfil_data_nascimento = $row['data_nascimento'] ?? null;
 
-    $perfil_data = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
+    setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
+    $perfil_data_registo = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
+
+    // Formatar data de nascimento
+    $perfil_data_nascimento_formatada = $perfil_data_nascimento ? strftime("%e de %B de %Y", strtotime($perfil_data_nascimento)) : null;
+    $idade = $perfil_data_nascimento ? date_diff(date_create($perfil_data_nascimento), date_create('today'))->y : null;
 } else {
     $perfil_foto_perfil = null;
     $perfil_foto_capa = null;
@@ -34,8 +41,7 @@ if ($result) {
 $perfil_foto_base64 = $perfil_foto_perfil ? "data:image/jpeg;base64," . base64_encode($perfil_foto_perfil) : "default.png";
 $perfil_foto_capa_base64 = $perfil_foto_capa ? "data:image/jpeg;base64," . base64_encode($perfil_foto_capa) : "capa_default.jpg";
 
-
-
+// Obter dados do usuário logado
 $query = "SELECT * FROM utilizador WHERE idutilizador = '$iduser'";
 $result = mysqli_query($con, $query);
 if ($result) {
@@ -44,8 +50,8 @@ if ($result) {
     $foto_capa = $row['ft_capa'] ?? null;
     $nome = $row['nome'] ?? "Nome não disponível";
     $utilizador = $row['user'] ?? "Username não disponível";
-    setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
 
+    setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
     $data = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
 } else {
     $foto_perfil = null;
@@ -61,27 +67,42 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
 <html lang="pt">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
-    <link rel="stylesheet" type="text/css" href="../main/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Nexus | Perfil</title>
     <style>
-        .cover-wrapper {
+        :root {
+            --primary-color: #0e2b3b;
+            --secondary-color: #1a5276;
+            --accent-color: #2980b9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cover-container {
             position: relative;
             width: 100%;
-            margin: 0 auto;
-            height: 45vh;
+            height: 350px;
             overflow: hidden;
-            cursor: pointer;
+            background-color: var(--secondary-color);
         }
 
         .cover-photo {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
         .cover-overlay {
@@ -98,34 +119,42 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             transition: opacity 0.3s ease;
         }
 
-        .cover-wrapper:hover .cover-overlay {
+        .cover-container:hover .cover-overlay {
             opacity: 1;
         }
 
-        .profile-container {
-            text-align: center;
-            padding: 100px 20px 20px;
+        .profile-main {
+            max-width: 1200px;
+            margin: -100px auto 30px;
             position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .profile-picture-wrapper {
-            position: absolute;
-            top: -75px;
-            left: 50%;
-            transform: translateX(-50%);
-            cursor: pointer;
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
         }
 
-        .profile-picture-large {
-            width: 150px;
-            height: 150px;
+        .profile-picture-container {
+            position: relative;
+            margin-top: -100px;
+            z-index: 2;
+        }
+
+        .profile-picture {
+            width: 480px;
+            height: 480px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #0e2b3b;
-            transition: 0.3s ease;
-            background-color: #fff;
+            border: 5px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
         }
 
         .profile-picture-overlay {
@@ -143,19 +172,123 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             transition: opacity 0.3s ease;
         }
 
-        .profile-picture-wrapper:hover .profile-picture-overlay {
+        .profile-picture-container:hover .profile-picture-overlay {
             opacity: 1;
         }
 
-        .profile-picture-wrapper:hover .profile-picture-large {
-            filter: brightness(0.7);
+        .profile-picture-container:hover .profile-picture {
+            transform: scale(1.05);
         }
 
-        .camera-icon {
+        .profile-info {
+            text-align: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--dark-color);
+        }
+
+        .profile-username {
+            font-size: 18px;
+            color: var(--accent-color);
+            margin: 5px 0;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .profile-bio {
+            max-width: 600px;
+            margin: 0 auto;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .detail-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .detail-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .detail-text {
+            flex: 1;
+        }
+
+        .btn-edit {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
             width: 40px;
             height: 40px;
-            background: url('camara.png') no-repeat center;
-            background-size: contain;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-edit:hover {
+            background-color: var(--primary-color);
+            transform: rotate(90deg);
         }
 
         #fileInput,
@@ -163,126 +296,126 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             display: none;
         }
 
-        .definicoes {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: transparent;
-            background-image: url("definicoes.png");
-            background-size: 100%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-
-        .definicoes:hover {
-            transform: rotate(60deg);
-        }
-
-        .profile-info h2 {
-            margin: 20px 0 5px;
-        }
-
-        .profile-info p {
-            margin: 5px 0;
-            word-wrap: break-word;
-        }
-
-        /* Responsivo para ecrãs pequenos */
-        @media (max-width: 600px) {
-            .profile-container {
-                padding-top: 120px;
+        @media (max-width: 768px) {
+            .cover-container {
+                height: 250px;
             }
 
-            .profile-picture-large {
-                width: 120px;
-                height: 120px;
+            .profile-picture {
+                width: 140px;
+                height: 140px;
             }
 
-            .definicoes {
-                top: 10px;
-                right: 10px;
-                width: 40px;
-                height: 40px;
+            .profile-name {
+                font-size: 24px;
             }
 
-            .camera-icon {
-                width: 30px;
-                height: 30px;
+            .profile-username {
+                font-size: 16px;
             }
-        }
 
-        .definicoes {
-            position: fixed;
-            top: 105px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: transparent;
-            background-image: url("definicoes.png");
-            background-size: 100%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
+            .profile-stats {
+                gap: 15px;
+            }
 
-        .definicoes:hover {
-            transform: rotate(60deg);
+            .stat-number {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
-
     <?php require '../partials/header.php'; ?>
 
-    <div class="cover-wrapper" onclick="document.getElementById('fileInputCapa').click();">
+    <div class="cover-container" onclick="document.getElementById('fileInputCapa').click();">
         <img src="<?php echo $perfil_foto_capa_base64; ?>" alt="Foto de Capa" class="cover-photo">
         <?php if ($perfil_utilizador == $utilizador): ?>
             <div class="cover-overlay">
-                <div class="camera-icon"></div>
+                <i class="fas fa-camera fa-2x" style="color: white;"></i>
             </div>
             <input type="file" id="fileInputCapa" accept="image/*"
                 onchange="uploadImage('fileInputCapa', 'upload_capa.php')">
         <?php endif; ?>
     </div>
 
+    <div class="profile-main">
+        <div class="profile-header">
+            <?php if ($perfil_utilizador == $utilizador): ?>
+                <button class="btn-edit" onclick="window.location.href='editar_perfil.php'">
+                    <i class="fas fa-cog"></i>
+                </button>
+            <?php endif; ?>
 
-    <div class="profile-container">
-        <?php if ($perfil_utilizador == $utilizador): ?>
-            <button class="definicoes" onclick="window.location.href='editar_perfil.php'"></button>
-        <?php endif; ?>
-
-        <div class="profile-picture-wrapper" onclick="document.getElementById('fileInput').click();">
-            <img src="<?php echo $perfil_foto_base64; ?>" alt="Foto de Perfil" class="profile-picture-large">
+            <div class="profile-picture-container" onclick="document.getElementById('fileInput').click();">
+                <img src="<?php echo $perfil_foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
+                <?php if ($perfil_utilizador == $utilizador): ?>
+                    <div class="profile-picture-overlay">
+                        <i class="fas fa-camera fa-2x" style="color: white;"></i>
+                    </div>
+                <?php endif; ?>
+            </div>
 
             <?php if ($perfil_utilizador == $utilizador): ?>
-                <div class="profile-picture-overlay">
-                    <div class="camera-icon"></div>
-                </div>
+                <input type="file" id="fileInput" accept="image/*" onchange="uploadImage('fileInput', 'upload_foto.php')">
             <?php endif; ?>
+
+            <div class="profile-info">
+                <h1 class="profile-name"><?php echo htmlspecialchars($perfil_nome); ?></h1>
+                <p class="profile-username">@<?php echo htmlspecialchars($perfil_utilizador); ?></p>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Publicações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Seguindo</div>
+                    </div>
+                </div>
+
+                <p class="profile-bio">Utilizador da NEXUS desde <?php echo $perfil_data_registo ?></p>
+            </div>
         </div>
 
-        <?php if ($perfil_utilizador == $utilizador): ?>
-            <input type="file" id="fileInput" accept="image/*" onchange="uploadImage('fileInput', 'upload_foto.php')">
-        <?php endif; ?>
+        <div class="profile-details">
+            <div class="detail-card">
+                <h3 class="detail-title">Informações Pessoais</h3>
 
-        <div class="profile-info">
-            <h2><?php echo htmlspecialchars($perfil_nome); ?></h2>
-            <i>
-                <p>@<?php echo htmlspecialchars($perfil_utilizador); ?></p>
-            </i>
-            <p>Utilizador da NEXUS desde <?php echo $perfil_data ?></p>
+                <?php if ($perfil_data_nascimento): ?>
+                    <div class="detail-item">
+                        <i class="fas fa-birthday-cake detail-icon"></i>
+                        <div class="detail-text">
+                            <strong>Data de Nascimento:</strong> <?php echo $perfil_data_nascimento_formatada; ?>
+                            (<?php echo $idade; ?> anos)
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($perfil_telemovel): ?>
+                    <div class="detail-item">
+                        <i class="fas fa-phone detail-icon"></i>
+                        <div class="detail-text">
+                            <strong>Telemóvel:</strong> <?php echo htmlspecialchars($perfil_telemovel); ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="detail-card">
+                <h3 class="detail-title">Publicações</h3>
+                <div class="detail-item">
+                    <i class="fas fa-info-circle detail-icon"></i>
+                    <div class="detail-text">
+                        Sem publicações.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -303,7 +436,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                     if (data.success) {
                         // Atualizar apenas a imagem na página sem recarregar
                         if (uploadUrl === 'upload_foto.php') {
-                            document.querySelector('.profile-picture-large').src = URL.createObjectURL(fileInput.files[0]);
+                            document.querySelector('.profile-picture').src = URL.createObjectURL(fileInput.files[0]);
                         } else if (uploadUrl === 'upload_capa.php') {
                             document.querySelector('.cover-photo').src = URL.createObjectURL(fileInput.files[0]);
                         }
