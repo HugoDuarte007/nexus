@@ -19,8 +19,12 @@
 
                 <?php while ($user = mysqli_fetch_assoc($result)): ?>
 
-                    <a href="../perfil/perfil.php?id=<?= $user['idutilizador'] ?>" id="<?= $user['idutilizador'] ?>" name="<?= $user['user'] ?>" class="hidden flex items-center gap-2 rounded-xl hover:bg-gray-100" style="padding: 12px;">
-                        <img class="bg-gray-100 w-8 h-8 rounded-full" src="<?= $user['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($user['ft_perfil']) : 'default.png'; ?>" alt="">
+                    <a href="../perfil/perfil.php?id=<?= $user['idutilizador'] ?>" id="<?= $user['idutilizador'] ?>"
+                        name="<?= $user['user'] ?>" class="hidden flex items-center gap-2 rounded-xl hover:bg-gray-100"
+                        style="padding: 12px;">
+                        <img class="bg-gray-100 w-8 h-8 rounded-full"
+                            src="<?= $user['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($user['ft_perfil']) : 'default.png'; ?>"
+                            alt="">
                         <p class="text-black"><?= $user['user'] ?></p>
                     </a>
                 <?php endwhile; ?>
@@ -55,34 +59,33 @@
         </div>
     </nav>
 
-    <!-- Estilo CSS -->
     <style>
-        
-.styled-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    background-color: transparent;
-    color: white;
-    transition: 0.3s ease;
-    display: flex;
-    align-items: center;
-    width: auto;
-}
+        header .styled-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            transition: 0.3s ease;
+            display: flex;
+            align-items: center;
+            width: auto;
+        }
 
-.styled-button:hover {
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
-}
+        header .styled-button:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+        }
 
-.styled-button .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-        .navbar {
+        header .styled-button .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header .navbar {
             background: #0e2b3b;
             display: flex;
             justify-content: space-between;
@@ -91,13 +94,13 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .profile-dropdown {
+        header .profile-dropdown {
             position: relative;
             display: inline-block;
             cursor: pointer;
         }
 
-        .user-info {
+        header .user-info {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -106,18 +109,18 @@
             transition: background-color 0.2s;
         }
 
-        .user-info:hover {
+        header .user-info:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .profile-picture {
+        header .profile-picture {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        .dropdown-content {
+        header .dropdown-content {
             display: none;
             position: absolute;
             right: 0;
@@ -130,7 +133,7 @@
             overflow: hidden;
         }
 
-        .dropdown-content a {
+        header .dropdown-content a {
             color: white;
             padding: 12px 16px;
             text-decoration: none;
@@ -138,16 +141,16 @@
             transition: background-color 0.2s;
         }
 
-        .dropdown-content a:hover {
+        header .dropdown-content a:hover {
             background-color: #555;
         }
 
-        .logo {
+        header .logo {
             font-size: 24px;
             font-weight: bold;
         }
 
-        .search-bar {
+        header .search-bar {
             background-color: white;
             color: #333;
             padding: 10px;
@@ -156,7 +159,7 @@
             outline: none;
         }
 
-        .user-info {
+        header .user-info {
             color: white;
             display: flex;
             align-items: center;
@@ -164,12 +167,12 @@
             cursor: pointer;
         }
 
-        .user-info span {
+        header .user-info span {
             font-size: 16px;
             font-weight: bold;
         }
 
-        .profile-picture {
+        header .profile-picture {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -217,7 +220,7 @@
     }
 
     // Fechar dropdown ao clicar fora
-    window.addEventListener("click", function() {
+    window.addEventListener("click", function () {
         const menu = document.getElementById("dropdownMenu");
         if (menu) {
             menu.style.display = "none";

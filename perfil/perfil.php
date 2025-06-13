@@ -145,13 +145,14 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             position: relative;
             margin-top: -100px;
             z-index: 2;
+           width: 200px;
+            height: 200px;
         }
 
         .profile-picture {
-            width: 480px;
-            height: 480px;
+            width: 200px    ;
+            height: 200px;
             border-radius: 50%;
-            object-fit: cover;
             border: 5px solid white;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
