@@ -14,6 +14,13 @@ if (isset($_GET["id"])) {
     $idperfil = $_GET["id"];
 }
 
+$isFollowing = false;
+if ($iduser != $idperfil) {
+    $checkFollow = "SELECT * FROM seguidor WHERE id_seguidor = '$iduser' AND id_seguido = '$idperfil'";
+    $followResult = mysqli_query($con, $checkFollow);
+    $isFollowing = mysqli_num_rows($followResult) > 0;
+}
+
 // Obter dados do perfil visualizado
 $query = "SELECT * FROM utilizador WHERE idutilizador = '$idperfil'";
 $result = mysqli_query($con, $query);
@@ -25,6 +32,7 @@ if ($result) {
     $perfil_utilizador = $row['user'] ?? "Username não disponível";
     $perfil_telemovel = $row['telemovel'] ?? null;
     $perfil_data_nascimento = $row['data_nascimento'] ?? null;
+    $perfil_pais = $row['pais'] ?? null;
 
     setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
     $perfil_data_registo = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
@@ -57,6 +65,31 @@ if ($result) {
     $foto_perfil = null;
     $foto_capa = null;
     $nome = "Erro ao carregar nome";
+}
+
+$querySeguidores = "SELECT COUNT(*) as total FROM seguidor WHERE id_seguido = '$idperfil'";
+$resultSeguidores = mysqli_query($con, $querySeguidores);
+$totalSeguidores = mysqli_fetch_assoc($resultSeguidores)['total'];
+
+$querySeguindo = "SELECT COUNT(*) as total FROM seguidor WHERE id_seguidor = '$idperfil'";
+$resultSeguindo = mysqli_query($con, $querySeguindo);
+$totalSeguindo = mysqli_fetch_assoc($resultSeguindo)['total'];
+
+// Obter contagem de publicações
+$queryPublicacoes = "SELECT COUNT(*) as total FROM publicacao WHERE idutilizador = '$idperfil'";
+$resultPublicacoes = mysqli_query($con, $queryPublicacoes);
+$totalPublicacoes = mysqli_fetch_assoc($resultPublicacoes)['total'];
+
+// Obter publicações do perfil
+$queryPublicacoes = "SELECT p.*, u.user, u.ft_perfil 
+                    FROM publicacao p
+                    JOIN utilizador u ON p.idutilizador = u.idutilizador
+                    WHERE p.idutilizador = '$idperfil'
+                    ORDER BY p.data DESC";
+$resultPublicacoes = mysqli_query($con, $queryPublicacoes);
+$publicacoes = [];
+if ($resultPublicacoes) {
+    $publicacoes = mysqli_fetch_all($resultPublicacoes, MYSQLI_ASSOC);
 }
 
 $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "default.png";
@@ -145,12 +178,12 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             position: relative;
             margin-top: -100px;
             z-index: 2;
-           width: 200px;
+            width: 200px;
             height: 200px;
         }
 
         .profile-picture {
-            width: 200px    ;
+            width: 200px;
             height: 200px;
             border-radius: 50%;
             border: 5px solid white;
@@ -297,6 +330,84 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             display: none;
         }
 
+        /* Estilos compactos para posts no perfil */
+        .perfil-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .perfil-post {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .perfil-post-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .perfil-post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .perfil-post-user {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .perfil-post-time {
+            color: #6b7280;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .perfil-post-content {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .perfil-post-image {
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 8px;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .perfil-post-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .perfil-post-action {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #4b5563;
+            cursor: pointer;
+        }
+
+        .perfil-post-action svg {
+            width: 16px;
+            height: 16px;
+        }
+
         @media (max-width: 768px) {
             .cover-container {
                 height: 250px;
@@ -322,6 +433,31 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             .stat-number {
                 font-size: 20px;
             }
+
+            .perfil-posts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .delete-post-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .delete-post-btn:hover {
+            color: #a71d2a;
+            transform: scale(1.1);
+        }
+
+        .delete-post-btn svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -365,17 +501,23 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                 <h1 class="profile-name"><?php echo htmlspecialchars($perfil_nome); ?></h1>
                 <p class="profile-username">@<?php echo htmlspecialchars($perfil_utilizador); ?></p>
 
+                <?php if ($iduser != $idperfil): ?>
+                    <button id="botaoSeguir" onclick="seguirUtilizador(<?= $idperfil ?>)" class="<?= $isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-blue-500 text-white hover:bg-blue-600' ?> 
+                       px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300">
+                        <?= $isFollowing ? 'Seguindo ✓' : 'Seguir' ?>
+                    </button>
+                <?php endif; ?>
                 <div class="profile-stats">
                     <div class="stat-item">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number"><?= $totalPublicacoes ?></div>
                         <div class="stat-label">Publicações</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number"><?= $totalSeguidores ?></div>
                         <div class="stat-label">Seguidores</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number"><?= $totalSeguindo ?></div>
                         <div class="stat-label">Seguindo</div>
                     </div>
                 </div>
@@ -389,7 +531,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                 <h3 class="detail-title">Informações Pessoais</h3>
 
                 <?php if ($perfil_data_nascimento): ?>
-                    <div class="detail-item">
+                    <div class="detail-item items-center flex">
                         <i class="fas fa-birthday-cake detail-icon"></i>
                         <div class="detail-text">
                             <strong>Data de Nascimento:</strong> <?php echo $perfil_data_nascimento_formatada; ?>
@@ -399,10 +541,19 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                 <?php endif; ?>
 
                 <?php if ($perfil_telemovel): ?>
-                    <div class="detail-item">
+                    <div class="detail-item items-center flex">
                         <i class="fas fa-phone detail-icon"></i>
                         <div class="detail-text">
                             <strong>Telemóvel:</strong> <?php echo htmlspecialchars($perfil_telemovel); ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($perfil_pais): ?>
+                    <div class="detail-item items-center flex">
+                        <i class="fas fa-globe-europe detail-icon"></i>
+                        <div class="detail-text">
+                            <strong>País:</strong> <?php echo htmlspecialchars($perfil_pais); ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -410,12 +561,78 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
 
             <div class="detail-card">
                 <h3 class="detail-title">Publicações</h3>
-                <div class="detail-item">
-                    <i class="fas fa-info-circle detail-icon"></i>
-                    <div class="detail-text">
-                        Sem publicações.
+                <?php if (count($publicacoes) > 0): ?>
+                    <div class="perfil-posts">
+                        <?php foreach ($publicacoes as $pub): ?>
+                            <?php
+                            $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
+                            $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
+
+                            $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
+                            $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
+                            ?>
+
+                            <div class="perfil-post" id="post_<?= $pub['idpublicacao'] ?>">
+                                <div class="perfil-post-header">
+                                    <img src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
+                                        alt="Foto de Perfil" class="perfil-post-avatar">
+                                    <span class="perfil-post-user"><?= htmlspecialchars($pub['user']); ?></span>
+                                    <span class="perfil-post-time"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
+
+                                    <?php if ($perfil_utilizador == $utilizador): ?>
+                                        <button class="delete-post-btn" onclick="confirmarDelete(<?= $pub['idpublicacao'] ?>)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                <path fill-rule="evenodd"
+                                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                            </svg>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="perfil-post-content">
+                                    <?= nl2br(htmlspecialchars($pub['descricao'])); ?>
+                                </div>
+
+                                <?php if (!empty($pub['media'])): ?>
+                                    <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="perfil-post-image"
+                                        alt="Imagem da publicação">
+                                <?php endif; ?>
+
+                                <div class="perfil-post-actions">
+                                    <div class="perfil-post-action" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+                                        </svg>
+                                        <span><?= count($comentarios) ?></span>
+                                    </div>
+                                    <div class="perfil-post-action">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path
+                                                d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
+                                        </svg>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="perfil-post-action">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path
+                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                        </svg>
+                                        <span><?= count($like) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="detail-item">
+                        <i class="fas fa-info-circle detail-icon"></i>
+                        <div class="detail-text">
+                            Nenhuma publicação encontrada.
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -435,7 +652,6 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Atualizar apenas a imagem na página sem recarregar
                         if (uploadUrl === 'upload_foto.php') {
                             document.querySelector('.profile-picture').src = URL.createObjectURL(fileInput.files[0]);
                         } else if (uploadUrl === 'upload_capa.php') {
@@ -447,7 +663,80 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                 })
                 .catch(error => console.error("Erro:", error));
         }
+
+        function seguirUtilizador(idSeguido) {
+            fetch('../main/interacoes/seguir.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id_seguido=' + encodeURIComponent(idSeguido)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const botao = document.getElementById('botaoSeguir');
+                        if (botao) {
+                            botao.textContent = data.seguindo ? 'A seguir ✓' : 'Seguir';
+                            botao.className = data.seguindo ?
+                                'bg-gray-200 text-gray-800 px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300' :
+                                'bg-blue-500 text-white hover:bg-blue-600 px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300';
+
+                            const statSeguidores = document.querySelectorAll('.stat-item')[1].querySelector('.stat-number');
+                            if (statSeguidores) {
+                                statSeguidores.textContent = data.seguindo ?
+                                    parseInt(statSeguidores.textContent) + 1 :
+                                    parseInt(statSeguidores.textContent) - 1;
+                            }
+                        }
+                    } else {
+                        console.error('Erro:', data.message);
+                    }
+                })
+                .catch(error => console.error('Erro na requisição:', error));
+        }
+
+        function abrirPublicacao(pubid) {
+            // Implemente a mesma função que está no main.php ou ajuste conforme necessário
+            console.log('Abrir publicação:', pubid);
+            // window.location.href = 'publicacao.php?id=' + pubid;
+        }
+    function confirmarDelete(idPublicacao) {
+    if (confirm('Tem certeza que deseja excluir esta publicação?')) {
+        deletarPublicacao(idPublicacao);
+    }
+}
+
+function deletarPublicacao(idPublicacao) {
+    fetch('../main/interacoes/apagar_publicacao.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'id_publicacao=' + idPublicacao
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove a publicação da página
+            document.getElementById('post_' + idPublicacao).remove();
+            
+            // Atualiza o contador de publicações
+            const contador = document.querySelector('.stat-number');
+            if (contador) {
+                contador.textContent = parseInt(contador.textContent) - 1;
+            }
+        } else {
+            alert('Erro ao deletar: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao conectar com o servidor');
+    });
+}
     </script>
+
 </body>
 
 </html>

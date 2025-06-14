@@ -10,10 +10,13 @@
             <input type="text" id="searchInput" class="search-bar w-full" placeholder="Pesquisar utilizadores..."
                 onkeyup="searchDropdown(this)">
 
-            <div id="searchList" class="hidden bg-white absolute border border-black gap-2 rounded-xl z-100">
+            <div id="searchList" class="hidden bg-white absolute border border-black gap-2 rounded-xl "
+                style="z-index:1000;">
                 <?php
                 $sql = "SELECT * FROM utilizador;";
                 $result = mysqli_query($con, $sql);
+                $foto_perfil = $_SESSION['ft_perfil'] ?? null;
+                $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "default.png";
                 ?>
 
 
@@ -27,9 +30,11 @@
                             alt="">
                         <p class="text-black"><?= $user['user'] ?></p>
                     </a>
+
                 <?php endwhile; ?>
             </div>
         </div>
+
 
         <div class="flex gap-1 items-center flex-1 justify-end">
             <!-- Botão de mensagens -->
@@ -44,10 +49,50 @@
             <!-- Botão de publicar -->
             <button class="styled-button" title="Publicar" style="font-size:33px;" onclick="abrirModal()">+</button>
 
+            <div id="modalPublicacao" class="modalPublicacao">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Criar Publicação</h2>
+                        <button class="close" onclick="fecharModal()">✖</button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="interacoes/publicar.php" method="post" id="publicacaoForm"
+                            enctype="multipart/form-data">
+                            <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?"
+                                required></textarea>
+
+                            <!-- Botão para escolher imagem -->
+                            <label for="imagemInput" title="Adicionar imagem"
+                                style="cursor: pointer; display: inline-block; margin-top: 10px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#0e2b3b"
+                                    viewBox="0 0 24 24">
+                                    <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 
+                     2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM8.5 
+                     13.5 11 17l3.5-4.5 4.5 6H5l3.5-4.5Zm.5-3A2 
+                     2 0 1 0 7 8a2 2 0 0 0 2 2Z" />
+                                </svg>
+                            </label>
+                            <input type="file" id="imagemInput" name="imagem" accept="image/*" style="display:none"
+                                onchange="preverImagem()">
+
+                            <!-- Pré-visualização -->
+                            <div id="previewContainer" style="margin-top: 10px; display: none;">
+                                <img id="previewImagem" src="#" alt="Pré-visualização da imagem"
+                                    style="max-width: 100%; max-height: 300px; border-radius: 10px;" />
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="botao">Publicar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Dropdown do perfil -->
             <div class="profile-dropdown" onclick="toggleDropdown(event)">
                 <div class="user-info">
-                    <span><?php echo htmlspecialchars($utilizador); ?></span>
+                    <span><?php echo htmlspecialchars($_SESSION["user"]); ?></span>
                     <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
                 </div>
                 <div id="dropdownMenu" class="dropdown-content">
@@ -179,6 +224,86 @@
             object-fit: cover;
             border: 2px solid white;
         }
+
+        /* Estilos do Modal */
+        .modalPublicacao {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #0e2b3b;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #0e2b3b;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .botao {
+            padding: 10px 20px;
+            background-color: #0e2b3b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .botao:hover {
+            background-color: #1a3d4d;
+        }
     </style>
 </header>
 
@@ -208,6 +333,25 @@
             }
         });
     }
+    function preverImagem() {
+            const input = document.getElementById('imagemInput');
+            const preview = document.getElementById('previewImagem');
+            const container = document.getElementById('previewContainer');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = "block";
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                container.style.display = "none";
+                preview.src = "#";
+            }
+        }
 </script>
 
 <!-- DROPDOWN PERFIL -->

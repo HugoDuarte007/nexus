@@ -419,43 +419,7 @@ if (!$publicacoes) {
     <?php require '../partials/header.php'; ?>
 
     <!-- Modal para criar publicação -->
-    <div id="modalPublicacao" class="modalPublicacao">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Criar Publicação</h2>
-                <button class="close" onclick="fecharModal()">✖</button>
-            </div>
-            <div class="modal-body">
-                <form action="interacoes/publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
-                    <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?" required></textarea>
 
-                    <!-- Botão para escolher imagem -->
-                    <label for="imagemInput" title="Adicionar imagem"
-                        style="cursor: pointer; display: inline-block; margin-top: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#0e2b3b"
-                            viewBox="0 0 24 24">
-                            <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 
-                     2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM8.5 
-                     13.5 11 17l3.5-4.5 4.5 6H5l3.5-4.5Zm.5-3A2 
-                     2 0 1 0 7 8a2 2 0 0 0 2 2Z" />
-                        </svg>
-                    </label>
-                    <input type="file" id="imagemInput" name="imagem" accept="image/*" style="display:none"
-                        onchange="preverImagem()">
-
-                    <!-- Pré-visualização -->
-                    <div id="previewContainer" style="margin-top: 10px; display: none;">
-                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem"
-                            style="max-width: 100%; max-height: 300px; border-radius: 10px;" />
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="botao">Publicar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal para visualizar publicação -->
     <div id="modalVerPublicacao" class="modal">
@@ -518,8 +482,8 @@ if (!$publicacoes) {
                         src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
                         alt="Foto de Perfil" class="profile-picture">
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
-                    <p id="data" class="post-time"
-                        style="max-height: 20px;"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
+                    <p id="data" class="post-time" style="max-height: 20px;">
+                        <?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
 
 
                 </div>
@@ -664,12 +628,12 @@ if (!$publicacoes) {
 
         function darLike(idPublicacao) {
             fetch('../interacoes/like.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
-                })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
+            })
                 .then(response => response.text())
                 .then(data => {
                     // console.log(data);
@@ -687,7 +651,7 @@ if (!$publicacoes) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     container.style.display = "block";
                 }
@@ -698,8 +662,36 @@ if (!$publicacoes) {
                 preview.src = "#";
             }
         }
+        // Função para enviar a publicação via AJAX
+        function enviarPublicacao(e) {
+            e.preventDefault();
 
-        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById('publicacaoForm');
+            const formData = new FormData(form);
+
+            fetch('interacoes/publicar.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fecharModal();
+                        // Atualizar a página ou adicionar a nova publicação dinamicamente
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Erro ao publicar');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                });
+        }
+
+        // Adicionar evento ao formulário
+        document.getElementById('publicacaoForm').addEventListener('submit', enviarPublicacao);
+        document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
                 let notificacao = document.getElementById("notificacao");
                 if (notificacao) {
