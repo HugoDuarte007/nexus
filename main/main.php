@@ -147,6 +147,9 @@ if (!$publicacoes) {
             margin-top: 10px;
             margin-bottom: 10px;
             background-color: #f3f4f6;
+            cursor: pointer;
+            aspect-ratio: 1/1; /* Mantém proporção quadrada */
+    object-fit: cover; /* Corta a imagem para preencher o quadrado */
         }
 
         /* Ações do post */
@@ -234,6 +237,47 @@ if (!$publicacoes) {
         /* Modal de visualização de publicação */
         .modal-publicacao {
             width: 700px;
+        }
+
+        /* Modal de visualização de imagem */
+        #modalImagem .modal-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            border: none;
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: none;
+        }
+
+        #modalImagem .close {
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+
+        #modalImagem .close:hover {
+            background: rgba(0,0,0,0.7);
+        }
+
+        #imagemAmpliada {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .modal-header {
@@ -360,6 +404,7 @@ if (!$publicacoes) {
             font-size: 0.9rem;
             color: #374151;
             line-height: 1.5;
+            text-align: left;
         }
 
         .comment-actions {
@@ -495,9 +540,14 @@ if (!$publicacoes) {
 
     <?php require '../partials/header.php'; ?>
 
+    <!-- Modal para visualizar imagem em tamanho real -->
+    <div id="modalImagem" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%; background: transparent; box-shadow: none;">
+            <button class="close" onclick="fecharImagem()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
+            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+    </div>
 
-    <!-- Modal para visualizar publicação -->
-    <!-- Modal para visualizar publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
             <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
@@ -507,9 +557,9 @@ if (!$publicacoes) {
             </div>
 
             <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
-                <!-- Cabeçalho da publicação -->
                 <div class="flex items-center gap-3 mb-4">
-                    <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture" style="width: 48px; height: 48px;">
+                    <a href=""><img id="ft_perfil" alt="Foto de Perfil" class="profile-picture"
+                            style="width: 48px; height: 48px;"></a>
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
                             <span id="username" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
@@ -523,7 +573,7 @@ if (!$publicacoes) {
                     <p id="descricao" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
                     </p>
                     <img id="imagem" src="" class="rounded-lg w-full max-h-96 object-contain mx-auto"
-                        style="display: none;" alt="Imagem da publicação">
+                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarImagem(this.src)">
                 </div>
 
                 <!-- Ações da publicação -->
@@ -582,7 +632,7 @@ if (!$publicacoes) {
                                             <span id="username" class="font-semibold text-sm text-gray-800"></span>
                                             <span id="data" class="text-xs text-gray-500"></span>
                                         </div>
-                                        <p id="descricao" class="text-gray-800 text-sm"></p>
+                                        <p id="descricao" class="text-gray-800 text-sm " style="text-align:left;"></p>
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
@@ -601,32 +651,29 @@ if (!$publicacoes) {
         <?php while ($pub = mysqli_fetch_assoc($publicacoes)): ?>
 
             <?php
-
             $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
             $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
 
             $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
             $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
-
             ?>
 
             <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
                 <div class="post-header">
-                    <img id="ft_perfil"
-                        src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
-                        alt="Foto de Perfil" class="profile-picture">
+                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" id="<?= $pub['idutilizador'] ?>"><img
+                            id="ft_perfil"
+                            src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
+                            alt="Foto de Perfil" class="profile-picture"></a>
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
                     <p id="data" class="post-time" style="max-height: 20px;">
                         <?= date("d/m/Y H:i", strtotime($pub['data'])); ?>
                     </p>
-
-
                 </div>
 
                 <div class="post-content">
                     <p class="post-descricao" id="descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
                     <img id="imagem" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-image"
-                        alt="Imagem da publicação" style="display: <?= empty($pub['media']) ? 'none' : 'block' ?>">
+                        alt="Imagem da publicação" style="display: <?= empty($pub['media']) ? 'none' : 'block' ?>" onclick="ampliarImagem(this.src)">
                 </div>
 
                 <div class="post-actions">
@@ -666,6 +713,7 @@ if (!$publicacoes) {
 
             // Buscar elementos da publicação
             const ft_perfil = publicacao.querySelector('#ft_perfil').src;
+            const idutilizador = publicacao.querySelector('#ft_perfil').parentElement.href;
             const username = publicacao.querySelector('#username').innerText;
             const data = publicacao.querySelector('#data').innerText;
             const descricao = publicacao.querySelector('#descricao').innerText;
@@ -674,6 +722,7 @@ if (!$publicacoes) {
 
             // Preencher dados no modal
             document.getElementById("ft_perfil").src = ft_perfil;
+            document.getElementById("ft_perfil").parentElement.href = idutilizador;
             document.getElementById("username").innerText = username;
             document.getElementById("data").innerText = data;
             document.getElementById("descricao").innerText = descricao;
@@ -699,8 +748,6 @@ if (!$publicacoes) {
             var comentario = ComentarioTemplate.cloneNode(true);
             modalComentarios.appendChild(comentario);
 
-            // console.log(data);
-
             comentario.classList.remove('hidden');
             comentario.querySelector('#ft_perfil').src = data["ft_perfil"];
             comentario.querySelector('#username').innerHTML = data["user"];
@@ -723,7 +770,6 @@ if (!$publicacoes) {
         }
 
         function carregarComentarios(pubid) {
-
             clearComentarios();
 
             fetch(`interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
@@ -742,9 +788,34 @@ if (!$publicacoes) {
         function fecharPublicacao() {
             modalVerPublicacao.style.display = 'none';
         }
-    </script>
 
-    <script>
+        // Funções para ampliar imagem
+        function ampliarImagem(src) {
+            const modal = document.getElementById('modalImagem');
+            const imagem = document.getElementById('imagemAmpliada');
+            
+            imagem.src = src;
+            modal.style.display = 'flex';
+            
+            // Desativar scroll da página quando o modal está aberto
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharImagem() {
+            const modal = document.getElementById('modalImagem');
+            modal.style.display = 'none';
+            
+            // Reativar scroll da página
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora da imagem
+        document.getElementById('modalImagem').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharImagem();
+            }
+        });
+
         function abrirModal() {
             document.getElementById("modalPublicacao").style.display = "flex";
         }
@@ -789,6 +860,7 @@ if (!$publicacoes) {
                 preview.src = "#";
             }
         }
+
         // Função para enviar a publicação via AJAX
         function enviarPublicacao(e) {
             e.preventDefault();
@@ -833,7 +905,8 @@ if (!$publicacoes) {
                 notificacao.style.display = "none";
             }
         }
-        ocument.querySelectorAll('.guardar-button').forEach(button => {
+
+        document.querySelectorAll('.guardar-button').forEach(button => {
             button.addEventListener('click', function () {
                 // Obter o ID da publicação do elemento pai
                 const postElement = this.closest('.post');
