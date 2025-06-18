@@ -459,6 +459,39 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             height: 16px;
             vertical-align: middle;
         }
+        .perfil-posts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.perfil-post {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+}
+
+/* Container da imagem para tamanho fixo */
+.perfil-post-image-container {
+    width: 100%;
+    height: 250px; /* Altura fixa */
+    overflow: hidden;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+/* Imagem dentro do container (cobre o espaço mantendo proporção) */
+.perfil-post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
+}
     </style>
 </head>
 
@@ -527,37 +560,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
         </div>
 
         <div class="profile-details">
-            <div class="detail-card">
-                <h3 class="detail-title">Informações Pessoais</h3>
 
-                <?php if ($perfil_data_nascimento): ?>
-                    <div class="detail-item items-center flex">
-                        <i class="fas fa-birthday-cake detail-icon"></i>
-                        <div class="detail-text">
-                            <strong>Data de Nascimento:</strong> <?php echo $perfil_data_nascimento_formatada; ?>
-                            (<?php echo $idade; ?> anos)
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($perfil_telemovel): ?>
-                    <div class="detail-item items-center flex">
-                        <i class="fas fa-phone detail-icon"></i>
-                        <div class="detail-text">
-                            <strong>Telemóvel:</strong> <?php echo htmlspecialchars($perfil_telemovel); ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($perfil_pais): ?>
-                    <div class="detail-item items-center flex">
-                        <i class="fas fa-globe-europe detail-icon"></i>
-                        <div class="detail-text">
-                            <strong>País:</strong> <?php echo htmlspecialchars($perfil_pais); ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
 
             <div class="detail-card">
                 <h3 class="detail-title">Publicações</h3>
@@ -596,8 +599,10 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                                 </div>
 
                                 <?php if (!empty($pub['media'])): ?>
-                                    <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="perfil-post-image"
-                                        alt="Imagem da publicação">
+                                    <div class="perfil-post-image-container">
+                                        <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
+                                            class="perfil-post-image" alt="Imagem da publicação">
+                                    </div>
                                 <?php endif; ?>
 
                                 <div class="perfil-post-actions">
@@ -701,40 +706,40 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             console.log('Abrir publicação:', pubid);
             // window.location.href = 'publicacao.php?id=' + pubid;
         }
-    function confirmarDelete(idPublicacao) {
-    if (confirm('Tem certeza que deseja excluir esta publicação?')) {
-        deletarPublicacao(idPublicacao);
-    }
-}
-
-function deletarPublicacao(idPublicacao) {
-    fetch('../main/interacoes/apagar_publicacao.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'id_publicacao=' + idPublicacao
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Remove a publicação da página
-            document.getElementById('post_' + idPublicacao).remove();
-            
-            // Atualiza o contador de publicações
-            const contador = document.querySelector('.stat-number');
-            if (contador) {
-                contador.textContent = parseInt(contador.textContent) - 1;
+        function confirmarDelete(idPublicacao) {
+            if (confirm('Tem certeza que deseja excluir esta publicação?')) {
+                deletarPublicacao(idPublicacao);
             }
-        } else {
-            alert('Erro ao deletar: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao conectar com o servidor');
-    });
-}
+
+        function deletarPublicacao(idPublicacao) {
+            fetch('../main/interacoes/apagar_publicacao.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id_publicacao=' + idPublicacao
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove a publicação da página
+                        document.getElementById('post_' + idPublicacao).remove();
+
+                        // Atualiza o contador de publicações
+                        const contador = document.querySelector('.stat-number');
+                        if (contador) {
+                            contador.textContent = parseInt(contador.textContent) - 1;
+                        }
+                    } else {
+                        alert('Erro ao deletar: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao conectar com o servidor');
+                });
+        }
     </script>
 
 </body>

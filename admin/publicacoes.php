@@ -91,7 +91,7 @@ $resultado = mysqli_query($con, $sql);
     </script>
 </head>
 <body>
-    <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Utilizadores</h1>
+    <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Publicações</h1>
 
     <table>
         <tr>

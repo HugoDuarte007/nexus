@@ -1,0 +1,321 @@
+/* Estilos gerais */
+.messages-container {
+    display: flex;
+    height: calc(100vh - 60px); /* Subtrai a altura do header */
+    background-color: #fafafa;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Sidebar */
+.messages-sidebar {
+    width: 350px;
+    border-right: 1px solid #dbdbdb;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.messages-header {
+    padding: 15px;
+    border-bottom: 1px solid #dbdbdb;
+    position: relative;
+}
+
+.messages-header h2 {
+    font-size: 1.5rem;
+    color: #0e2b3b;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+.search-bar {
+    position: relative;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 8px 12px 8px 35px;
+    border: 1px solid #dbdbdb;
+    border-radius: 20px;
+    background-color: #f0f2f5;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.search-bar input:focus {
+    border-color: #0e2b3b;
+}
+
+.search-bar::before {
+    content: "🔍";
+    position: absolute;
+    left: 12px;
+    top: 8px;
+    color: #999;
+}
+
+.conversas-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.conversa-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.conversa-item:hover, .conversa-item.active {
+    background-color: #f5f5f5;
+}
+
+.conversa-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1px solid #eee;
+}
+
+.conversa-info {
+    flex: 1;
+}
+
+.conversa-nome {
+    display: block;
+    font-weight: 500;
+    color: #0e2b3b;
+    margin-bottom: 4px;
+}
+
+.conversa-ultima {
+    font-size: 0.8rem;
+    color: #999;
+    display: block;
+}
+
+.no-conversas {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Área de conversa */
+.messages-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    position: relative;
+}
+
+.conversa-header {
+    padding: 15px;
+    border-bottom: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.destinatario-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.destinatario-nome {
+    font-weight: 500;
+    color: #0e2b3b;
+    flex: 1;
+}
+
+.conversa-actions {
+    display: flex;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+    background-color: #f0f2f5;
+}
+
+.action-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.mensagens-list {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4y+3UMUoDQRTG8Z8psJBUKTyAR7ATvIBgYSM2Fh7AC3gACwsLwUJQEEFJYWMhWFiIhYWFhQhCQN7CwGQzO7M7u5vCBx8zO/Pm+2bevHnDf2wZ7uAGb3jGJQ6x8Y8cO3jAJx5xhj3UsY0TnOMVH7jC9h9yNHCHL9zjcMZ4Hbf4xjW2lsyxj2d84wZbC8w3cY9J5FhfAkcNl5jgBQdL5NjCbSS5XJBjPZJM8LgEx1Ekecb6AhzrkWSK0yVx1HGLKZ6wNifHWiSZ4mJJHDUc4xPfOMXKHBzVSDL9A8dKJJngaI7xSiSZ/gNHORJNcDDDeCkSTXG+ZI5SJJvgbsZ4MZJNcbVkjg08RPJ3bM8YL0Syb5z9A8cKHvGFD2zNGP8B4XZCFICTj5IAAAAASUVORK5CYII=');
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+.mensagem {
+    display: flex;
+    margin-bottom: 15px;
+    max-width: 70%;
+}
+
+.mensagem.recebida {
+    align-self: flex-start;
+}
+
+.mensagem.enviada {
+    align-self: flex-end;
+}
+
+.mensagem-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    margin-top: 5px;
+}
+
+.mensagem-conteudo {
+    padding: 10px 15px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.mensagem.recebida .mensagem-conteudo {
+    background-color: white;
+    border: 1px solid #e5e5ea;
+    border-radius: 18px 18px 18px 4px;
+}
+
+.mensagem.enviada .mensagem-conteudo {
+    background-color: #0e2b3b;
+    color: white;
+    border-radius: 18px 4px 18px 18px;
+}
+
+.mensagem-hora {
+    font-size: 0.7rem;
+    color: #999;
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.mensagem.enviada .mensagem-hora {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.no-messages {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.mensagem-form {
+    padding: 15px;
+    border-top: 1px solid #dbdbdb;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 24px;
+    padding: 8px 15px;
+}
+
+.input-container textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    max-height: 100px;
+    padding: 5px 0;
+}
+
+.send-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-btn:hover {
+    background-color: #e6f0f5;
+}
+
+.send-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Estado vazio */
+.no-conversa-selected {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fafafa;
+}
+
+.empty-state {
+    text-align: center;
+    max-width: 300px;
+    padding: 30px;
+}
+
+.icon-container {
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #0e2b3b;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    color: #999;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}

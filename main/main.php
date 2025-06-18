@@ -61,36 +61,49 @@ if (!$publicacoes) {
     <title>Nexus | Página Inicial</title>
     <style>
         /* Estilos gerais */
-        .posts {
-            justify-content: center;
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-            width: 100%;
-            margin-top: 20px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
         }
 
+        /* Container de posts */
+        .posts {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+            padding-bottom: 60px;
+        }
+
+        /* Post individual */
         .post {
             width: 100%;
             max-width: 600px;
             background: white;
-            padding: 15px;
+            padding: 16px;
             margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border: 1px solid;
-            cursor: pointer;
-            transition: transform 0.2s;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
         }
 
         .post:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
+        /* Cabeçalho do post */
         .post-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         .profile-picture {
@@ -98,40 +111,100 @@ if (!$publicacoes) {
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #e5e7eb;
         }
 
         .username {
-            font-weight: bold;
+            font-weight: 600;
+            color: #1f2937;
         }
 
         .post-time {
-            color: gray;
-            font-size: 0.9em;
+            color: #6b7280;
+            font-size: 0.8em;
             margin-left: auto;
+        }
+
+        /* Conteúdo do post */
+        .post-content {
+            margin-left: 52px;
         }
 
         .post-content p {
             text-align: left;
             word-wrap: break-word;
-            overflow-wrap: break-word;
             white-space: pre-wrap;
-            padding-left: 50px;
-            padding-right: 25px;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
         }
 
         .post-image {
-            float: left;
             width: 100%;
-            max-width: 400px;
-            object-fit: cover;
-            border-radius: 10px;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
             margin-top: 10px;
-            margin-left: 51px;
-            margin-right: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            background-color: #f3f4f6;
         }
 
-        /* Modal de publicação */
+        /* Ações do post */
+        .post-actions {
+            display: flex;
+            width: 100%;
+            margin-top: 12px;
+            gap: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .action-button {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .action-button:hover {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .action-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 6px;
+        }
+
+        .guardar-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+
+        .guardar-button:hover {
+            background-color: #f3f4f6;
+        }
+
+        .guardar-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Modal geral */
         .modal {
             display: none;
             position: fixed;
@@ -143,112 +216,171 @@ if (!$publicacoes) {
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             width: 600px;
-            max-width: 90%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid #0e2b3b;
+            max-width: 95%;
             max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-        }
-
-        .close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
+            flex-direction: column;
         }
 
         /* Modal de visualização de publicação */
         .modal-publicacao {
             width: 700px;
-            max-width: 95%;
         }
 
-        .modal-publicacao .post-content {
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0e2b3b;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #1f2937;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Formulário de comentário */
+        .comment-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .modal-publicacao .post-image {
-            max-width: 100%;
-            margin-left: 0;
-        }
-
-        .comentarios-container {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        .comentario-form {
-            display: flex;
-            margin-top: 20px;
-        }
-
-        .comentario-input {
+        .comment-input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            margin-right: 10px;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .comentario-submit {
+        .comment-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .comment-submit {
             padding: 10px 20px;
             background-color: #0e2b3b;
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 24px;
             cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
         }
 
-        .comentario-submit:hover {
+        .comment-submit:hover {
             background-color: #1a3d4d;
         }
 
-        .comentario {
+        /* Lista de comentários */
+        .comments-container {
+            margin-top: 20px;
+        }
+
+        .comments-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .comment {
             display: flex;
-            margin-bottom: 15px;
-            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .comentario-avatar {
-            width: 32px;
-            height: 32px;
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            margin-right: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
         }
 
-        .comentario-conteudo {
+        .comment-content {
             flex: 1;
         }
 
-        .comentario-autor {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
         }
 
-        .comentario-texto {
-            word-wrap: break-word;
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+            margin-right: 8px;
         }
 
-        /* Notificação de Aniversário */
+        .comment-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .comment-text {
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 0.8rem;
+        }
+
+        .comment-action {
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: #1f2937;
+            text-decoration: underline;
+        }
+
+        /* Notificação de aniversário */
         .notificacao {
             position: fixed;
             top: 20px;
@@ -256,15 +388,15 @@ if (!$publicacoes) {
             transform: translateX(-50%);
             background-color: #4CAF50;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
         }
 
         .notificacao.mostrar {
@@ -275,135 +407,80 @@ if (!$publicacoes) {
             background: none;
             border: none;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
-            font-weight: bold;
+            margin-left: 8px;
         }
 
-        .post-actions {
-            display: flex;
-            width: 100%;
-            margin-top: 15px;
-            gap: 10px;
-        }
-
-        .action-button {
-            flex: 1;
-            background-color: white;
-            border-radius: 10px;
-            padding: 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .action-button:hover {
-            background-color: #e6f0f5;
-        }
-
-        .action-button svg {
-            width: 24px;
-            height: 24px;
-            fill: #0e2b3b;
-        }
-
-        .rotated-icon {
-            transform: rotate(-40deg);
-            transform-origin: center;
-            transition: transform 0.3s ease;
-        }
-
-        .message-button:hover .rotated-icon {
-            transform: rotate(0deg);
-        }
-
-        .guardar-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-            margin-left: 49%;
-            top: 10px;
-        }
-
-        .guardar-button:hover {
-            background-color: #e6f0f5;
-        }
-
-        .modalPublicacao {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modalPublicacao-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 600px;
-            max-width: 90%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-            border: 1px solid #0e2b3b;
-        }
-
-        .modalPublicacao-header {
+        /* Ações da publicação no modal */
+        .post-actions-modal {
             display: flex;
             justify-content: space-between;
+            padding: 12px 0;
+            margin: 16px 0;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .post-action {
+            display: flex;
             align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modalPublicacao-header h2 {
-            margin: 0;
-        }
-
-        .modalPublicacao-header .close {
+            gap: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
             background: none;
             border: none;
-            font-size: 24px;
-            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
         }
 
-        .modalPublicacao-body textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-            margin-bottom: 10px;
+        .post-action:hover {
+            color: #1f2937;
+            background-color: #f3f4f6;
         }
 
-        .modalPublicacao-footer {
-            display: flex;
-            justify-content: flex-end;
+        .post-action svg {
+            width: 18px;
+            height: 18px;
         }
 
-        .modalPublicacao-footer button {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background-color: #0e2b3b;
-            color: white;
-            transition: 0.3s ease;
+        /* Responsividade */
+        @media (max-width: 640px) {
+            .post {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .modal-content {
+                max-height: 100vh;
+                height: 100vh;
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            .post-content {
+                margin-left: 0;
+                padding-left: 52px;
+            }
         }
 
-        .modalPublicacao-footer button:hover {
-            background-color: #1a3d4d;
+        /* Animações */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post {
+            animation: fadeIn 0.3s ease-out forwards;
         }
     </style>
 </head>
@@ -418,44 +495,101 @@ if (!$publicacoes) {
 
     <?php require '../partials/header.php'; ?>
 
-    <!-- Modal para criar publicação -->
-
 
     <!-- Modal para visualizar publicação -->
+    <!-- Modal para visualizar publicação -->
     <div id="modalVerPublicacao" class="modal">
-        <div class="modal-content modal-publicacao">
-            <div class="modal-body" id="conteudoPublicacao">
-                <div style="display: flex; justify-content: space-between;">
-                    <div class="post-header">
-                        <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture">
-                        <span id="username" class="username"></span>
-                        <span id="data" class="post-time" style="margin-left: 10px;"></span>
-                    </div>
-                    <button class="close" onclick="fecharPublicacao()">✖</button>
-                </div>
+        <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
+            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: #0e2b3b;">Publicação</h2>
+                <button class="close" onclick="fecharPublicacao()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+            </div>
 
-                <div class="post-content">
-                    <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
-                    <img id="imagem" src="" class="post-image" style="display: none;" alt="Imagem da publicação">
-                </div>
-                <form class="flex flex-row w-full gap-2" method="POST" action="interacoes/comentar.php">
-                    <input type="text" hidden name="idpublicacao" id="idpublicacao" value="">
-                    <input class="flex-1" type="text" name="comentario" id="">
-                    <input class="hover:bg-blue-50" type="submit" value="Comentar">
-                </form><br>
-                <div class="w-full text-left pt-2 pb-12 text-2xl"><b>Comentários: </b></div>
-
-                <div id="comentarios" class="w-full overflow-y-auto py-4">
-                    <div id="comentario" class="hidden">
-                        <div class="post-header">
-                            <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture">
-                            <span id="username" class="username"></span>
-                            <span id="data" class="post-time" style="margin-left: 10px;"></span>
+            <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
+                <!-- Cabeçalho da publicação -->
+                <div class="flex items-center gap-3 mb-4">
+                    <img id="ft_perfil" alt="Foto de Perfil" class="profile-picture" style="width: 48px; height: 48px;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span id="username" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
+                            <span id="data" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
                         </div>
-                        <div class="post-content">
-                            <p class="post-descricao" id="descricao" style="margin-bottom: 10px"></p>
-                            <img id="imagem" src="" class="post-image" style="display: none;"
-                                alt="Imagem da publicação">
+                    </div>
+                </div>
+
+                <!-- Conteúdo da publicação -->
+                <div class="post-content mb-4" style="margin-left: 60px;">
+                    <p id="descricao" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
+                    </p>
+                    <img id="imagem" src="" class="rounded-lg w-full max-h-96 object-contain mx-auto"
+                        style="display: none;" alt="Imagem da publicação">
+                </div>
+
+                <!-- Ações da publicação -->
+                <div class="flex justify-between items-center px-4 py-2 border-t border-b border-gray-100 mb-4">
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Gostar</span>
+                    </button>
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-green-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Guardar</span>
+                    </button>
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-purple-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                        </svg>
+                        <span>Partilhar</span>
+                    </button>
+                </div>
+
+                <!-- Formulário de comentário -->
+                <div class="mb-6">
+                    <form class="flex gap-2 items-center" method="POST" action="interacoes/comentar.php">
+                        <input type="hidden" name="idpublicacao" id="idpublicacao" value="">
+                        <img src="<?= $foto_base64 ?>" alt="Sua foto" class="w-10 h-10 rounded-full object-cover">
+                        <div class="flex-1 relative">
+                            <input type="text" name="comentario" required
+                                class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Adicione um comentário...">
+                        </div>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition">Publicar</button>
+                    </form>
+                </div>
+
+                <!-- Lista de comentários -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
+                    <div id="comentarios" class="space-y-4">
+                        <!-- Template de comentário (hidden) -->
+                        <div id="comentario" class="hidden">
+                            <div class="flex gap-3">
+                                <img id="ft_perfil" alt="Foto de Perfil" class="w-10 h-10 rounded-full object-cover">
+                                <div class="flex-1">
+                                    <div class="bg-gray-100 rounded-lg p-3">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span id="username" class="font-semibold text-sm text-gray-800"></span>
+                                            <span id="data" class="text-xs text-gray-500"></span>
+                                        </div>
+                                        <p id="descricao" class="text-gray-800 text-sm"></p>
+                                    </div>
+                                    <div class="flex gap-4 mt-1 ml-3">
+                                        <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
+                                        <button class="text-xs text-gray-500 hover:text-gray-700">Responder</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -483,7 +617,8 @@ if (!$publicacoes) {
                         alt="Foto de Perfil" class="profile-picture">
                     <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
                     <p id="data" class="post-time" style="max-height: 20px;">
-                        <?= date("d/m/Y H:i", strtotime($pub['data'])); ?></p>
+                        <?= date("d/m/Y H:i", strtotime($pub['data'])); ?>
+                    </p>
 
 
                 </div>
@@ -509,20 +644,12 @@ if (!$publicacoes) {
                         </svg>
                         <span style="margin-left: 5px;">2</span>
                     </button>
-                    <button class="action-button" title="Gostar">
+                    <button class="action-button like-button" title="Gostar" data-post-id="<?= $pub['idpublicacao'] ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path fill="#0e2b3b" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 
-        2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
-        4.5 2.09C13.09 3.81 14.76 3 16.5 
-        3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
-        6.86-8.55 11.54L12 21.35z" />
+                            <path fill="<?= in_array($utilizador, array_column($like, 'user')) ? '#ff0000' : '#0e2b3b' ?>"
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                         </svg>
-                        <span style="margin-left: 5px;"><?= count($like) ?></span>
-                    </button>
-                    <button class="guardar-button" title="Guardar" style="width: auto;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="#0e2b3b" d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z" />
-                        </svg>
+                        <span class="like-count" style="margin-left: 5px;"><?= count($like) ?></span>
                     </button>
                 </div>
             </div>
@@ -706,6 +833,38 @@ if (!$publicacoes) {
                 notificacao.style.display = "none";
             }
         }
+        ocument.querySelectorAll('.guardar-button').forEach(button => {
+            button.addEventListener('click', function () {
+                // Obter o ID da publicação do elemento pai
+                const postElement = this.closest('.post');
+                const idpublicacao = postElement.id.split('_')[1];
+
+                fetch('guardar.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `idpublicacao=${idpublicacao}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const svgPath = this.querySelector('path');
+                            if (data.guardado) {
+                                svgPath.setAttribute('fill', '#ff0000');
+                                this.setAttribute('title', 'Remover dos guardados');
+                            } else {
+                                // Estilo para quando não está guardado
+                                svgPath.setAttribute('fill', '#0e2b3b');
+                                this.setAttribute('title', 'Guardar');
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => console.error('Erro:', error));
+            });
+        });
     </script>
 </body>
 
