@@ -19,9 +19,7 @@
                 $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "default.png";
                 ?>
 
-
                 <?php while ($user = mysqli_fetch_assoc($result)): ?>
-
                     <a href="../perfil/perfil.php?id=<?= $user['idutilizador'] ?>" id="<?= $user['idutilizador'] ?>"
                         name="<?= $user['user'] ?>" class="hidden flex items-center gap-2 rounded-xl hover:bg-gray-100"
                         style="padding: 12px;">
@@ -30,11 +28,9 @@
                             alt="">
                         <p class="text-black"><?= $user['user'] ?></p>
                     </a>
-
                 <?php endwhile; ?>
             </div>
         </div>
-
 
         <div class="flex gap-1 items-center flex-1 justify-end">
             <!-- Botão de mensagens -->
@@ -49,37 +45,32 @@
             <!-- Botão de publicar -->
             <button class="styled-button" title="Publicar" style="font-size:33px;" onclick="abrirModal()">+</button>
 
+            <!-- Modal de Publicação -->
             <div id="modalPublicacao" class="modalPublicacao">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>Criar Nova Publicação</h2>
                         <button class="close" onclick="fecharModal()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="#0e2b3b">
-                                <path
-                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0e2b3b">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                             </svg>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form action="interacoes/publicar.php" method="post" id="publicacaoForm"
-                            enctype="multipart/form-data">
-                            <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?"
-                                required></textarea>
+                        <form action="interacoes/publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
+                            <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?" required></textarea>
 
                             <div class="media-upload">
                                 <!-- Área de arrastar e soltar -->
                                 <div class="drop-area" id="dropArea">
                                     <div class="drop-content">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#0e2b3b"
-                                            viewBox="0 0 24 24">
-                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#0e2b3b" viewBox="0 0 24 24">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                                         </svg>
                                         <p>Arraste e solte fotos ou vídeos aqui</p>
                                         <p class="subtext">Ou clique para selecionar arquivos</p>
                                     </div>
-                                    <input type="file" id="imagemInput" name="imagem" accept="image/*"
-                                        style="opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer;">
+                                    <input type="file" id="imagemInput" name="imagem" accept="image/*,video/*">
                                 </div>
 
                                 <!-- Preview da imagem -->
@@ -87,23 +78,19 @@
                                     <div class="preview-header">
                                         <span>Pré-visualização</span>
                                         <button type="button" onclick="removerImagem()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="#0e2b3b">
-                                                <path
-                                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0e2b3b">
+                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                                             </svg>
                                         </button>
                                     </div>
-                                    <img id="previewImagem" src="#" alt="Pré-visualização da imagem"
-                                        class="preview-image" />
+                                    <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="preview-image"/>
                                 </div>
                             </div>
 
                             <div class="modal-footer">
                                 <button type="submit" class="botao-publicar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                        fill="white">
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                                     </svg>
                                     Publicar
                                 </button>
@@ -148,12 +135,6 @@
             color: white;
         }
 
-        header .styled-button .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         header .navbar {
             background: #0e2b3b;
             display: flex;
@@ -177,11 +158,7 @@
             border-radius: 8px;
             transition: background-color 0.2s;
             color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             cursor: pointer;
-
         }
 
         header .user-info:hover {
@@ -234,22 +211,6 @@
             outline: none;
         }
 
-
-
-        header .user-info span {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        header .profile-picture {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
-
-        /* Estilos do Modal */
         /* Estilos do Modal */
         header .modalPublicacao {
             display: none;
@@ -273,7 +234,6 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            border: none;
         }
 
         header .modal-header {
@@ -308,19 +268,6 @@
             padding: 20px;
         }
 
-        header .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #eee;
-        }
-
-        header .user-info span {
-            font-weight: 500;
-            color: black;
-        }
-
         header textarea {
             width: 100%;
             height: 120px;
@@ -351,6 +298,7 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-bottom: 15px;
+            position: relative;
         }
 
         header .drop-area:hover {
@@ -441,49 +389,41 @@
             background-color: #1a3d4d;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Responsividade */
-        @media (max-width: 600px) {
-            .modal-content {
-                width: 90%;
-                max-height: 80vh;
-            }
-
-            .drop-area {
-                padding: 20px;
-            }
-        }
-
         header .drop-area.highlight {
             border-color: #0e2b3b;
             background-color: #f0f5f9;
         }
 
-        /* Garantir que o input file não seja visível */
         header #imagemInput {
             position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            header .modal-content {
+                width: 90%;
+                max-height: 80vh;
+            }
+
+            header .drop-area {
+                padding: 20px;
+            }
         }
     </style>
 </header>
 
-<!-- DROP DOWN SERACH BAR -->
 <script>
+    // Funções para a barra de pesquisa
     const searchList = document.querySelector('#searchList');
     const usersList = Array.from(searchList.children);
 
@@ -500,7 +440,6 @@
         }
 
         usersList.forEach(userEl => {
-
             if (userEl.name.toLowerCase().search(search.toLowerCase()) != -1) {
                 userEl.classList.remove('hidden');
             } else {
@@ -508,6 +447,8 @@
             }
         });
     }
+
+    // Funções para o modal de publicação
     function abrirModal() {
         document.getElementById("modalPublicacao").style.display = "flex";
         document.body.style.overflow = "hidden";
@@ -516,9 +457,12 @@
     function fecharModal() {
         document.getElementById("modalPublicacao").style.display = "none";
         document.body.style.overflow = "auto";
+        document.getElementById('publicacaoForm').reset();
+        document.getElementById('previewContainer').style.display = "none";
+        document.getElementById('dropArea').style.display = "block";
     }
 
-    // Função para pré-visualizar imagem
+    // Função para exibir preview da imagem
     function preverImagem() {
         const input = document.getElementById('imagemInput');
         const preview = document.getElementById('previewImagem');
@@ -526,19 +470,37 @@
         const dropArea = document.getElementById('dropArea');
 
         if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (!validTypes.includes(file.type)) {
+                alert('Por favor, selecione uma imagem (JPEG, PNG ou GIF)');
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                alert('A imagem é muito grande (máximo 5MB)');
+                return;
+            }
+
             const reader = new FileReader();
 
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 preview.src = e.target.result;
                 container.style.display = "flex";
                 dropArea.style.display = "none";
             }
 
-            reader.readAsDataURL(input.files[0]);
+            reader.onerror = function() {
+                console.error('Erro ao ler o arquivo');
+                alert('Erro ao carregar a imagem');
+            }
+
+            reader.readAsDataURL(file);
         }
     }
 
-    // Função para remover imagem selecionada
     function removerImagem() {
         const input = document.getElementById('imagemInput');
         const preview = document.getElementById('previewImagem');
@@ -551,17 +513,13 @@
         dropArea.style.display = "block";
     }
 
-    // Implementação de drag and drop
-    document.addEventListener('DOMContentLoaded', function () {
+    // Inicialização quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurar drag and drop
         const dropArea = document.getElementById('dropArea');
         const input = document.getElementById('imagemInput');
 
         if (dropArea && input) {
-            // Click na área de drop
-            dropArea.addEventListener('click', function () {
-                input.click();
-            });
-
             // Evitar comportamentos padrão
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
@@ -603,32 +561,45 @@
             }
         }
 
-        // Verificar se o input de imagem existe
+        // Configurar o input de arquivo
         const imagemInput = document.getElementById('imagemInput');
         if (imagemInput) {
             imagemInput.addEventListener('change', preverImagem);
         }
-    });
 
-    // Fechar modal ao pressionar ESC
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            fecharModal();
+        // Fechar modal ao pressionar ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharModal();
+            }
+        });
+
+        // Verificar envio do formulário
+        const form = document.getElementById('publicacaoForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const descricao = document.getElementById('descricao').value;
+                const imagem = document.getElementById('imagemInput').files[0];
+                
+                if (!descricao && !imagem) {
+                    e.preventDefault();
+                    alert('Por favor, adicione uma descrição ou uma imagem');
+                    return;
+                }
+            });
         }
     });
-</script>
 
-<!-- DROPDOWN PERFIL -->
-<script>
+    // Funções para o dropdown do perfil
     function toggleDropdown(event) {
-        event.stopPropagation(); // Impede que o clique feche imediatamente
+        event.stopPropagation();
         const menu = document.getElementById("dropdownMenu");
         const isOpen = menu.style.display === "block";
         menu.style.display = isOpen ? "none" : "block";
     }
 
     // Fechar dropdown ao clicar fora
-    window.addEventListener("click", function () {
+    window.addEventListener("click", function() {
         const menu = document.getElementById("dropdownMenu");
         if (menu) {
             menu.style.display = "none";
