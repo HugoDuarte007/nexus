@@ -139,7 +139,7 @@ if (!$publicacoes) {
             font-size: 0.95rem;
         }
 
-        .post-image {
+        .post-media {
             width: 100%;
             max-height: 500px;
             object-fit: contain;
@@ -148,8 +148,17 @@ if (!$publicacoes) {
             margin-bottom: 10px;
             background-color: #f3f4f6;
             cursor: pointer;
-            aspect-ratio: 1/1; /* Mantém proporção quadrada */
-    object-fit: cover; /* Corta a imagem para preencher o quadrado */
+            aspect-ratio: 1/1; /* Mantém proporção quadrada para imagens */
+            object-fit: cover; /* Corta a imagem para preencher o quadrado */
+        }
+
+        .post-video {
+            width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            background-color: #000;
         }
 
         /* Ações do post */
@@ -239,8 +248,8 @@ if (!$publicacoes) {
             width: 700px;
         }
 
-        /* Modal de visualização de imagem */
-        #modalImagem .modal-content {
+        /* Modal de visualização de mídia */
+        #modalMedia .modal-content {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -251,7 +260,7 @@ if (!$publicacoes) {
             box-shadow: none;
         }
 
-        #modalImagem .close {
+        #modalMedia .close {
             color: white;
             font-size: 30px;
             font-weight: bold;
@@ -270,11 +279,11 @@ if (!$publicacoes) {
             z-index: 10;
         }
 
-        #modalImagem .close:hover {
+        #modalMedia .close:hover {
             background: rgba(0,0,0,0.7);
         }
 
-        #imagemAmpliada {
+        #mediaAmpliado {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
@@ -540,11 +549,15 @@ if (!$publicacoes) {
 
     <?php require '../partials/header.php'; ?>
 
-    <!-- Modal para visualizar imagem em tamanho real -->
-    <div id="modalImagem" class="modal">
+    <!-- Modal para visualizar mídia em tamanho real -->
+    <div id="modalMedia" class="modal">
         <div class="modal-content" style="max-width: 90%; max-height: 90%; background: transparent; box-shadow: none;">
-            <button class="close" onclick="fecharImagem()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
-            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            <button class="close" onclick="fecharMedia()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
+            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+            <video id="videoAmpliado" controls style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+                <source src="" type="">
+                Seu navegador não suporta o elemento de vídeo.
+            </video>
         </div>
     </div>
 
@@ -573,7 +586,12 @@ if (!$publicacoes) {
                     <p id="descricao" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
                     </p>
                     <img id="imagem" src="" class="rounded-lg w-full max-h-96 object-contain mx-auto"
-                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarImagem(this.src)">
+                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                    <video id="video" controls class="rounded-lg w-full max-h-96 mx-auto"
+                        style="display: none;" alt="Vídeo da publicação">
+                        <source src="" type="">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>
                 </div>
 
                 <!-- Ações da publicação -->
@@ -656,6 +674,15 @@ if (!$publicacoes) {
 
             $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
             $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
+
+            // Determinar o tipo de mídia
+            $media_path = $pub['media'];
+            $is_video = false;
+            if ($media_path) {
+                $extensao = strtolower(pathinfo($media_path, PATHINFO_EXTENSION));
+                $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
+                $is_video = in_array($extensao, $extensoes_video);
+            }
             ?>
 
             <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
@@ -672,8 +699,18 @@ if (!$publicacoes) {
 
                 <div class="post-content">
                     <p class="post-descricao" id="descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
-                    <img id="imagem" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-image"
-                        alt="Imagem da publicação" style="display: <?= empty($pub['media']) ? 'none' : 'block' ?>" onclick="ampliarImagem(this.src)">
+                    
+                    <?php if (!empty($pub['media'])): ?>
+                        <?php if ($is_video): ?>
+                            <video id="video" controls class="post-video" style="display: block;">
+                                <source src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= $extensao ?>">
+                                Seu navegador não suporta o elemento de vídeo.
+                            </video>
+                        <?php else: ?>
+                            <img id="imagem" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-media"
+                                alt="Imagem da publicação" style="display: block" onclick="ampliarMedia(this.src, 'image')">
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
 
                 <div class="post-actions">
@@ -717,9 +754,11 @@ if (!$publicacoes) {
             const username = publicacao.querySelector('#username').innerText;
             const data = publicacao.querySelector('#data').innerText;
             const descricao = publicacao.querySelector('#descricao').innerText;
-            const imagem = publicacao.querySelector('#imagem').src;
-            const mostrarImagem = publicacao.querySelector('#imagem').style.display !== "none";
-
+            
+            // Verificar se é imagem ou vídeo
+            const imagem = publicacao.querySelector('#imagem');
+            const video = publicacao.querySelector('#video');
+            
             // Preencher dados no modal
             document.getElementById("ft_perfil").src = ft_perfil;
             document.getElementById("ft_perfil").parentElement.href = idutilizador;
@@ -727,12 +766,20 @@ if (!$publicacoes) {
             document.getElementById("data").innerText = data;
             document.getElementById("descricao").innerText = descricao;
 
+            // Limpar mídia anterior
             const imagemModal = document.getElementById("imagem");
-            if (mostrarImagem) {
-                imagemModal.src = imagem;
+            const videoModal = document.getElementById("video");
+            imagemModal.style.display = "none";
+            videoModal.style.display = "none";
+
+            // Mostrar mídia apropriada
+            if (imagem && imagem.style.display !== "none") {
+                imagemModal.src = imagem.src;
                 imagemModal.style.display = "block";
-            } else {
-                imagemModal.style.display = "none";
+            } else if (video && video.style.display !== "none") {
+                videoModal.querySelector('source').src = video.querySelector('source').src;
+                videoModal.load(); // Recarregar o vídeo
+                videoModal.style.display = "block";
             }
 
             // Definir o id da publicação no formulário
@@ -789,30 +836,50 @@ if (!$publicacoes) {
             modalVerPublicacao.style.display = 'none';
         }
 
-        // Funções para ampliar imagem
-        function ampliarImagem(src) {
-            const modal = document.getElementById('modalImagem');
+        // Funções para ampliar mídia
+        function ampliarMedia(src, type) {
+            const modal = document.getElementById('modalMedia');
             const imagem = document.getElementById('imagemAmpliada');
+            const video = document.getElementById('videoAmpliado');
             
-            imagem.src = src;
+            // Esconder ambos primeiro
+            imagem.style.display = 'none';
+            video.style.display = 'none';
+            
+            if (type === 'image') {
+                imagem.src = src;
+                imagem.style.display = 'block';
+            } else if (type === 'video') {
+                video.querySelector('source').src = src;
+                video.load();
+                video.style.display = 'block';
+            }
+            
             modal.style.display = 'flex';
             
             // Desativar scroll da página quando o modal está aberto
             document.body.style.overflow = 'hidden';
         }
 
-        function fecharImagem() {
-            const modal = document.getElementById('modalImagem');
+        function fecharMedia() {
+            const modal = document.getElementById('modalMedia');
+            const video = document.getElementById('videoAmpliado');
+            
+            // Pausar vídeo se estiver tocando
+            if (!video.paused) {
+                video.pause();
+            }
+            
             modal.style.display = 'none';
             
             // Reativar scroll da página
             document.body.style.overflow = 'auto';
         }
 
-        // Fechar modal ao clicar fora da imagem
-        document.getElementById('modalImagem').addEventListener('click', function(e) {
+        // Fechar modal ao clicar fora da mídia
+        document.getElementById('modalMedia').addEventListener('click', function(e) {
             if (e.target === this) {
-                fecharImagem();
+                fecharMedia();
             }
         });
 

@@ -87,8 +87,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: white;
             text-align: center;
             border-top: 1px solid #ddd;
-            width: 96%;
+            width: 100%;
+            
         }
+        
 
         .footer-container {
             display: flex;

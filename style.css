@@ -6,6 +6,7 @@
         min-height: 100vh;
         color: black;
         text-align: center;
+        overflow-x:hidden;
     }
 
     .container {

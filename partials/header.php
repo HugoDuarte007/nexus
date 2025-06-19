@@ -69,21 +69,28 @@
                                         </svg>
                                         <p>Arraste e solte fotos ou vídeos aqui</p>
                                         <p class="subtext">Ou clique para selecionar arquivos</p>
+                                        <p class="file-types">Suportados: JPG, PNG, GIF, MP4, MOV, AVI (máx. 50MB)</p>
                                     </div>
-                                    <input type="file" id="imagemInput" name="imagem" accept="image/*,video/*">
+                                    <input type="file" id="mediaInput" name="media" accept="image/*,video/*">
                                 </div>
 
-                                <!-- Preview da imagem -->
+                                <!-- Preview da mídia -->
                                 <div id="previewContainer" class="hidden">
                                     <div class="preview-header">
-                                        <span>Pré-visualização</span>
-                                        <button type="button" onclick="removerImagem()">
+                                        <span id="previewTitle">Pré-visualização</span>
+                                        <button type="button" onclick="removerMedia()">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0e2b3b">
                                                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                                             </svg>
                                         </button>
                                     </div>
-                                    <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="preview-image"/>
+                                    <div id="mediaPreview">
+                                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="preview-media hidden"/>
+                                        <video id="previewVideo" controls class="preview-media hidden">
+                                            <source src="#" type="">
+                                            Seu navegador não suporta o elemento de vídeo.
+                                        </video>
+                                    </div>
                                 </div>
                             </div>
 
@@ -323,6 +330,12 @@
             color: #999;
         }
 
+        header .drop-content .file-types {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
         header #previewContainer {
             display: none;
             flex-direction: column;
@@ -358,11 +371,18 @@
             background-color: #f0f0f0;
         }
 
-        header .preview-image {
+        header .preview-media {
             max-width: 100%;
             max-height: 300px;
             object-fit: contain;
             display: block;
+        }
+
+        header #mediaPreview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
         }
 
         header .modal-footer {
@@ -394,7 +414,7 @@
             background-color: #f0f5f9;
         }
 
-        header #imagemInput {
+        header #mediaInput {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -462,53 +482,75 @@
         document.getElementById('dropArea').style.display = "block";
     }
 
-    // Função para exibir preview da imagem
-    function preverImagem() {
-        const input = document.getElementById('imagemInput');
-        const preview = document.getElementById('previewImagem');
+    // Função para exibir preview da mídia
+    function preverMedia() {
+        const input = document.getElementById('mediaInput');
+        const previewImg = document.getElementById('previewImagem');
+        const previewVideo = document.getElementById('previewVideo');
         const container = document.getElementById('previewContainer');
         const dropArea = document.getElementById('dropArea');
+        const previewTitle = document.getElementById('previewTitle');
 
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            const maxSize = 5 * 1024 * 1024; // 5MB
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/webm'];
+            const maxSize = 50 * 1024 * 1024; // 50MB
             
-            if (!validTypes.includes(file.type)) {
-                alert('Por favor, selecione uma imagem (JPEG, PNG ou GIF)');
+            if (!validImageTypes.includes(file.type) && !validVideoTypes.includes(file.type)) {
+                alert('Por favor, selecione uma imagem (JPEG, PNG, GIF, WEBP) ou vídeo (MP4, MOV, AVI, WEBM)');
                 return;
             }
             
             if (file.size > maxSize) {
-                alert('A imagem é muito grande (máximo 5MB)');
+                alert('O arquivo é muito grande (máximo 50MB)');
                 return;
             }
 
             const reader = new FileReader();
 
             reader.onload = function(e) {
-                preview.src = e.target.result;
+                // Esconder ambos os elementos primeiro
+                previewImg.classList.add('hidden');
+                previewVideo.classList.add('hidden');
+
+                if (validImageTypes.includes(file.type)) {
+                    // É uma imagem
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    previewTitle.textContent = 'Pré-visualização da Imagem';
+                } else if (validVideoTypes.includes(file.type)) {
+                    // É um vídeo
+                    previewVideo.src = e.target.result;
+                    previewVideo.classList.remove('hidden');
+                    previewTitle.textContent = 'Pré-visualização do Vídeo';
+                }
+
                 container.style.display = "flex";
                 dropArea.style.display = "none";
             }
 
             reader.onerror = function() {
                 console.error('Erro ao ler o arquivo');
-                alert('Erro ao carregar a imagem');
+                alert('Erro ao carregar o arquivo');
             }
 
             reader.readAsDataURL(file);
         }
     }
 
-    function removerImagem() {
-        const input = document.getElementById('imagemInput');
-        const preview = document.getElementById('previewImagem');
+    function removerMedia() {
+        const input = document.getElementById('mediaInput');
+        const previewImg = document.getElementById('previewImagem');
+        const previewVideo = document.getElementById('previewVideo');
         const container = document.getElementById('previewContainer');
         const dropArea = document.getElementById('dropArea');
 
         input.value = '';
-        preview.src = '#';
+        previewImg.src = '#';
+        previewVideo.src = '#';
+        previewImg.classList.add('hidden');
+        previewVideo.classList.add('hidden');
         container.style.display = "none";
         dropArea.style.display = "block";
     }
@@ -517,7 +559,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Configurar drag and drop
         const dropArea = document.getElementById('dropArea');
-        const input = document.getElementById('imagemInput');
+        const input = document.getElementById('mediaInput');
 
         if (dropArea && input) {
             // Evitar comportamentos padrão
@@ -556,15 +598,15 @@
 
                 if (files.length) {
                     input.files = files;
-                    preverImagem();
+                    preverMedia();
                 }
             }
         }
 
         // Configurar o input de arquivo
-        const imagemInput = document.getElementById('imagemInput');
-        if (imagemInput) {
-            imagemInput.addEventListener('change', preverImagem);
+        const mediaInput = document.getElementById('mediaInput');
+        if (mediaInput) {
+            mediaInput.addEventListener('change', preverMedia);
         }
 
         // Fechar modal ao pressionar ESC
@@ -579,11 +621,11 @@
         if (form) {
             form.addEventListener('submit', function(e) {
                 const descricao = document.getElementById('descricao').value;
-                const imagem = document.getElementById('imagemInput').files[0];
+                const media = document.getElementById('mediaInput').files[0];
                 
-                if (!descricao && !imagem) {
+                if (!descricao && !media) {
                     e.preventDefault();
-                    alert('Por favor, adicione uma descrição ou uma imagem');
+                    alert('Por favor, adicione uma descrição ou uma mídia');
                     return;
                 }
             });

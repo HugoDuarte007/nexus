@@ -28,20 +28,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validar dados
     $descricao = !empty($_POST['descricao']) ? trim($con->real_escape_string($_POST['descricao'])) : null;
     $data = date("Y-m-d H:i:s");
-    $nomeImagem = null;
+    $nomeMedia = null;
 
-    // Processar imagem
-    if (!empty($_FILES['imagem']['name']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
-        // Validações da imagem
-        $extensao = strtolower(pathinfo($_FILES['imagem']['name'], PATHINFO_EXTENSION));
-        $extensoes_permitidas = ['jpg', 'jpeg', 'png', 'gif'];
+    // Processar mídia (imagem ou vídeo)
+    if (!empty($_FILES['media']['name']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
+        // Validações da mídia
+        $extensao = strtolower(pathinfo($_FILES['media']['name'], PATHINFO_EXTENSION));
+        $extensoes_imagem = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
+        $extensoes_permitidas = array_merge($extensoes_imagem, $extensoes_video);
         
         if (!in_array($extensao, $extensoes_permitidas)) {
-            die(json_encode(['success' => false, 'message' => 'Apenas imagens JPG, PNG ou GIF são permitidas']));
+            die(json_encode(['success' => false, 'message' => 'Apenas imagens (JPG, PNG, GIF, WEBP) ou vídeos (MP4, MOV, AVI, WEBM) são permitidos']));
         }
 
-        if ($_FILES['imagem']['size'] > 5242880) { // 5MB
-            die(json_encode(['success' => false, 'message' => 'Tamanho máximo da imagem: 5MB']));
+        // Verificar tamanho do arquivo (50MB para vídeos, 5MB para imagens)
+        $tamanho_maximo = in_array($extensao, $extensoes_video) ? 52428800 : 5242880; // 50MB ou 5MB
+        if ($_FILES['media']['size'] > $tamanho_maximo) {
+            $limite = in_array($extensao, $extensoes_video) ? '50MB' : '5MB';
+            die(json_encode(['success' => false, 'message' => "Tamanho máximo do arquivo: $limite"]));
+        }
+
+        // Verificar se é realmente um arquivo de mídia válido
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $_FILES['media']['tmp_name']);
+        finfo_close($finfo);
+
+        $mime_types_validos = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'
+        ];
+
+        if (!in_array($mime_type, $mime_types_validos)) {
+            die(json_encode(['success' => false, 'message' => 'Tipo de arquivo não suportado']));
         }
 
         // Pasta de destino relativa ao publicar.php
@@ -50,22 +69,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             mkdir($pasta_destino, 0777, true);
         }
 
-        $nomeImagem = uniqid('pub_', true) . '.' . $extensao;
-        $caminhoCompleto = $pasta_destino . $nomeImagem;
+        // Gerar nome único para o arquivo
+        $prefixo = in_array($extensao, $extensoes_video) ? 'vid_' : 'pub_';
+        $nomeMedia = uniqid($prefixo, true) . '.' . $extensao;
+        $caminhoCompleto = $pasta_destino . $nomeMedia;
 
-        if (!move_uploaded_file($_FILES['imagem']['tmp_name'], $caminhoCompleto)) {
-            die(json_encode(['success' => false, 'message' => 'Erro ao guardar a imagem']));
+        if (!move_uploaded_file($_FILES['media']['tmp_name'], $caminhoCompleto)) {
+            die(json_encode(['success' => false, 'message' => 'Erro ao guardar o arquivo']));
         }
+
+        // Verificar se o arquivo foi realmente salvo
+        if (!file_exists($caminhoCompleto)) {
+            die(json_encode(['success' => false, 'message' => 'Erro: arquivo não foi salvo corretamente']));
+        }
+    }
+
+    // Verificar se há conteúdo para publicar
+    if (empty($descricao) && empty($nomeMedia)) {
+        die(json_encode(['success' => false, 'message' => 'É necessário adicionar uma descrição ou uma mídia']));
     }
 
     // Inserir publicação
     $stmt = $con->prepare("INSERT INTO publicacao (idutilizador, media, descricao, data) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $idutilizador, $nomeImagem, $descricao, $data);
+    $stmt->bind_param("isss", $idutilizador, $nomeMedia, $descricao, $data);
 
     if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Publicação criada com sucesso!',
+            'media_type' => $nomeMedia ? (in_array($extensao, $extensoes_video ?? []) ? 'video' : 'image') : null
+        ]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Erro ao publicar']);
+        // Se houve erro na inserção, remover o arquivo que foi salvo
+        if ($nomeMedia && file_exists($caminhoCompleto)) {
+            unlink($caminhoCompleto);
+        }
+        echo json_encode(['success' => false, 'message' => 'Erro ao publicar: ' . $stmt->error]);
     }
     
     $stmt->close();

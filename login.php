@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 30px;
             margin-right: 50%%;
             background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
+            border-radius: 40px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 400px;
             color: white;

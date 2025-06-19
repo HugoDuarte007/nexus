@@ -94,6 +94,22 @@ if ($resultPublicacoes) {
 
 $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "default.png";
 $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto_capa) : "capa_default.jpg";
+
+// Função para verificar se é vídeo
+function isVideo($filename) {
+    if (empty($filename)) return false;
+    $videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    return in_array($extension, $videoExtensions);
+}
+
+// Função para verificar se é imagem
+function isImage($filename) {
+    if (empty($filename)) return false;
+    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    return in_array($extension, $imageExtensions);
+}
 ?>
 
 <!DOCTYPE html>
@@ -344,6 +360,9 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            height: auto;
         }
 
         .perfil-post-header {
@@ -378,12 +397,32 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             word-break: break-word;
         }
 
-        .perfil-post-image {
+        /* Container da mídia para tamanho fixo */
+        .perfil-post-media-container {
             width: 100%;
+            height: 250px;
+            overflow: hidden;
             border-radius: 6px;
             margin-top: 8px;
-            max-height: 100%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Imagem dentro do container */
+        .perfil-post-image {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
+        }
+
+        /* Vídeo dentro do container */
+        .perfil-post-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
         }
 
         .perfil-post-actions {
@@ -459,39 +498,24 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             height: 16px;
             vertical-align: middle;
         }
-        .perfil-posts {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
 
-.perfil-post {
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-}
+        /* Indicador de tipo de mídia */
+        .media-type-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
 
-/* Container da imagem para tamanho fixo */
-.perfil-post-image-container {
-    width: 100%;
-    height: 250px; /* Altura fixa */
-    overflow: hidden;
-    border-radius: 6px;
-    margin-top: 8px;
-}
-
-/* Imagem dentro do container (cobre o espaço mantendo proporção) */
-.perfil-post-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
-}
+        .perfil-post-media-container {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -560,8 +584,6 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
         </div>
 
         <div class="profile-details">
-
-
             <div class="detail-card">
                 <h3 class="detail-title">Publicações</h3>
                 <?php if (count($publicacoes) > 0): ?>
@@ -599,9 +621,24 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
                                 </div>
 
                                 <?php if (!empty($pub['media'])): ?>
-                                    <div class="perfil-post-image-container">
-                                        <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
-                                            class="perfil-post-image" alt="Imagem da publicação">
+                                    <div class="perfil-post-media-container">
+                                        <?php if (isVideo($pub['media'])): ?>
+                                            <div class="media-type-indicator">Vídeo</div>
+                                            <video class="perfil-post-video" controls preload="metadata">
+                                                <source src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= pathinfo($pub['media'], PATHINFO_EXTENSION); ?>">
+                                                Seu navegador não suporta o elemento de vídeo.
+                                            </video>
+                                        <?php elseif (isImage($pub['media'])): ?>
+                                            <div class="media-type-indicator">Imagem</div>
+                                            <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
+                                                class="perfil-post-image" alt="Imagem da publicação">
+                                        <?php else: ?>
+                                            <div class="media-type-indicator">Arquivo</div>
+                                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
+                                                <i class="fas fa-file fa-3x"></i>
+                                                <p style="margin-left: 10px;">Arquivo: <?= htmlspecialchars($pub['media']); ?></p>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
 
@@ -706,6 +743,7 @@ $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto
             console.log('Abrir publicação:', pubid);
             // window.location.href = 'publicacao.php?id=' + pubid;
         }
+        
         function confirmarDelete(idPublicacao) {
             if (confirm('Tem certeza que deseja excluir esta publicação?')) {
                 deletarPublicacao(idPublicacao);
