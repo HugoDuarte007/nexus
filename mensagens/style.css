@@ -1,7 +1,10 @@
 /* Estilos gerais */
+body {
+    max-height: 100vh;
+}
 .messages-container {
     display: flex;
-    height: calc(100vh - 60px); /* Subtrai a altura do header */
+    flex:1;
     background-color: #fafafa;
     font-family: 'Segoe UI', Roboto, sans-serif;
 }

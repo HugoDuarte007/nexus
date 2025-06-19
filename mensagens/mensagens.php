@@ -65,17 +65,22 @@ if ($destinatario) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mensagens | Nexus</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="messages.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
-    <?php require '../partials/header.php'; ?>
+    <style>
+        
+    </style>
+
+ <?php require '../partials/header.php'; ?>
 
     <div class="messages-container">
         <!-- Sidebar com lista de conversas -->
         <div class="messages-sidebar">
             <div class="messages-header">
-                <h2>Mensagens</h2>
+                <h2>bofa</h2>
                 <div class="search-bar">
                     <input type="text" placeholder="Pesquisar pessoas...">
                 </div>
@@ -84,7 +89,7 @@ if ($destinatario) {
             <div class="conversas-list">
                 <?php if(mysqli_num_rows($conversas) > 0): ?>
                     <?php while($conversa = mysqli_fetch_assoc($conversas)): ?>
-                        <a href="messages.php?destinatario=<?= $conversa['idutilizador'] ?>" class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?>">
+                        <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?>">
                             <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : 'default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
                             <div class="conversa-info">
                                 <span class="conversa-nome"><?= htmlspecialchars($conversa['user']) ?></span>
@@ -161,6 +166,47 @@ if ($destinatario) {
     </div>
 
     <script>
+        // Funções para a barra de pesquisa
+        const searchList = document.querySelector('#searchList');
+        const usersList = Array.from(searchList.children);
+
+        function searchDropdown(inputEl) {
+            var search = inputEl.value;
+
+            searchList.style.width = searchList.parentElement.offsetWidth + "px";
+
+            if (search == "") {
+                searchList.classList.add('hidden');
+                return;
+            } else {
+                searchList.classList.remove('hidden');
+            }
+
+            usersList.forEach(userEl => {
+                if (userEl.name.toLowerCase().search(search.toLowerCase()) != -1) {
+                    userEl.classList.remove('hidden');
+                } else {
+                    userEl.classList.add('hidden');
+                }
+            });
+        }
+
+        // Funções para o dropdown do perfil
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById("dropdownMenu");
+            const isOpen = menu.style.display === "block";
+            menu.style.display = isOpen ? "none" : "block";
+        }
+
+        // Fechar dropdown ao clicar fora
+        window.addEventListener("click", function() {
+            const menu = document.getElementById("dropdownMenu");
+            if (menu) {
+                menu.style.display = "none";
+            }
+        });
+
         // Rolagem automática para a última mensagem
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('mensagensContainer');

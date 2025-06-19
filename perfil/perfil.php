@@ -258,6 +258,12 @@ function isImage($filename) {
 
         .stat-item {
             text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
         }
 
         .stat-number {
@@ -516,6 +522,165 @@ function isImage($filename) {
         .perfil-post-media-container {
             position: relative;
         }
+
+        /* Estilos do Modal de Seguidores */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            color: #1f2937;
+            background-color: #f3f4f6;
+        }
+
+        .modal-body {
+            padding: 0;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .user-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .user-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 2px;
+        }
+
+        .user-username {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .follow-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--accent-color);
+            background-color: transparent;
+            color: var(--accent-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .follow-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .follow-btn.following {
+            background-color: #e5e7eb;
+            color: #6b7280;
+            border-color: #e5e7eb;
+        }
+
+        .follow-btn.following:hover {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #d1d5db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
     </style>
 </head>
 
@@ -569,11 +734,11 @@ function isImage($filename) {
                         <div class="stat-number"><?= $totalPublicacoes ?></div>
                         <div class="stat-label">Publicações</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item" onclick="abrirModalSeguidores()">
                         <div class="stat-number"><?= $totalSeguidores ?></div>
                         <div class="stat-label">Seguidores</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item" onclick="abrirModalSeguindo()">
                         <div class="stat-number"><?= $totalSeguindo ?></div>
                         <div class="stat-label">Seguindo</div>
                     </div>
@@ -679,6 +844,34 @@ function isImage($filename) {
         </div>
     </div>
 
+    <!-- Modal de Seguidores -->
+    <div id="modalSeguidores" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Seguidores</h2>
+                <button class="close" onclick="fecharModal('modalSeguidores')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="loading" id="loadingSeguidores">A carregar seguidores...</div>
+                <ul class="user-list" id="listaSeguidores"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Seguindo -->
+    <div id="modalSeguindo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Seguindo</h2>
+                <button class="close" onclick="fecharModal('modalSeguindo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="loading" id="loadingSeguindo">A carregar utilizadores...</div>
+                <ul class="user-list" id="listaSeguindo"></ul>
+            </div>
+        </div>
+    </div>
+
     <script>
         function uploadImage(inputId, uploadUrl) {
             let fileInput = document.getElementById(inputId);
@@ -777,6 +970,164 @@ function isImage($filename) {
                     console.error('Erro:', error);
                     alert('Erro ao conectar com o servidor');
                 });
+        }
+
+        // Funções para os modais de seguidores
+        function abrirModalSeguidores() {
+            document.getElementById('modalSeguidores').style.display = 'block';
+            carregarSeguidores();
+        }
+
+        function abrirModalSeguindo() {
+            document.getElementById('modalSeguindo').style.display = 'block';
+            carregarSeguindo();
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function carregarSeguidores() {
+            const loading = document.getElementById('loadingSeguidores');
+            const lista = document.getElementById('listaSeguidores');
+            
+            loading.style.display = 'block';
+            lista.innerHTML = '';
+
+            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguidores`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.success && data.users.length > 0) {
+                        data.users.forEach(user => {
+                            const userItem = criarItemUtilizador(user);
+                            lista.appendChild(userItem);
+                        });
+                    } else {
+                        lista.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>Nenhum seguidor encontrado</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    loading.style.display = 'none';
+                    lista.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar seguidores</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function carregarSeguindo() {
+            const loading = document.getElementById('loadingSeguindo');
+            const lista = document.getElementById('listaSeguindo');
+            
+            loading.style.display = 'block';
+            lista.innerHTML = '';
+
+            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguindo`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.success && data.users.length > 0) {
+                        data.users.forEach(user => {
+                            const userItem = criarItemUtilizador(user);
+                            lista.appendChild(userItem);
+                        });
+                    } else {
+                        lista.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-plus"></i>
+                                <p>Não está a seguir ninguém</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    loading.style.display = 'none';
+                    lista.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar utilizadores</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function criarItemUtilizador(user) {
+            const li = document.createElement('li');
+            
+            const link = document.createElement('a');
+            link.href = `perfil.php?id=${user.idutilizador}`;
+            link.className = 'user-item';
+            
+            link.innerHTML = `
+                <img src="${user.ft_perfil ? 'data:image/jpeg;base64,' + user.ft_perfil : 'default.png'}" 
+                     alt="Foto de perfil" class="user-avatar">
+                <div class="user-info">
+                    <div class="user-name">${user.nome}</div>
+                    <div class="user-username">@${user.user}</div>
+                </div>
+            `;
+
+            // Adicionar botão de seguir apenas se não for o próprio utilizador
+            if (user.idutilizador != <?= $iduser ?>) {
+                const followBtn = document.createElement('button');
+                followBtn.className = user.is_following ? 'follow-btn following' : 'follow-btn';
+                followBtn.textContent = user.is_following ? 'Seguindo' : 'Seguir';
+                followBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    seguirUtilizadorModal(user.idutilizador, followBtn);
+                };
+                
+                link.appendChild(followBtn);
+            }
+            
+            li.appendChild(link);
+            return li;
+        }
+
+        function seguirUtilizadorModal(idSeguido, button) {
+            fetch('../main/interacoes/seguir.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id_seguido=' + encodeURIComponent(idSeguido)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        button.textContent = data.seguindo ? 'Seguindo' : 'Seguir';
+                        button.className = data.seguindo ? 'follow-btn following' : 'follow-btn';
+                    } else {
+                        console.error('Erro:', data.message);
+                    }
+                })
+                .catch(error => console.error('Erro na requisição:', error));
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modalSeguidores = document.getElementById('modalSeguidores');
+            const modalSeguindo = document.getElementById('modalSeguindo');
+            
+            if (event.target === modalSeguidores) {
+                modalSeguidores.style.display = 'none';
+            }
+            if (event.target === modalSeguindo) {
+                modalSeguindo.style.display = 'none';
+            }
         }
     </script>
 
