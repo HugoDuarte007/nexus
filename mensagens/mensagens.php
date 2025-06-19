@@ -89,7 +89,7 @@ if ($destinatario) {
                 <?php if (mysqli_num_rows($conversas) > 0): ?>
                     <?php while ($conversa = mysqli_fetch_assoc($conversas)): ?>
                         <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?>">
-                            <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : 'default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
+                            <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
                             <div class="conversa-info">
                                 <span class="conversa-nome"><?= htmlspecialchars($conversa['user']) ?></span>
                                 <span class="conversa-ultima"><?= date("d/m H:i", strtotime($conversa['ultima_msg'])) ?></span>
@@ -106,7 +106,7 @@ if ($destinatario) {
         <div class="messages-content">
             <?php if ($destinatario): ?>
                 <div class="conversa-header">
-                    <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : 'default.png' ?>" alt="Foto de perfil" class="destinatario-avatar">
+                    <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="destinatario-avatar">
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
                         <button class="action-btn">
@@ -132,7 +132,7 @@ if ($destinatario) {
                         <?php foreach ($mensagens_array as $msg): ?>
                             <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
                                 <?php if ($msg['idremetente'] != $id_utilizador): ?>
-                                    <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : 'default.png' ?>" alt="Foto de perfil" class="mensagem-avatar">
+                                    <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="mensagem-avatar">
                                 <?php endif; ?>
                                 <div class="mensagem-conteudo">
                                     <p><?= nl2br(htmlspecialchars($msg['mensagem'])) ?></p>

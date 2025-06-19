@@ -16,7 +16,7 @@
                 $sql = "SELECT * FROM utilizador;";
                 $result = mysqli_query($con, $sql);
                 $foto_perfil = $_SESSION['ft_perfil'] ?? null;
-                $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "default.png";
+                $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_perfil) : "../imagens/default.png";
                 ?>
 
                 <?php while ($user = mysqli_fetch_assoc($result)): ?>
@@ -111,7 +111,7 @@
             <div class="h_profile-dropdown" onclick="toggleDropdown(event)">
                 <div class="h_user-info">
                     <p><?php echo htmlspecialchars($_SESSION["user"]); ?></p>
-                    <img src="../imagens/<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
+                    <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
                 </div>
                 <div id="dropdownMenu" class="h_dropdown-content">
                     <a href="../perfil/perfil.php">Ver perfil</a>
