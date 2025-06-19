@@ -1,10 +1,14 @@
 /* Estilos gerais */
 body {
-    max-height: 100vh;
+    height: 100vh;
+    
+    display: flex;
+    flex-direction: column;
 }
+
 .messages-container {
     display: flex;
-    flex:1;
+    flex: 1;
     background-color: #fafafa;
     font-family: 'Segoe UI', Roboto, sans-serif;
 }
@@ -175,7 +179,9 @@ body {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4y+3UMUoDQRTG8Z8psJBUKTyAR7ATvIBgYSM2Fh7AC3gACwsLwUJQEEFJYWMhWFiIhYWFhQhCQN7CwGQzO7M7u5vCBx8zO/Pm+2bevHnDf2wZ7uAGb3jGJQ6x8Y8cO3jAJx5xhj3UsY0TnOMVH7jC9h9yNHCHL9zjcMZ4Hbf4xjW2lsyxj2d84wZbC8w3cY9J5FhfAkcNl5jgBQdL5NjCbSS5XJBjPZJM8LgEx1Ekecb6AhzrkWSK0yVx1HGLKZ6wNifHWiSZ4mJJHDUc4xPfOMXKHBzVSDL9A8dKJJngaI7xSiSZ/gNHORJNcDDDeCkSTXG+ZI5SJJvgbsZ4MZJNcbVkjg08RPJ3bM8YL0Syb5z9A8cKHvGFD2zNGP8B4XZCFICTj5IAAAAASUVORK5CYII=');
     background-attachment: fixed;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
+
+    max-height: calc(100vh - 270px);
 }
 
 .mensagem {
@@ -203,20 +209,32 @@ body {
 
 .mensagem-conteudo {
     padding: 10px 15px;
-    border-radius: 18px;
-    position: relative;
+    border-radius: 15px;
+}
+
+.mensagem-conteudo .mensagem-hora {
+    display: none;
+    transition: 0.2s ease-in-out;
+    scale: 0;
+}
+
+.mensagem-conteudo:hover .mensagem-hora {
+    display: block;
+    scale: 1;
 }
 
 .mensagem.recebida .mensagem-conteudo {
     background-color: white;
     border: 1px solid #e5e5ea;
     border-radius: 18px 18px 18px 4px;
+    text-align: left;
 }
 
 .mensagem.enviada .mensagem-conteudo {
     background-color: #0e2b3b;
     color: white;
     border-radius: 18px 4px 18px 18px;
+    text-align: right;
 }
 
 .mensagem-hora {
@@ -245,7 +263,6 @@ body {
     padding: 15px;
     border-top: 1px solid #dbdbdb;
     background-color: white;
-    position: sticky;
     bottom: 0;
 }
 

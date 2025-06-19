@@ -1,13 +1,13 @@
 <header>
-    <nav class="navbar">
+    <nav class="h_navbar">
         <!-- Logo -->
         <a href="../main/main.php" class="flex flex-1 justify-start" style="color:white;text-decoration: none;">
-            <h1 class="logo">Nexus</h1>
+            <h1 class="h_logo">Nexus</h1>
         </a>
 
         <!-- Barra de pesquisa -->
         <div class="flex-1">
-            <input type="text" id="searchInput" class="search-bar w-full" placeholder="Pesquisar utilizadores..."
+            <input type="text" id="searchInput" class="h_search-bar w-full" placeholder="Pesquisar utilizadores..."
                 onkeyup="searchDropdown(this)">
 
             <div id="searchList" class="hidden bg-white absolute border border-black gap-2 rounded-xl "
@@ -34,7 +34,7 @@
 
         <div class="flex gap-1 items-center flex-1 justify-end">
             <!-- Botão de mensagens -->
-            <button class="styled-button message-button" title="Mensagens"
+            <button class="h_styled-button message-button" title="Mensagens"
                 onclick="window.location.href='../mensagens/mensagens.php'">
                 <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="white"
                     class="rotated-icon">
@@ -43,50 +43,50 @@
             </button>
 
             <!-- Botão de publicar -->
-            <button class="styled-button" title="Publicar" style="font-size:33px;" onclick="abrirModal()">+</button>
+            <button class="h_styled-button" title="Publicar" style="font-size:33px;" onclick="abrirModal()">+</button>
 
             <!-- Modal de Publicação -->
-            <div id="modalPublicacao" class="modalPublicacao">
-                <div class="modal-content">
-                    <div class="modal-header">
+            <div id="modalPublicacao" class="h_modalPublicacao">
+                <div class="h_modal-content">
+                    <div class="h_modal-header">
                         <h2>Criar Nova Publicação</h2>
-                        <button class="close" onclick="fecharModal()">
+                        <button class="h_close" onclick="fecharModal()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0e2b3b">
-                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                             </svg>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="h_modal-body">
                         <form action="interacoes/publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
                             <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?" required></textarea>
 
-                            <div class="media-upload">
+                            <div class="h_media-upload">
                                 <!-- Área de arrastar e soltar -->
-                                <div class="drop-area" id="dropArea">
-                                    <div class="drop-content">
+                                <div class="h_drop-area" id="dropArea">
+                                    <div class="h_drop-content">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#0e2b3b" viewBox="0 0 24 24">
-                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                                         </svg>
                                         <p>Arraste e solte fotos ou vídeos aqui</p>
-                                        <p class="subtext">Ou clique para selecionar arquivos</p>
-                                        <p class="file-types">Suportados: JPG, PNG, GIF, MP4, MOV, AVI (máx. 50MB)</p>
+                                        <p class="h_subtext">Ou clique para selecionar arquivos</p>
+                                        <p class="h_file-types">Suportados: JPG, PNG, GIF, MP4, MOV, AVI (máx. 50MB)</p>
                                     </div>
                                     <input type="file" id="mediaInput" name="media" accept="image/*,video/*">
                                 </div>
 
                                 <!-- Preview da mídia -->
                                 <div id="previewContainer" class="hidden">
-                                    <div class="preview-header">
+                                    <div class="h_preview-header">
                                         <span id="previewTitle">Pré-visualização</span>
                                         <button type="button" onclick="removerMedia()">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0e2b3b">
-                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                                             </svg>
                                         </button>
                                     </div>
                                     <div id="mediaPreview">
-                                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="preview-media hidden"/>
-                                        <video id="previewVideo" controls class="preview-media hidden">
+                                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="h_preview-media hidden" />
+                                        <video id="previewVideo" controls class="h_preview-media hidden">
                                             <source src="#" type="">
                                             Seu navegador não suporta o elemento de vídeo.
                                         </video>
@@ -94,10 +94,10 @@
                                 </div>
                             </div>
 
-                            <div class="modal-footer">
-                                <button type="submit" class="botao-publicar">
+                            <div class="h_modal-footer">
+                                <button type="submit" class="h_botao-publicar">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                                     </svg>
                                     Publicar
                                 </button>
@@ -108,12 +108,12 @@
             </div>
 
             <!-- Dropdown do perfil -->
-            <div class="profile-dropdown" onclick="toggleDropdown(event)">
-                <div class="user-info">
+            <div class="h_profile-dropdown" onclick="toggleDropdown(event)">
+                <div class="h_user-info">
                     <p><?php echo htmlspecialchars($_SESSION["user"]); ?></p>
-                    <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="profile-picture">
+                    <img src="../imagens/<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
                 </div>
-                <div id="dropdownMenu" class="dropdown-content">
+                <div id="dropdownMenu" class="h_dropdown-content">
                     <a href="../perfil/perfil.php">Ver perfil</a>
                     <a href="../perfil/editar_perfil.php">Definições</a>
                     <a href="../logout.php">Terminar sessão</a>
@@ -123,7 +123,7 @@
     </nav>
 
     <style>
-        header .styled-button {
+        .h_styled-button {
             padding: 10px 20px;
             font-size: 1rem;
             border: none;
@@ -137,12 +137,12 @@
             width: auto;
         }
 
-        header .styled-button:hover {
+        .h_styled-button:hover {
             background-color: rgba(0, 0, 0, 0.2);
             color: white;
         }
 
-        header .navbar {
+        .h_navbar {
             background: #0e2b3b;
             display: flex;
             justify-content: space-between;
@@ -151,13 +151,13 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        header .profile-dropdown {
+        .h_profile-dropdown {
             position: relative;
             display: inline-block;
             cursor: pointer;
         }
 
-        header .user-info {
+        .h_user-info {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -168,18 +168,18 @@
             cursor: pointer;
         }
 
-        header .user-info:hover {
+        .h_user-info:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        header .profile-picture {
+        .h_profile-picture {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        header .dropdown-content {
+        .h_dropdown-content {
             display: none;
             position: absolute;
             right: 0;
@@ -192,7 +192,7 @@
             overflow: hidden;
         }
 
-        header .dropdown-content a {
+        .h_dropdown-content a {
             color: white;
             padding: 12px 16px;
             text-decoration: none;
@@ -200,16 +200,16 @@
             transition: background-color 0.2s;
         }
 
-        header .dropdown-content a:hover {
+        .h_dropdown-content a:hover {
             background-color: #555;
         }
 
-        header .logo {
+        .h_logo {
             font-size: 24px;
             font-weight: bold;
         }
 
-        header .search-bar {
+        .h_search-bar {
             background-color: white;
             color: #333;
             padding: 10px;
@@ -219,7 +219,7 @@
         }
 
         /* Estilos do Modal */
-        header .modalPublicacao {
+        .h_modalPublicacao {
             display: none;
             position: fixed;
             top: 0;
@@ -233,7 +233,7 @@
             animation: fadeIn 0.3s ease;
         }
 
-        header .modal-content {
+        .h_modal-content {
             background-color: white;
             border-radius: 12px;
             width: 500px;
@@ -243,7 +243,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
-        header .modal-header {
+        .h_modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -251,14 +251,14 @@
             border-bottom: 1px solid #eaeaea;
         }
 
-        header .modal-header h2 {
+        .h_modal-header h2 {
             margin: 0;
             color: #0e2b3b;
             font-size: 1.2rem;
             font-weight: 600;
         }
 
-        header .close {
+        .h_close {
             background: none;
             border: none;
             cursor: pointer;
@@ -267,11 +267,11 @@
             transition: background-color 0.2s;
         }
 
-        header .close:hover {
+        .h_close:hover {
             background-color: #f5f5f5;
         }
 
-        header .modal-body {
+        .h_modal-body {
             padding: 20px;
         }
 
@@ -293,11 +293,11 @@
             border-color: #0e2b3b;
         }
 
-        header .media-upload {
+        .h_media-upload {
             margin-bottom: 20px;
         }
 
-        header .drop-area {
+        .h_drop-area {
             border: 2px dashed #ccc;
             border-radius: 8px;
             padding: 30px;
@@ -308,12 +308,12 @@
             position: relative;
         }
 
-        header .drop-area:hover {
+        .h_drop-area:hover {
             border-color: #0e2b3b;
             background-color: #f9f9f9;
         }
 
-        header .drop-content {
+        .h_drop-content {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -321,16 +321,16 @@
             color: #666;
         }
 
-        header .drop-content p {
+        .h_drop-content p {
             margin: 0;
         }
 
-        header .drop-content .subtext {
+        .h_drop-content .subtext {
             font-size: 0.9rem;
             color: #999;
         }
 
-        header .drop-content .file-types {
+        .h_drop-content .file-types {
             font-size: 0.8rem;
             color: #777;
             margin-top: 5px;
@@ -344,7 +344,7 @@
             overflow: hidden;
         }
 
-        header .preview-header {
+        .h_preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -353,12 +353,12 @@
             border-bottom: 1px solid #eee;
         }
 
-        header .preview-header span {
+        .h_preview-header span {
             font-size: 0.9rem;
             color: #666;
         }
 
-        header .preview-header button {
+        .h_preview-header button {
             background: none;
             border: none;
             cursor: pointer;
@@ -367,11 +367,11 @@
             transition: background-color 0.2s;
         }
 
-        header .preview-header button:hover {
+        .h_preview-header button:hover {
             background-color: #f0f0f0;
         }
 
-        header .preview-media {
+        .h_preview-media {
             max-width: 100%;
             max-height: 300px;
             object-fit: contain;
@@ -385,12 +385,12 @@
             background-color: #000;
         }
 
-        header .modal-footer {
+        .h_modal-footer {
             padding: 15px 0 5px;
             text-align: right;
         }
 
-        header .botao-publicar {
+        .h_botao-publicar {
             padding: 10px 20px;
             background-color: #0e2b3b;
             color: white;
@@ -405,11 +405,11 @@
             transition: background-color 0.3s;
         }
 
-        header .botao-publicar:hover {
+        .h_botao-publicar:hover {
             background-color: #1a3d4d;
         }
 
-        header .drop-area.highlight {
+        .h_drop-area.highlight {
             border-color: #0e2b3b;
             background-color: #f0f5f9;
         }
@@ -425,17 +425,22 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @media (max-width: 600px) {
-            header .modal-content {
+            .h_modal-content {
                 width: 90%;
                 max-height: 80vh;
             }
 
-            header .drop-area {
+            .h_drop-area {
                 padding: 20px;
             }
         }
@@ -496,12 +501,12 @@
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/webm'];
             const maxSize = 50 * 1024 * 1024; // 50MB
-            
+
             if (!validImageTypes.includes(file.type) && !validVideoTypes.includes(file.type)) {
                 alert('Por favor, selecione uma imagem (JPEG, PNG, GIF, WEBP) ou vídeo (MP4, MOV, AVI, WEBM)');
                 return;
             }
-            
+
             if (file.size > maxSize) {
                 alert('O arquivo é muito grande (máximo 50MB)');
                 return;
@@ -622,7 +627,7 @@
             form.addEventListener('submit', function(e) {
                 const descricao = document.getElementById('descricao').value;
                 const media = document.getElementById('mediaInput').files[0];
-                
+
                 if (!descricao && !media) {
                     e.preventDefault();
                     alert('Por favor, adicione uma descrição ou uma mídia');

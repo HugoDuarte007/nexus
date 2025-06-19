@@ -50,7 +50,7 @@ if ($destinatario) {
                         OR (m.idremetente = $destinatario AND ld.iddestinatario = $id_utilizador)
                         ORDER BY m.dataenvio ASC";
     $mensagens = mysqli_query($con, $query_mensagens);
-    
+
     // Buscar informações do destinatário
     $query_destinatario = "SELECT user, ft_perfil FROM utilizador WHERE idutilizador = $destinatario";
     $result_dest = mysqli_query($con, $query_destinatario);
@@ -60,6 +60,7 @@ if ($destinatario) {
 
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,14 +68,12 @@ if ($destinatario) {
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
-    <style>
-        
-    </style>
 
- <?php require '../partials/header.php'; ?>
+<body>
+
+    <?php require '../partials/header.php'; ?>
 
     <div class="messages-container">
         <!-- Sidebar com lista de conversas -->
@@ -85,10 +84,10 @@ if ($destinatario) {
                     <input type="text" placeholder="Pesquisar pessoas...">
                 </div>
             </div>
-            
+
             <div class="conversas-list">
-                <?php if(mysqli_num_rows($conversas) > 0): ?>
-                    <?php while($conversa = mysqli_fetch_assoc($conversas)): ?>
+                <?php if (mysqli_num_rows($conversas) > 0): ?>
+                    <?php while ($conversa = mysqli_fetch_assoc($conversas)): ?>
                         <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?>">
                             <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : 'default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
                             <div class="conversa-info">
@@ -105,24 +104,34 @@ if ($destinatario) {
 
         <!-- Área de conversa -->
         <div class="messages-content">
-            <?php if($destinatario): ?>
+            <?php if ($destinatario): ?>
                 <div class="conversa-header">
                     <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : 'default.png' ?>" alt="Foto de perfil" class="destinatario-avatar">
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
                         <button class="action-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="#0e2b3b" d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                <path fill="#0e2b3b" d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                             </svg>
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="mensagens-list" id="mensagensContainer">
-                    <?php if(mysqli_num_rows($mensagens) > 0): ?>
-                        <?php while($msg = mysqli_fetch_assoc($mensagens)): ?>
+                    <?php
+                    $mensagens_array = [];
+                    while ($msg = mysqli_fetch_assoc($mensagens)) {
+                        $mensagens_array[] = $msg;
+                    }
+
+                    $mensagens_array = array_reverse($mensagens_array);
+
+
+                    ?>
+                    <?php if (mysqli_num_rows($mensagens) > 0): ?>
+                        <?php foreach ($mensagens_array as $msg): ?>
                             <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
-                                <?php if($msg['idremetente'] != $id_utilizador): ?>
+                                <?php if ($msg['idremetente'] != $id_utilizador): ?>
                                     <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : 'default.png' ?>" alt="Foto de perfil" class="mensagem-avatar">
                                 <?php endif; ?>
                                 <div class="mensagem-conteudo">
@@ -130,31 +139,41 @@ if ($destinatario) {
                                     <span class="mensagem-hora"><?= date("H:i", strtotime($msg['dataenvio'])) ?></span>
                                 </div>
                             </div>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     <?php else: ?>
                         <div class="no-messages">
                             <p>Nenhuma mensagem ainda. Envie a primeira mensagem!</p>
                         </div>
                     <?php endif; ?>
                 </div>
-                
-                <form class="mensagem-form" action="enviar_mensagem.php" method="POST" id="formMensagem">
+
+                <form class="mensagem-form" id="form" action="enviar_mensagem.php" method="POST" id="formMensagem">
                     <input type="hidden" name="destinatario" value="<?= $destinatario ?>">
                     <div class="input-container">
-                        <textarea name="mensagem" placeholder="Escreve uma mensagem..." required id="inputMensagem"></textarea>
+                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." required id="inputMensagem"></textarea>
                         <button type="submit" class="send-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="#0e2b3b" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                <path fill="#0e2b3b" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                             </svg>
                         </button>
                     </div>
+                    <script>
+                        var form = document.querySelector("#form");
+                        var form_mensagem = document.querySelector("#form_mensagem");
+
+                        form_mensagem.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                form.submit();
+                            }
+                        });
+                    </script>
                 </form>
             <?php else: ?>
                 <div class="no-conversa-selected">
                     <div class="empty-state">
                         <div class="icon-container">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64">
-                                <path fill="#0e2b3b" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                                <path fill="#0e2b3b" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                             </svg>
                         </div>
                         <h3>Seleciona uma conversa</h3>
@@ -213,7 +232,7 @@ if ($destinatario) {
             if (container) {
                 container.scrollTop = container.scrollHeight;
             }
-            
+
             // Focar no campo de texto ao carregar
             const inputMensagem = document.getElementById('inputMensagem');
             if (inputMensagem) {
@@ -224,53 +243,54 @@ if ($destinatario) {
         // Envio de mensagem com AJAX
         document.getElementById('formMensagem')?.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const form = this;
             const formData = new FormData(form);
             const mensagensContainer = document.getElementById('mensagensContainer');
             const inputMensagem = document.getElementById('inputMensagem');
             const mensagemTexto = inputMensagem.value.trim();
-            
+
             if (!mensagemTexto) return;
-            
+
             fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Adiciona a nova mensagem ao chat
-                    const novaMensagem = document.createElement('div');
-                    novaMensagem.className = 'mensagem enviada';
-                    novaMensagem.innerHTML = `
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Adiciona a nova mensagem ao chat
+                        const novaMensagem = document.createElement('div');
+                        novaMensagem.className = 'mensagem enviada';
+                        novaMensagem.innerHTML = `
                         <div class="mensagem-conteudo">
                             <p>${data.mensagem}</p>
                             <span class="mensagem-hora">${data.hora}</span>
                         </div>
                     `;
-                    mensagensContainer.appendChild(novaMensagem);
-                    
-                    // Remove a mensagem de "nenhuma mensagem"
-                    const noMessages = document.querySelector('.no-messages');
-                    if (noMessages) {
-                        noMessages.remove();
+                        mensagensContainer.appendChild(novaMensagem);
+
+                        // Remove a mensagem de "nenhuma mensagem"
+                        const noMessages = document.querySelector('.no-messages');
+                        if (noMessages) {
+                            noMessages.remove();
+                        }
+
+                        // Limpa o campo de texto
+                        inputMensagem.value = '';
+
+                        // Rolagem para a nova mensagem
+                        mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
+                    } else {
+                        alert('Erro ao enviar mensagem: ' + data.message);
                     }
-                    
-                    // Limpa o campo de texto
-                    inputMensagem.value = '';
-                    
-                    // Rolagem para a nova mensagem
-                    mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
-                } else {
-                    alert('Erro ao enviar mensagem: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro na comunicação com o servidor');
-            });
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                });
         });
     </script>
 </body>
+
 </html>

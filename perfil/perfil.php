@@ -762,71 +762,75 @@ function isImage($filename) {
                             $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
                             ?>
 
-                            <div class="perfil-post" id="post_<?= $pub['idpublicacao'] ?>">
-                                <div class="perfil-post-header">
-                                    <img src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
-                                        alt="Foto de Perfil" class="perfil-post-avatar">
-                                    <span class="perfil-post-user"><?= htmlspecialchars($pub['user']); ?></span>
-                                    <span class="perfil-post-time"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
-
-                                    <?php if ($perfil_utilizador == $utilizador): ?>
-                                        <button class="delete-post-btn" onclick="confirmarDelete(<?= $pub['idpublicacao'] ?>)">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                            </svg>
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="perfil-post-content">
-                                    <?= nl2br(htmlspecialchars($pub['descricao'])); ?>
-                                </div>
-
-                                <?php if (!empty($pub['media'])): ?>
-                                    <div class="perfil-post-media-container">
-                                        <?php if (isVideo($pub['media'])): ?>
-                                            <div class="media-type-indicator">Vídeo</div>
-                                            <video class="perfil-post-video" controls preload="metadata">
-                                                <source src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= pathinfo($pub['media'], PATHINFO_EXTENSION); ?>">
-                                                Seu navegador não suporta o elemento de vídeo.
-                                            </video>
-                                        <?php elseif (isImage($pub['media'])): ?>
-                                            <div class="media-type-indicator">Imagem</div>
-                                            <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
-                                                class="perfil-post-image" alt="Imagem da publicação">
-                                        <?php else: ?>
-                                            <div class="media-type-indicator">Arquivo</div>
-                                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
-                                                <i class="fas fa-file fa-3x"></i>
-                                                <p style="margin-left: 10px;">Arquivo: <?= htmlspecialchars($pub['media']); ?></p>
-                                            </div>
+                            <div class="perfil-post flex flex-col justify-between" id="post_<?= $pub['idpublicacao'] ?>">
+                                <div>
+                                    <div class="perfil-post-header">
+                                        <img src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
+                                            alt="Foto de Perfil" class="perfil-post-avatar">
+                                        <span class="perfil-post-user"><?= htmlspecialchars($pub['user']); ?></span>
+                                        <span class="perfil-post-time"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
+    
+                                        <?php if ($perfil_utilizador == $utilizador): ?>
+                                            <button class="delete-post-btn" onclick="confirmarDelete(<?= $pub['idpublicacao'] ?>)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                    viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                    <path fill-rule="evenodd"
+                                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                </svg>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                    <div class="perfil-post-content">
+                                        <?= nl2br(htmlspecialchars($pub['descricao'])); ?>
+                                    </div>
+    
+                                    <?php if (!empty($pub['media'])): ?>
+                                        <div class="perfil-post-media-container">
+                                            <?php if (isVideo($pub['media'])): ?>
+                                                <div class="media-type-indicator">Vídeo</div>
+                                                <video class="perfil-post-video" controls preload="metadata">
+                                                    <source src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= pathinfo($pub['media'], PATHINFO_EXTENSION); ?>">
+                                                    Seu navegador não suporta o elemento de vídeo.
+                                                </video>
+                                            <?php elseif (isImage($pub['media'])): ?>
+                                                <div class="media-type-indicator">Imagem</div>
+                                                <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
+                                                    class="perfil-post-image" alt="Imagem da publicação">
+                                            <?php else: ?>
+                                                <div class="media-type-indicator">Arquivo</div>
+                                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
+                                                    <i class="fas fa-file fa-3x"></i>
+                                                    <p style="margin-left: 10px;">Arquivo: <?= htmlspecialchars($pub['media']); ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
 
-                                <div class="perfil-post-actions">
-                                    <div class="perfil-post-action" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
-                                        </svg>
-                                        <span><?= count($comentarios) ?></span>
-                                    </div>
-                                    <div class="perfil-post-action">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
-                                        </svg>
-                                        <span>0</span>
-                                    </div>
-                                    <div class="perfil-post-action">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
-                                        <span><?= count($like) ?></span>
+                                <div>
+                                    <div class="perfil-post-actions">
+                                        <div class="perfil-post-action" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+                                            </svg>
+                                            <span><?= count($comentarios) ?></span>
+                                        </div>
+                                        <div class="perfil-post-action">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
+                                            </svg>
+                                            <span>0</span>
+                                        </div>
+                                        <div class="perfil-post-action">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                            </svg>
+                                            <span><?= count($like) ?></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

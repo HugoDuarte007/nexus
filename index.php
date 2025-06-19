@@ -86,9 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             padding: 30px;
             color: white;
             text-align: center;
-            border-top: 1px solid #ddd;
-            width: 100%;
-            
+            border-top: 1px solid #ddd;            
         }
         
 
