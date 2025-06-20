@@ -414,6 +414,8 @@ function isImage($filename) {
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            cursor: pointer;
         }
 
         /* Imagem dentro do container */
@@ -451,6 +453,257 @@ function isImage($filename) {
         .perfil-post-action svg {
             width: 16px;
             height: 16px;
+        }
+
+        /* Modal para visualizar mídia em tamanho real */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 600px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Modal de visualização de publicação */
+        .modal-publicacao {
+            width: 700px;
+        }
+
+        /* Modal de visualização de mídia */
+        #modalMedia .modal-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            border: none;
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: none;
+        }
+
+        #modalMedia .close {
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+
+        #modalMedia .close:hover {
+            background: rgba(0,0,0,0.7);
+        }
+
+        #mediaAmpliado {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0e2b3b;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #1f2937;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Formulário de comentário */
+        .comment-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .comment-submit {
+            padding: 10px 20px;
+            background-color: #0e2b3b;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .comment-submit:hover {
+            background-color: #1a3d4d;
+        }
+
+        /* Lista de comentários */
+        .comments-container {
+            margin-top: 20px;
+        }
+
+        .comments-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .comment {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+            margin-right: 8px;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .comment-text {
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 0.8rem;
+        }
+
+        .comment-action {
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: #1f2937;
+            text-decoration: underline;
+        }
+
+        /* Ações da publicação no modal */
+        .post-actions-modal {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            margin: 16px 0;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .post-action:hover {
+            color: #1f2937;
+            background-color: #f3f4f6;
+        }
+
+        .post-action svg {
+            width: 18px;
+            height: 18px;
         }
 
         @media (max-width: 768px) {
@@ -524,7 +777,7 @@ function isImage($filename) {
         }
 
         /* Estilos do Modal de Seguidores */
-        .modal {
+        .modal-seguidores {
             display: none;
             position: fixed;
             z-index: 1000;
@@ -537,7 +790,7 @@ function isImage($filename) {
             backdrop-filter: blur(5px);
         }
 
-        .modal-content {
+        .modal-content-seguidores {
             background-color: white;
             margin: 5% auto;
             padding: 0;
@@ -547,44 +800,6 @@ function isImage($filename) {
             max-height: 80vh;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f8f9fa;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-            transition: color 0.2s;
-            padding: 5px;
-            border-radius: 50%;
-        }
-
-        .close:hover {
-            color: #1f2937;
-            background-color: #f3f4f6;
-        }
-
-        .modal-body {
-            padding: 0;
-            max-height: 60vh;
-            overflow-y: auto;
         }
 
         .user-list {
@@ -680,6 +895,25 @@ function isImage($filename) {
             text-align: center;
             padding: 20px;
             color: #6b7280;
+        }
+
+        /* Melhorar formatação das imagens no modal */
+        .post-media-modal {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin: 10px 0;
+            background-color: #f3f4f6;
+            cursor: pointer;
+        }
+
+        .post-video-modal {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin: 10px 0;
+            background-color: #000;
         }
     </style>
 </head>
@@ -797,7 +1031,8 @@ function isImage($filename) {
                                             <?php elseif (isImage($pub['media'])): ?>
                                                 <div class="media-type-indicator">Imagem</div>
                                                 <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
-                                                    class="perfil-post-image" alt="Imagem da publicação">
+                                                    class="perfil-post-image" alt="Imagem da publicação" 
+                                                    onclick="ampliarMedia(this.src, 'image')">
                                             <?php else: ?>
                                                 <div class="media-type-indicator">Arquivo</div>
                                                 <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
@@ -848,12 +1083,129 @@ function isImage($filename) {
         </div>
     </div>
 
+    <!-- Modal para visualizar mídia em tamanho real -->
+    <div id="modalMedia" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%; background: transparent; box-shadow: none;">
+            <button class="close" onclick="fecharMedia()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
+            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+            <video id="videoAmpliado" controls style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+                <source src="" type="">
+                Seu navegador não suporta o elemento de vídeo.
+            </video>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar publicação com comentários -->
+    <div id="modalVerPublicacao" class="modal">
+        <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
+            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: #0e2b3b;">Publicação</h2>
+                <button class="close" onclick="fecharPublicacao()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+            </div>
+
+            <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
+                <div class="flex items-center gap-3 mb-4">
+                    <a href=""><img id="ft_perfil_modal" alt="Foto de Perfil" class="profile-picture"
+                            style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;"></a>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span id="username_modal" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
+                            <span id="data_modal" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo da publicação -->
+                <div class="post-content mb-4" style="margin-left: 60px;">
+                    <p id="descricao_modal" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
+                    </p>
+                    <img id="imagem_modal" src="" class="post-media-modal"
+                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                    <video id="video_modal" controls class="post-video-modal"
+                        style="display: none;" alt="Vídeo da publicação">
+                        <source src="" type="">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>
+                </div>
+
+                <!-- Ações da publicação -->
+                <div class="flex justify-between items-center px-4 py-2 border-t border-b border-gray-100 mb-4">
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Gostar</span>
+                    </button>
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-green-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Guardar</span>
+                    </button>
+                    <button class="flex items-center gap-1 text-gray-600 hover:text-purple-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                        </svg>
+                        <span>Partilhar</span>
+                    </button>
+                </div>
+
+                <!-- Formulário de comentário -->
+                <div class="mb-6">
+                    <form class="flex gap-2 items-center" method="POST" action="../main/interacoes/comentar.php">
+                        <input type="hidden" name="idpublicacao" id="idpublicacao_modal" value="">
+                        <img src="<?= $foto_base64 ?>" alt="Sua foto" class="w-10 h-10 rounded-full object-cover">
+                        <div class="flex-1 relative">
+                            <input type="text" name="comentario" required
+                                class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Adicione um comentário...">
+                        </div>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition">Publicar</button>
+                    </form>
+                </div>
+
+                <!-- Lista de comentários -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
+                    <div id="comentarios_modal" class="space-y-4">
+                        <!-- Template de comentário (hidden) -->
+                        <div id="comentario_template" class="hidden">
+                            <div class="flex gap-3">
+                                <img id="ft_perfil_comentario" alt="Foto de Perfil" class="w-10 h-10 rounded-full object-cover">
+                                <div class="flex-1">
+                                    <div class="bg-gray-100 rounded-lg p-3">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span id="username_comentario" class="font-semibold text-sm text-gray-800"></span>
+                                            <span id="data_comentario" class="text-xs text-gray-500"></span>
+                                        </div>
+                                        <p id="descricao_comentario" class="text-gray-800 text-sm " style="text-align:left;"></p>
+                                    </div>
+                                    <div class="flex gap-4 mt-1 ml-3">
+                                        <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
+                                        <button class="text-xs text-gray-500 hover:text-gray-700">Responder</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Seguidores -->
-    <div id="modalSeguidores" class="modal">
-        <div class="modal-content">
+    <div id="modalSeguidores" class="modal-seguidores">
+        <div class="modal-content-seguidores">
             <div class="modal-header">
                 <h2>Seguidores</h2>
-                <button class="close" onclick="fecharModal('modalSeguidores')">&times;</button>
+                <button class="close" onclick="fecharModalSeguidores('modalSeguidores')">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="loading" id="loadingSeguidores">A carregar seguidores...</div>
@@ -863,11 +1215,11 @@ function isImage($filename) {
     </div>
 
     <!-- Modal de Seguindo -->
-    <div id="modalSeguindo" class="modal">
-        <div class="modal-content">
+    <div id="modalSeguindo" class="modal-seguidores">
+        <div class="modal-content-seguidores">
             <div class="modal-header">
                 <h2>Seguindo</h2>
-                <button class="close" onclick="fecharModal('modalSeguindo')">&times;</button>
+                <button class="close" onclick="fecharModalSeguidores('modalSeguindo')">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="loading" id="loadingSeguindo">A carregar utilizadores...</div>
@@ -935,10 +1287,145 @@ function isImage($filename) {
                 .catch(error => console.error('Erro na requisição:', error));
         }
 
+        // Funções para ampliar mídia
+        function ampliarMedia(src, type) {
+            const modal = document.getElementById('modalMedia');
+            const imagem = document.getElementById('imagemAmpliada');
+            const video = document.getElementById('videoAmpliado');
+            
+            // Esconder ambos primeiro
+            imagem.style.display = 'none';
+            video.style.display = 'none';
+            
+            if (type === 'image') {
+                imagem.src = src;
+                imagem.style.display = 'block';
+            } else if (type === 'video') {
+                video.querySelector('source').src = src;
+                video.load();
+                video.style.display = 'block';
+            }
+            
+            modal.style.display = 'flex';
+            
+            // Desativar scroll da página quando o modal está aberto
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharMedia() {
+            const modal = document.getElementById('modalMedia');
+            const video = document.getElementById('videoAmpliado');
+            
+            // Pausar vídeo se estiver tocando
+            if (!video.paused) {
+                video.pause();
+            }
+            
+            modal.style.display = 'none';
+            
+            // Reativar scroll da página
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora da mídia
+        document.getElementById('modalMedia').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharMedia();
+            }
+        });
+
+        // Funções para o modal de publicação
+        const modalVerPublicacao = document.getElementById('modalVerPublicacao');
+        const modalComentarios = modalVerPublicacao.querySelector('#comentarios_modal');
+        const ComentarioTemplate = modalComentarios.querySelector('#comentario_template');
+
         function abrirPublicacao(pubid) {
-            // Implemente a mesma função que está no main.php ou ajuste conforme necessário
-            console.log('Abrir publicação:', pubid);
-            // window.location.href = 'publicacao.php?id=' + pubid;
+            const publicacao = document.querySelector('#post_' + pubid);
+
+            // Buscar elementos da publicação
+            const ft_perfil = publicacao.querySelector('.perfil-post-avatar').src;
+            const username = publicacao.querySelector('.perfil-post-user').innerText;
+            const data = publicacao.querySelector('.perfil-post-time').innerText;
+            const descricao = publicacao.querySelector('.perfil-post-content').innerText;
+            
+            // Verificar se é imagem ou vídeo
+            const imagem = publicacao.querySelector('.perfil-post-image');
+            const video = publicacao.querySelector('.perfil-post-video');
+            
+            // Preencher dados no modal
+            document.getElementById("ft_perfil_modal").src = ft_perfil;
+            document.getElementById("username_modal").innerText = username;
+            document.getElementById("data_modal").innerText = data;
+            document.getElementById("descricao_modal").innerText = descricao;
+
+            // Limpar mídia anterior
+            const imagemModal = document.getElementById("imagem_modal");
+            const videoModal = document.getElementById("video_modal");
+            imagemModal.style.display = "none";
+            videoModal.style.display = "none";
+
+            // Mostrar mídia apropriada
+            if (imagem && imagem.style.display !== "none") {
+                imagemModal.src = imagem.src;
+                imagemModal.style.display = "block";
+            } else if (video && video.style.display !== "none") {
+                videoModal.querySelector('source').src = video.querySelector('source').src;
+                videoModal.load(); // Recarregar o vídeo
+                videoModal.style.display = "block";
+            }
+
+            // Definir o id da publicação no formulário
+            document.getElementById("idpublicacao_modal").value = pubid;
+
+            // Limpa e carrega comentários
+            carregarComentarios(pubid);
+
+            modalVerPublicacao.style.display = 'flex';
+        }
+
+        function carregarComentario(data) {
+            var comentario = ComentarioTemplate.cloneNode(true);
+            modalComentarios.appendChild(comentario);
+
+            comentario.classList.remove('hidden');
+            comentario.querySelector('#ft_perfil_comentario').src = data["ft_perfil"];
+            comentario.querySelector('#username_comentario').innerHTML = data["user"];
+            comentario.querySelector('#data_comentario').innerHTML = data["data"];
+            comentario.querySelector('#descricao_comentario').innerHTML = data['conteudo'];
+
+            return comentario;
+        }
+
+        function clearComentarios() {
+            var Comentarios = Array.from(modalComentarios.children);
+
+            Comentarios.forEach(comentario => {
+                if (comentario.classList.contains('hidden')) {
+                    return;
+                }
+
+                modalComentarios.removeChild(comentario);
+            });
+        }
+
+        function carregarComentarios(pubid) {
+            clearComentarios();
+
+            fetch(`../main/interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
+                .then(response => response.text())
+                .then(data => {
+                    JSON.parse(data).forEach(comentario => {
+                        carregarComentario(comentario);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar comentários:', error);
+                    modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
+                });
+        }
+
+        function fecharPublicacao() {
+            modalVerPublicacao.style.display = 'none';
         }
         
         function confirmarDelete(idPublicacao) {
@@ -987,7 +1474,7 @@ function isImage($filename) {
             carregarSeguindo();
         }
 
-        function fecharModal(modalId) {
+        function fecharModalSeguidores(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
@@ -1125,12 +1612,16 @@ function isImage($filename) {
         window.onclick = function(event) {
             const modalSeguidores = document.getElementById('modalSeguidores');
             const modalSeguindo = document.getElementById('modalSeguindo');
+            const modalVerPublicacao = document.getElementById('modalVerPublicacao');
             
             if (event.target === modalSeguidores) {
                 modalSeguidores.style.display = 'none';
             }
             if (event.target === modalSeguindo) {
                 modalSeguindo.style.display = 'none';
+            }
+            if (event.target === modalVerPublicacao) {
+                modalVerPublicacao.style.display = 'none';
             }
         }
     </script>

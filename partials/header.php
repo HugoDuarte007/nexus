@@ -33,6 +33,8 @@
         </div>
 
         <div class="flex gap-1 items-center flex-1 justify-end">
+           
+
             <!-- Botão de mensagens com badge -->
             <button class="h_styled-button message-button" title="Mensagens"
                 onclick="window.location.href='../mensagens/mensagens.php'" style="position: relative;">
@@ -77,7 +79,7 @@
                                 </div>
 
                                 <!-- Preview da mídia -->
-                                <div id="previewContainer" class="hidden">
+                                <div id="previewContainer" class="h_preview-container">
                                     <div class="h_preview-header">
                                         <span id="previewTitle">Pré-visualização</span>
                                         <button type="button" onclick="removerMedia()">
@@ -87,8 +89,8 @@
                                         </button>
                                     </div>
                                     <div id="mediaPreview">
-                                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="h_preview-media hidden" />
-                                        <video id="previewVideo" controls class="h_preview-media hidden">
+                                        <img id="previewImagem" src="#" alt="Pré-visualização da imagem" class="h_preview-media" />
+                                        <video id="previewVideo" controls class="h_preview-media">
                                             <source src="#" type="">
                                             Seu navegador não suporta o elemento de vídeo.
                                         </video>
@@ -125,6 +127,68 @@
     </nav>
 
     <style>
+        /* Variáveis CSS para dark mode */
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --hover-bg: #f3f4f6;
+            --primary-color: #0e2b3b;
+            --secondary-bg: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e5e5e5;
+            --card-bg: #2d2d2d;
+            --border-color: #404040;
+            --hover-bg: #404040;
+            --primary-color: #4a9eff;
+            --secondary-bg: #333333;
+        }
+
+        /* Aplicar variáveis ao body */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Estilos para elementos que precisam mudar no dark mode */
+        .post, .modal-content, .detail-card, .conversa-item, .mensagem-conteudo {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .post:hover, .conversa-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Animação dos ícones */
+        .sun-icon, .moon-icon {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        [data-theme="dark"] .sun-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .moon-icon {
+            display: block !important;
+        }
+
         .h_styled-button {
             padding: 10px 20px;
             font-size: 1rem;
@@ -358,23 +422,25 @@
             margin: 0;
         }
 
-        .h_drop-content .subtext {
+        .h_drop-content .h_subtext {
             font-size: 0.9rem;
             color: #999;
         }
 
-        .h_drop-content .file-types {
+        .h_drop-content .h_file-types {
             font-size: 0.8rem;
             color: #777;
             margin-top: 5px;
         }
 
-        header #previewContainer {
+        /* Container de preview corrigido */
+        .h_preview-container {
             display: none;
             flex-direction: column;
             border: 1px solid #eee;
             border-radius: 8px;
             overflow: hidden;
+            margin-bottom: 15px;
         }
 
         .h_preview-header {
@@ -408,14 +474,19 @@
             max-width: 100%;
             max-height: 300px;
             object-fit: contain;
+            display: none;
+        }
+
+        .h_preview-media.show {
             display: block;
         }
 
-        header #mediaPreview {
+        #mediaPreview {
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #000;
+            min-height: 200px;
         }
 
         .h_modal-footer {
@@ -506,6 +577,28 @@
         });
     }
 
+    // Função para alternar dark mode
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Animação suave do ícone
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        darkModeIcon.style.transform = 'rotate(180deg)';
+        setTimeout(() => {
+            darkModeIcon.style.transform = 'rotate(0deg)';
+        }, 300);
+    }
+
+    // Carregar tema salvo ao inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    });
+
     // Funções para o modal de publicação
     function abrirModal() {
         document.getElementById("modalPublicacao").style.display = "flex";
@@ -518,9 +611,17 @@
         document.getElementById('publicacaoForm').reset();
         document.getElementById('previewContainer').style.display = "none";
         document.getElementById('dropArea').style.display = "block";
+        
+        // Resetar preview
+        const previewImg = document.getElementById('previewImagem');
+        const previewVideo = document.getElementById('previewVideo');
+        previewImg.classList.remove('show');
+        previewVideo.classList.remove('show');
+        previewImg.src = '#';
+        previewVideo.src = '#';
     }
 
-    // Função para exibir preview da mídia
+    // Função para exibir preview da mídia - CORRIGIDA
     function preverMedia() {
         const input = document.getElementById('mediaInput');
         const previewImg = document.getElementById('previewImagem');
@@ -548,37 +649,26 @@
                 return;
             }
 
-            // Verificar se é realmente um arquivo de mídia válido
-            const finfo = file.type;
-            const mime_types_validos = [
-                'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-                'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'
-            ];
-
-            if (!mime_types_validos.includes(finfo)) {
-                alert('Tipo de arquivo não suportado');
-                return;
-            }
-
             const reader = new FileReader();
 
             reader.onload = function(e) {
                 // Esconder ambos os elementos primeiro
-                previewImg.classList.add('hidden');
-                previewVideo.classList.add('hidden');
+                previewImg.classList.remove('show');
+                previewVideo.classList.remove('show');
 
                 if (validImageTypes.includes(file.type)) {
                     // É uma imagem
                     previewImg.src = e.target.result;
-                    previewImg.classList.remove('hidden');
+                    previewImg.classList.add('show');
                     previewTitle.textContent = 'Pré-visualização da Imagem';
                 } else if (validVideoTypes.includes(file.type)) {
                     // É um vídeo
                     previewVideo.src = e.target.result;
-                    previewVideo.classList.remove('hidden');
+                    previewVideo.classList.add('show');
                     previewTitle.textContent = 'Pré-visualização do Vídeo';
                 }
 
+                // Mostrar container de preview e esconder drop area
                 container.style.display = "flex";
                 dropArea.style.display = "none";
             }
@@ -602,8 +692,8 @@
         input.value = '';
         previewImg.src = '#';
         previewVideo.src = '#';
-        previewImg.classList.add('hidden');
-        previewVideo.classList.add('hidden');
+        previewImg.classList.remove('show');
+        previewVideo.classList.remove('show');
         container.style.display = "none";
         dropArea.style.display = "block";
     }
