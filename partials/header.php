@@ -33,13 +33,15 @@
         </div>
 
         <div class="flex gap-1 items-center flex-1 justify-end">
-            <!-- Botão de mensagens -->
+            <!-- Botão de mensagens com badge -->
             <button class="h_styled-button message-button" title="Mensagens"
-                onclick="window.location.href='../mensagens/mensagens.php'">
+                onclick="window.location.href='../mensagens/mensagens.php'" style="position: relative;">
                 <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="white"
                     class="rotated-icon">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                 </svg>
+                <!-- Badge para mensagens não lidas -->
+                <span id="mensagens-badge" class="h_notification-badge" style="display: none;">0</span>
             </button>
 
             <!-- Botão de publicar -->
@@ -140,6 +142,37 @@
         .h_styled-button:hover {
             background-color: rgba(0, 0, 0, 0.2);
             color: white;
+        }
+
+        /* Badge de notificação */
+        .h_notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            border: 2px solid #0e2b3b;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .h_navbar {
@@ -500,15 +533,30 @@
             const file = input.files[0];
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/webm'];
-            const maxSize = 50 * 1024 * 1024; // 50MB
-
-            if (!validImageTypes.includes(file.type) && !validVideoTypes.includes(file.type)) {
+            const extensoes_permitidas = [...validImageTypes, ...validVideoTypes];
+            
+            if (!extensoes_permitidas.includes(file.type)) {
                 alert('Por favor, selecione uma imagem (JPEG, PNG, GIF, WEBP) ou vídeo (MP4, MOV, AVI, WEBM)');
                 return;
             }
 
-            if (file.size > maxSize) {
-                alert('O arquivo é muito grande (máximo 50MB)');
+            // Verificar tamanho do arquivo (50MB para vídeos, 5MB para imagens)
+            const tamanho_maximo = validVideoTypes.includes(file.type) ? 52428800 : 5242880; // 50MB ou 5MB
+            if (file.size > tamanho_maximo) {
+                const limite = validVideoTypes.includes(file.type) ? '50MB' : '5MB';
+                alert(`Tamanho máximo do arquivo: ${limite}`);
+                return;
+            }
+
+            // Verificar se é realmente um arquivo de mídia válido
+            const finfo = file.type;
+            const mime_types_validos = [
+                'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+                'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'
+            ];
+
+            if (!mime_types_validos.includes(finfo)) {
+                alert('Tipo de arquivo não suportado');
                 return;
             }
 
@@ -635,6 +683,10 @@
                 }
             });
         }
+
+        // Atualizar notificações de mensagens periodicamente
+        atualizarNotificacoesMensagens();
+        setInterval(atualizarNotificacoesMensagens, 10000); // A cada 10 segundos
     });
 
     // Funções para o dropdown do perfil
@@ -652,4 +704,24 @@
             menu.style.display = "none";
         }
     });
+
+    // Função para atualizar notificações de mensagens no header
+    function atualizarNotificacoesMensagens() {
+        fetch('../mensagens/get_mensagens_nao_lidas.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('mensagens-badge');
+                    if (badge) {
+                        if (data.total_nao_lidas > 0) {
+                            badge.textContent = data.total_nao_lidas;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Erro ao atualizar notificações:', error));
+    }
 </script>

@@ -24,9 +24,10 @@ $query_seguidores = "SELECT u.idutilizador, u.user, u.ft_perfil
                      WHERE s.id_seguidor = $id_utilizador";
 $seguidores = mysqli_query($con, $query_seguidores);
 
-// Buscar conversas recentes - CORRIGIDO
+// Buscar conversas recentes com contagem de mensagens não lidas
 $query_conversas = "SELECT DISTINCT u.idutilizador, u.user, u.ft_perfil, 
-                           MAX(m.dataenvio) as ultima_msg
+                           MAX(m.dataenvio) as ultima_msg,
+                           COUNT(CASE WHEN ld.iddestinatario = $id_utilizador AND ld.lida = 0 THEN 1 END) as nao_lidas
                     FROM mensagem m
                     JOIN listadestinatarios ld ON m.idmensagem = ld.idmensagem
                     JOIN utilizador u ON 
@@ -42,6 +43,13 @@ $destinatario = isset($_GET['destinatario']) ? (int)$_GET['destinatario'] : null
 
 // Buscar mensagens com o destinatário selecionado
 if ($destinatario) {
+    // Marcar mensagens como lidas quando abrir a conversa
+    $query_marcar_lida = "UPDATE listadestinatarios ld
+                          JOIN mensagem m ON ld.idmensagem = m.idmensagem
+                          SET ld.lida = 1
+                          WHERE ld.iddestinatario = $id_utilizador AND m.idremetente = $destinatario AND ld.lida = 0";
+    mysqli_query($con, $query_marcar_lida);
+
     $query_mensagens = "SELECT m.*, u.user as remetente_nome, u.ft_perfil as remetente_foto
                         FROM mensagem m
                         JOIN utilizador u ON m.idremetente = u.idutilizador
@@ -79,7 +87,7 @@ if ($destinatario) {
         <!-- Sidebar com lista de conversas -->
         <div class="messages-sidebar">
             <div class="messages-header">
-                <h2>bofa</h2>
+                <h2>Mensagens</h2>
                 <div class="search-bar">
                     <input type="text" placeholder="Pesquisar pessoas...">
                 </div>
@@ -88,12 +96,17 @@ if ($destinatario) {
             <div class="conversas-list">
                 <?php if (mysqli_num_rows($conversas) > 0): ?>
                     <?php while ($conversa = mysqli_fetch_assoc($conversas)): ?>
-                        <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?>">
+                        <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" 
+                           class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?> <?= ($conversa['nao_lidas'] > 0) ? 'nao-lida' : '' ?>"
+                           data-user-id="<?= $conversa['idutilizador'] ?>">
                             <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
                             <div class="conversa-info">
                                 <span class="conversa-nome"><?= htmlspecialchars($conversa['user']) ?></span>
                                 <span class="conversa-ultima"><?= date("d/m H:i", strtotime($conversa['ultima_msg'])) ?></span>
                             </div>
+                            <?php if ($conversa['nao_lidas'] > 0): ?>
+                                <div class="badge-nao-lida"><?= $conversa['nao_lidas'] ?></div>
+                            <?php endif; ?>
                         </a>
                     <?php endwhile; ?>
                 <?php else: ?>
@@ -125,10 +138,8 @@ if ($destinatario) {
                     }
 
                     $mensagens_array = array_reverse($mensagens_array);
-
-
                     ?>
-                    <?php if (mysqli_num_rows($mensagens) > 0): ?>
+                    <?php if (count($mensagens_array) > 0): ?>
                         <?php foreach ($mensagens_array as $msg): ?>
                             <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
                                 <?php if ($msg['idremetente'] != $id_utilizador): ?>
@@ -150,7 +161,7 @@ if ($destinatario) {
                 <form class="mensagem-form" id="form" action="enviar_mensagem.php" method="POST" id="formMensagem">
                     <input type="hidden" name="destinatario" value="<?= $destinatario ?>">
                     <div class="input-container">
-                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." required id="inputMensagem"></textarea>
+                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." autofocus required id="inputMensagem"></textarea>
                         <button type="submit" class="send-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                                 <path fill="#0e2b3b" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -163,6 +174,7 @@ if ($destinatario) {
 
                         form_mensagem.addEventListener('keydown', (e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
                                 form.submit();
                             }
                         });
@@ -238,6 +250,9 @@ if ($destinatario) {
             if (inputMensagem) {
                 inputMensagem.focus();
             }
+
+            // Atualizar notificações periodicamente
+            setInterval(atualizarNotificacoes, 5000); // A cada 5 segundos
         });
 
         // Envio de mensagem com AJAX
@@ -290,6 +305,50 @@ if ($destinatario) {
                     alert('Erro na comunicação com o servidor');
                 });
         });
+
+        // Função para atualizar notificações
+        function atualizarNotificacoes() {
+            fetch('get_mensagens_nao_lidas.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Atualizar badge no header
+                        const headerBadge = document.getElementById('mensagens-badge');
+                        if (headerBadge) {
+                            if (data.total_nao_lidas > 0) {
+                                headerBadge.textContent = data.total_nao_lidas;
+                                headerBadge.style.display = 'block';
+                            } else {
+                                headerBadge.style.display = 'none';
+                            }
+                        }
+
+                        // Atualizar badges nas conversas
+                        document.querySelectorAll('.conversa-item').forEach(item => {
+                            const userId = item.getAttribute('data-user-id');
+                            const badge = item.querySelector('.badge-nao-lida');
+                            
+                            if (data.conversas_nao_lidas[userId]) {
+                                if (badge) {
+                                    badge.textContent = data.conversas_nao_lidas[userId];
+                                } else {
+                                    const newBadge = document.createElement('div');
+                                    newBadge.className = 'badge-nao-lida';
+                                    newBadge.textContent = data.conversas_nao_lidas[userId];
+                                    item.appendChild(newBadge);
+                                }
+                                item.classList.add('nao-lida');
+                            } else {
+                                if (badge) {
+                                    badge.remove();
+                                }
+                                item.classList.remove('nao-lida');
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error('Erro ao atualizar notificações:', error));
+        }
     </script>
 </body>
 

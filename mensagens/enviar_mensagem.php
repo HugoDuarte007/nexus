@@ -7,10 +7,11 @@ if (!isset($_SESSION["user"])) {
     exit();
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     header("Location: mensagens.php");
+    exit();
 }
+
 $destinatario = (int) $_POST['destinatario'];
 $mensagem = trim($_POST['mensagem']);
 
@@ -34,9 +35,9 @@ $query = "INSERT INTO mensagem (idremetente, mensagem, dataenvio)
 if (mysqli_query($con, $query)) {
     $id_mensagem = mysqli_insert_id($con);
 
-    // Inserir destinatário (removido o campo 'lda' que não existe)
-    $query_dest = "INSERT INTO listadestinatarios (idmensagem, iddestinatario) 
-                       VALUES ($id_mensagem, $destinatario)";
+    // Inserir destinatário com status não lida (lida = 0)
+    $query_dest = "INSERT INTO listadestinatarios (idmensagem, iddestinatario, lida) 
+                       VALUES ($id_mensagem, $destinatario, 0)";
 
     if (mysqli_query($con, $query_dest)) {
         echo json_encode([

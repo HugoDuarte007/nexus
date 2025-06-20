@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 19, 2025 at 09:54 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- Tempo de geração: 20-Jun-2025 às 13:49
+-- Versão do servidor: 10.4.32-MariaDB
+-- versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `nexus`
+-- Banco de dados: `nexus`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `banidos`
+-- Estrutura da tabela `banidos`
 --
 
 CREATE TABLE `banidos` (
@@ -33,7 +33,7 @@ CREATE TABLE `banidos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `banidos`
+-- Extraindo dados da tabela `banidos`
 --
 
 INSERT INTO `banidos` (`idbanimento`, `idutilizador`) VALUES
@@ -42,7 +42,7 @@ INSERT INTO `banidos` (`idbanimento`, `idutilizador`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comentario`
+-- Estrutura da tabela `comentario`
 --
 
 CREATE TABLE `comentario` (
@@ -54,7 +54,7 @@ CREATE TABLE `comentario` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `comentario`
+-- Extraindo dados da tabela `comentario`
 --
 
 INSERT INTO `comentario` (`idcomentario`, `idutilizador`, `idpublicacao`, `conteudo`, `data`) VALUES
@@ -77,7 +77,7 @@ INSERT INTO `comentario` (`idcomentario`, `idutilizador`, `idpublicacao`, `conte
 -- --------------------------------------------------------
 
 --
--- Table structure for table `guardado`
+-- Estrutura da tabela `guardado`
 --
 
 CREATE TABLE `guardado` (
@@ -89,7 +89,7 @@ CREATE TABLE `guardado` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `likes`
+-- Estrutura da tabela `likes`
 --
 
 CREATE TABLE `likes` (
@@ -100,7 +100,7 @@ CREATE TABLE `likes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `likes`
+-- Extraindo dados da tabela `likes`
 --
 
 INSERT INTO `likes` (`id`, `idutilizador`, `idpublicacao`, `data`) VALUES
@@ -109,7 +109,7 @@ INSERT INTO `likes` (`id`, `idutilizador`, `idpublicacao`, `data`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `listadestinatarios`
+-- Estrutura da tabela `listadestinatarios`
 --
 
 CREATE TABLE `listadestinatarios` (
@@ -120,7 +120,7 @@ CREATE TABLE `listadestinatarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `listadestinatarios`
+-- Extraindo dados da tabela `listadestinatarios`
 --
 
 INSERT INTO `listadestinatarios` (`idlistadestinatarios`, `idmensagem`, `iddestinatario`, `lida`) VALUES
@@ -146,12 +146,14 @@ INSERT INTO `listadestinatarios` (`idlistadestinatarios`, `idmensagem`, `iddesti
 (20, 23, 2, 0),
 (21, 24, 2, 0),
 (22, 25, 2, 0),
-(23, 26, 14, 0);
+(23, 26, 14, 0),
+(24, 27, 15, 0),
+(25, 28, 15, 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mensagem`
+-- Estrutura da tabela `mensagem`
 --
 
 CREATE TABLE `mensagem` (
@@ -162,7 +164,7 @@ CREATE TABLE `mensagem` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `mensagem`
+-- Extraindo dados da tabela `mensagem`
 --
 
 INSERT INTO `mensagem` (`idmensagem`, `mensagem`, `idremetente`, `dataenvio`) VALUES
@@ -188,12 +190,14 @@ INSERT INTO `mensagem` (`idmensagem`, `mensagem`, `idremetente`, `dataenvio`) VA
 (23, 'aloo\r\nasdoasd', 15, '2025-06-19 20:53:08'),
 (24, 'dasljdnaskjdas', 15, '2025-06-19 20:53:18'),
 (25, 'dasljdjsaldjasljldasjd\r\n\r\n\r\ndasldjasljdas', 15, '2025-06-19 20:53:24'),
-(26, 'aloooooooooooooooooo', 15, '2025-06-19 20:53:59');
+(26, 'aloooooooooooooooooo', 15, '2025-06-19 20:53:59'),
+(27, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 2, '2025-06-19 20:59:57'),
+(28, 'bofa di bofa violeta', 2, '2025-06-20 12:46:57');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `publicacao`
+-- Estrutura da tabela `publicacao`
 --
 
 CREATE TABLE `publicacao` (
@@ -205,7 +209,7 @@ CREATE TABLE `publicacao` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `publicacao`
+-- Extraindo dados da tabela `publicacao`
 --
 
 INSERT INTO `publicacao` (`idpublicacao`, `idutilizador`, `media`, `descricao`, `data`) VALUES
@@ -227,7 +231,7 @@ INSERT INTO `publicacao` (`idpublicacao`, `idutilizador`, `media`, `descricao`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `seguidor`
+-- Estrutura da tabela `seguidor`
 --
 
 CREATE TABLE `seguidor` (
@@ -237,7 +241,7 @@ CREATE TABLE `seguidor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `seguidor`
+-- Extraindo dados da tabela `seguidor`
 --
 
 INSERT INTO `seguidor` (`id_seguidor`, `id_seguido`, `data_seguido`) VALUES
@@ -253,7 +257,7 @@ INSERT INTO `seguidor` (`id_seguidor`, `id_seguido`, `data_seguido`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tipos_utilizador`
+-- Estrutura da tabela `tipos_utilizador`
 --
 
 CREATE TABLE `tipos_utilizador` (
@@ -262,7 +266,7 @@ CREATE TABLE `tipos_utilizador` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `tipos_utilizador`
+-- Extraindo dados da tabela `tipos_utilizador`
 --
 
 INSERT INTO `tipos_utilizador` (`id_tipos_utilizador`, `tipo_utilizador`) VALUES
@@ -272,7 +276,7 @@ INSERT INTO `tipos_utilizador` (`id_tipos_utilizador`, `tipo_utilizador`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `utilizador`
+-- Estrutura da tabela `utilizador`
 --
 
 CREATE TABLE `utilizador` (
@@ -291,7 +295,7 @@ CREATE TABLE `utilizador` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `utilizador`
+-- Extraindo dados da tabela `utilizador`
 --
 
 INSERT INTO `utilizador` (`idutilizador`, `nome`, `email`, `user`, `telemovel`, `data_nascimento`, `data_registo`, `pass`, `pais`, `ft_perfil`, `ft_capa`, `id_tipos_utilizador`) VALUES
@@ -316,7 +320,7 @@ INSERT INTO `utilizador` (`idutilizador`, `nome`, `email`, `user`, `telemovel`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `vizualizacoes`
+-- Estrutura da tabela `vizualizacoes`
 --
 
 CREATE TABLE `vizualizacoes` (
@@ -327,18 +331,18 @@ CREATE TABLE `vizualizacoes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Índices para tabelas despejadas
 --
 
 --
--- Indexes for table `banidos`
+-- Índices para tabela `banidos`
 --
 ALTER TABLE `banidos`
   ADD PRIMARY KEY (`idbanimento`),
   ADD UNIQUE KEY `idutilizador` (`idutilizador`);
 
 --
--- Indexes for table `comentario`
+-- Índices para tabela `comentario`
 --
 ALTER TABLE `comentario`
   ADD PRIMARY KEY (`idcomentario`),
@@ -346,13 +350,13 @@ ALTER TABLE `comentario`
   ADD KEY `idpublicacao` (`idpublicacao`);
 
 --
--- Indexes for table `likes`
+-- Índices para tabela `likes`
 --
 ALTER TABLE `likes`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `listadestinatarios`
+-- Índices para tabela `listadestinatarios`
 --
 ALTER TABLE `listadestinatarios`
   ADD PRIMARY KEY (`idlistadestinatarios`),
@@ -360,34 +364,34 @@ ALTER TABLE `listadestinatarios`
   ADD KEY `iddestinatario` (`iddestinatario`);
 
 --
--- Indexes for table `mensagem`
+-- Índices para tabela `mensagem`
 --
 ALTER TABLE `mensagem`
   ADD PRIMARY KEY (`idmensagem`),
   ADD KEY `idremetente` (`idremetente`);
 
 --
--- Indexes for table `publicacao`
+-- Índices para tabela `publicacao`
 --
 ALTER TABLE `publicacao`
   ADD PRIMARY KEY (`idpublicacao`),
   ADD KEY `idutilizador` (`idutilizador`);
 
 --
--- Indexes for table `tipos_utilizador`
+-- Índices para tabela `tipos_utilizador`
 --
 ALTER TABLE `tipos_utilizador`
   ADD PRIMARY KEY (`id_tipos_utilizador`);
 
 --
--- Indexes for table `utilizador`
+-- Índices para tabela `utilizador`
 --
 ALTER TABLE `utilizador`
   ADD PRIMARY KEY (`idutilizador`),
   ADD KEY `id_tipos_utilizador` (`id_tipos_utilizador`);
 
 --
--- Indexes for table `vizualizacoes`
+-- Índices para tabela `vizualizacoes`
 --
 ALTER TABLE `vizualizacoes`
   ADD PRIMARY KEY (`idview`),
@@ -395,101 +399,101 @@ ALTER TABLE `vizualizacoes`
   ADD KEY `idpublicacao` (`idpublicacao`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de tabelas despejadas
 --
 
 --
--- AUTO_INCREMENT for table `banidos`
+-- AUTO_INCREMENT de tabela `banidos`
 --
 ALTER TABLE `banidos`
   MODIFY `idbanimento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT for table `comentario`
+-- AUTO_INCREMENT de tabela `comentario`
 --
 ALTER TABLE `comentario`
   MODIFY `idcomentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
--- AUTO_INCREMENT for table `likes`
+-- AUTO_INCREMENT de tabela `likes`
 --
 ALTER TABLE `likes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `listadestinatarios`
+-- AUTO_INCREMENT de tabela `listadestinatarios`
 --
 ALTER TABLE `listadestinatarios`
-  MODIFY `idlistadestinatarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `idlistadestinatarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
--- AUTO_INCREMENT for table `mensagem`
+-- AUTO_INCREMENT de tabela `mensagem`
 --
 ALTER TABLE `mensagem`
-  MODIFY `idmensagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `idmensagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
--- AUTO_INCREMENT for table `publicacao`
+-- AUTO_INCREMENT de tabela `publicacao`
 --
 ALTER TABLE `publicacao`
   MODIFY `idpublicacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
--- AUTO_INCREMENT for table `utilizador`
+-- AUTO_INCREMENT de tabela `utilizador`
 --
 ALTER TABLE `utilizador`
   MODIFY `idutilizador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
--- AUTO_INCREMENT for table `vizualizacoes`
+-- AUTO_INCREMENT de tabela `vizualizacoes`
 --
 ALTER TABLE `vizualizacoes`
   MODIFY `idview` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- Constraints for dumped tables
+-- Restrições para despejos de tabelas
 --
 
 --
--- Constraints for table `banidos`
+-- Limitadores para a tabela `banidos`
 --
 ALTER TABLE `banidos`
   ADD CONSTRAINT `banidos_ibfk_1` FOREIGN KEY (`idutilizador`) REFERENCES `utilizador` (`idutilizador`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `comentario`
+-- Limitadores para a tabela `comentario`
 --
 ALTER TABLE `comentario`
   ADD CONSTRAINT `comentario_ibfk_1` FOREIGN KEY (`idutilizador`) REFERENCES `utilizador` (`idutilizador`),
   ADD CONSTRAINT `comentario_ibfk_2` FOREIGN KEY (`idpublicacao`) REFERENCES `publicacao` (`idpublicacao`);
 
 --
--- Constraints for table `listadestinatarios`
+-- Limitadores para a tabela `listadestinatarios`
 --
 ALTER TABLE `listadestinatarios`
   ADD CONSTRAINT `listadestinatarios_ibfk_1` FOREIGN KEY (`idmensagem`) REFERENCES `mensagem` (`idmensagem`),
   ADD CONSTRAINT `listadestinatarios_ibfk_2` FOREIGN KEY (`iddestinatario`) REFERENCES `utilizador` (`idutilizador`);
 
 --
--- Constraints for table `mensagem`
+-- Limitadores para a tabela `mensagem`
 --
 ALTER TABLE `mensagem`
   ADD CONSTRAINT `mensagem_ibfk_1` FOREIGN KEY (`idremetente`) REFERENCES `utilizador` (`idutilizador`);
 
 --
--- Constraints for table `publicacao`
+-- Limitadores para a tabela `publicacao`
 --
 ALTER TABLE `publicacao`
   ADD CONSTRAINT `publicacao_ibfk_1` FOREIGN KEY (`idutilizador`) REFERENCES `utilizador` (`idutilizador`);
 
 --
--- Constraints for table `utilizador`
+-- Limitadores para a tabela `utilizador`
 --
 ALTER TABLE `utilizador`
   ADD CONSTRAINT `utilizador_ibfk_1` FOREIGN KEY (`id_tipos_utilizador`) REFERENCES `tipos_utilizador` (`id_tipos_utilizador`);
 
 --
--- Constraints for table `vizualizacoes`
+-- Limitadores para a tabela `vizualizacoes`
 --
 ALTER TABLE `vizualizacoes`
   ADD CONSTRAINT `vizualizacoes_ibfk_1` FOREIGN KEY (`idutilizador`) REFERENCES `utilizador` (`idutilizador`),
