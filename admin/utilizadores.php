@@ -155,7 +155,6 @@ if (!$resultado) {
     </div>
 
     <script>
-        var botaoAcao = "";
         var formParaRemover = "";
         
         function remover(idForm) {
@@ -164,9 +163,19 @@ if (!$resultado) {
         }
         
         function confirmarRemocao() {
-            document.getElementById(formParaRemover).action = "remover.php";
-            botaoAcao = "remover";
-            document.getElementById(formParaRemover).submit();
+            if (formParaRemover) {
+                // Adicionar o campo botaoRemover ao formulário
+                const form = document.getElementById(formParaRemover);
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'botaoRemover';
+                hiddenInput.value = 'true';
+                form.appendChild(hiddenInput);
+                
+                // Definir a ação e submeter
+                form.action = "remover.php";
+                form.submit();
+            }
         }
         
         function fecharModal() {
@@ -176,14 +185,10 @@ if (!$resultado) {
         
         function gravar(idForm) {
             document.getElementById(idForm).action = "gravar.php";
-            botaoAcao = "gravar";
         }
+        
         function banir(idForm) {
             document.getElementById(idForm).action = "banir.php";
-            botaoAcao = "banir";
-        }
-        function acao() {
-            return botaoAcao !== "";
         }
 
         // Fechar modal ao clicar fora dele
@@ -247,14 +252,14 @@ if (!$resultado) {
         </form>
 
         <?php while ($registo = mysqli_fetch_array($resultado)): ?>
-            <form id='form<?= $registo["idutilizador"] ?>' action='' method='post' enctype='multipart/form-data'
-                onsubmit='return acao()'>
+            <form id='form<?= $registo["idutilizador"] ?>' action='' method='post' enctype='multipart/form-data'>
                 <tr>
                     <td hidden>
                         <input name='idutilizador' type='hidden' value='<?= $registo["idutilizador"] ?>'>
+                        <input name='user' type='hidden' value='<?= $registo["user"] ?>'>
                     </td>
                     <td><input name='nome' type='text' value='<?= $registo["nome"] ?>' required></td>
-                    <td><input name='user' type='text' value='<?= $registo["user"] ?>'></td>
+                    <td><input name='user' type='text' value='<?= $registo["user"] ?>' readonly></td>
                     <td><input name='password' type='password'></td>
                     <td><input readonly name='email' type='email' value='<?= $registo["email"] ?>' required></td>
                     <td><input name='telemovel' type='text' value='<?= $registo["telemovel"] ?>' required></td>
@@ -278,7 +283,7 @@ if (!$resultado) {
                     </td>
                     <td>
                         <button type="button" onclick='remover("form<?= $registo["idutilizador"] ?>")' 
-                                <?= $registo["id_tipos_utilizador"] == 0 ? "disabled" : "" ?>>Remover</button>
+                                <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>>Remover</button>
                     </td>
                     <td>
                         <button id='botaoGravar' name='botaoGravar'
@@ -286,7 +291,7 @@ if (!$resultado) {
                     </td>
                     <td>
                         <button id='botaoBanir' name='botaoBanir' onclick='banir("form<?= $registo["idutilizador"] ?>")'
-                            <?= $registo["id_tipos_utilizador"] == 0 ? "disabled" : "" ?>>Banir</button>
+                            <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>>Banir</button>
                     </td>
                 </tr>
             </form>

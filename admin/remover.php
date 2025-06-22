@@ -1,14 +1,16 @@
 <?php
-
 session_start(); 
-if(!isset($_POST["botaoRemover"]) || !isset($_SESSION["user"]) || $_SESSION["id_tipos_utilizador"] != 0)
-{
+
+// Verificar se o utilizador está autenticado e é admin
+if(!isset($_POST["botaoRemover"]) || !isset($_SESSION["user"]) || $_SESSION["id_tipos_utilizador"] != 0) {
     header("Location: ../index.php");
     exit();
 }
 
-if($_POST["user"] == "admin"){
-    header("Location: ../index.php");
+// Impedir remoção do admin principal
+if($_POST["user"] == "admin") {
+    $_SESSION["erro"] = "Não é possível remover o utilizador admin principal.";
+    header("Location: utilizadores.php");
     exit();
 }
 
@@ -34,7 +36,7 @@ mysqli_autocommit($con, false);
 
 try {
     // 1. Remover likes dados pelo utilizador
-    $sql1 = "DELETE FROM likes WHERE id_utilizador = $idutilizador";
+    $sql1 = "DELETE FROM likes WHERE idutilizador = $idutilizador";
     if(!mysqli_query($con, $sql1)) {
         throw new Exception("Erro ao remover likes do utilizador: " . mysqli_error($con));
     }
@@ -154,5 +156,4 @@ mysqli_autocommit($con, true);
 
 header("Location: utilizadores.php");
 exit();
-
 ?>
