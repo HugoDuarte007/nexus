@@ -535,6 +535,46 @@ if (!$publicacoes) {
         .post {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
+        /* Estilos específicos para o modal de publicação */
+        .modal-post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-post-content {
+            margin-bottom: 16px;
+        }
+
+        .modal-post-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .modal-post-media {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .modal-post-video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 
@@ -560,34 +600,33 @@ if (!$publicacoes) {
         </div>
     </div>
 
+    <!-- Modal para visualizar publicação com comentários -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
-            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
-                <h2 style="font-size: 1.25rem; font-weight: 600; color: #0e2b3b;">Publicação</h2>
-                <button class="close" onclick="fecharPublicacao()"
-                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+            <div class="modal-header">
+                <h2>Publicação</h2>
+                <button class="close" onclick="fecharPublicacao()">&times;</button>
             </div>
 
             <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
-                <div class="flex items-center gap-3 mb-4">
-                    <a href=""><img id="ft_perfil" alt="Foto de Perfil" class="profile-picture"
-                            style="width: 48px; height: 48px;"></a>
+                <!-- Cabeçalho da publicação no modal -->
+                <div class="modal-post-header">
+                    <a href="" id="modalPerfilLink">
+                        <img id="modalFtPerfil" alt="Foto de Perfil" class="profile-picture" style="width: 48px; height: 48px;">
+                    </a>
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <span id="username" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
-                            <span id="data" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
+                            <span id="modalUsername" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
+                            <span id="modalData" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Conteúdo da publicação -->
-                <div class="post-content mb-4" style="margin-left: 60px;">
-                    <p id="descricao" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
-                    </p>
-                    <img id="imagem" src="" class="rounded-lg w-full max-h-96 object-contain mx-auto"
-                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
-                    <video id="video" controls class="rounded-lg w-full max-h-96 mx-auto"
-                        style="display: none;" alt="Vídeo da publicação">
+                <!-- Conteúdo da publicação no modal -->
+                <div class="modal-post-content">
+                    <p id="modalDescricao" class="modal-post-description"></p>
+                    <img id="modalImagem" src="" class="modal-post-media" style="display: none;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                    <video id="modalVideo" controls class="modal-post-video" style="display: none;" alt="Vídeo da publicação">
                         <source src="" type="">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
@@ -640,16 +679,16 @@ if (!$publicacoes) {
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
                     <div id="comentarios" class="space-y-4">
                         <!-- Template de comentário (hidden) -->
-                        <div id="comentario" class="hidden">
+                        <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
-                                <img id="ft_perfil" alt="Foto de Perfil" class="w-10 h-10 rounded-full object-cover">
+                                <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover" alt="Foto de Perfil">
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-lg p-3">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span id="username" class="font-semibold text-sm text-gray-800"></span>
-                                            <span id="data" class="text-xs text-gray-500"></span>
+                                            <span class="comentario-username font-semibold text-sm text-gray-800"></span>
+                                            <span class="comentario-data text-xs text-gray-500"></span>
                                         </div>
-                                        <p id="descricao" class="text-gray-800 text-sm " style="text-align:left;"></p>
+                                        <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;"></p>
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
@@ -686,27 +725,28 @@ if (!$publicacoes) {
 
             <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
                 <div class="post-header">
-                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" id="<?= $pub['idutilizador'] ?>"><img
-                            id="ft_perfil"
+                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" data-user-id="<?= $pub['idutilizador'] ?>">
+                        <img class="post-ft-perfil profile-picture"
                             src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
-                            alt="Foto de Perfil" class="profile-picture"></a>
-                    <span id="username" class="username"><?= htmlspecialchars($pub['user']); ?></span>
-                    <p id="data" class="post-time" style="max-height: 20px;">
+                            alt="Foto de Perfil">
+                    </a>
+                    <span class="post-username username"><?= htmlspecialchars($pub['user']); ?></span>
+                    <p class="post-data post-time" style="max-height: 20px;">
                         <?= date("d/m/Y H:i", strtotime($pub['data'])); ?>
                     </p>
                 </div>
 
                 <div class="post-content">
-                    <p class="post-descricao" id="descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
+                    <p class="post-descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
                     
                     <?php if (!empty($pub['media'])): ?>
                         <?php if ($is_video): ?>
-                            <video id="video" controls class="post-video" style="display: block;">
+                            <video class="post-video" controls style="display: block;">
                                 <source src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= $extensao ?>">
                                 Seu navegador não suporta o elemento de vídeo.
                             </video>
                         <?php else: ?>
-                            <img id="imagem" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" class="post-media"
+                            <img class="post-imagem post-media" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>"
                                 alt="Imagem da publicação" style="display: block" onclick="ampliarMedia(this.src, 'image')">
                         <?php endif; ?>
                     <?php endif; ?>
@@ -742,32 +782,32 @@ if (!$publicacoes) {
     <script>
         const modalVerPublicacao = document.getElementById('modalVerPublicacao');
         const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
-        const ComentarioTemplate = modalComentarios.querySelector('#comentario');
+        const comentarioTemplate = modalComentarios.querySelector('#comentarioTemplate');
 
         function abrirPublicacao(pubid) {
             const publicacao = document.querySelector('#post_' + pubid);
 
             // Buscar elementos da publicação
-            const ft_perfil = publicacao.querySelector('#ft_perfil').src;
-            const idutilizador = publicacao.querySelector('#ft_perfil').parentElement.href;
-            const username = publicacao.querySelector('#username').innerText;
-            const data = publicacao.querySelector('#data').innerText;
-            const descricao = publicacao.querySelector('#descricao').innerText;
+            const ftPerfil = publicacao.querySelector('.post-ft-perfil').src;
+            const userLink = publicacao.querySelector('.post-ft-perfil').parentElement.href;
+            const username = publicacao.querySelector('.post-username').innerText;
+            const data = publicacao.querySelector('.post-data').innerText;
+            const descricao = publicacao.querySelector('.post-descricao').innerText;
             
             // Verificar se é imagem ou vídeo
-            const imagem = publicacao.querySelector('#imagem');
-            const video = publicacao.querySelector('#video');
+            const imagem = publicacao.querySelector('.post-imagem');
+            const video = publicacao.querySelector('.post-video');
             
             // Preencher dados no modal
-            document.getElementById("ft_perfil").src = ft_perfil;
-            document.getElementById("ft_perfil").parentElement.href = idutilizador;
-            document.getElementById("username").innerText = username;
-            document.getElementById("data").innerText = data;
-            document.getElementById("descricao").innerText = descricao;
+            document.getElementById("modalFtPerfil").src = ftPerfil;
+            document.getElementById("modalPerfilLink").href = userLink;
+            document.getElementById("modalUsername").innerText = username;
+            document.getElementById("modalData").innerText = data;
+            document.getElementById("modalDescricao").innerText = descricao;
 
             // Limpar mídia anterior
-            const imagemModal = document.getElementById("imagem");
-            const videoModal = document.getElementById("video");
+            const imagemModal = document.getElementById("modalImagem");
+            const videoModal = document.getElementById("modalVideo");
             imagemModal.style.display = "none";
             videoModal.style.display = "none";
 
@@ -791,22 +831,22 @@ if (!$publicacoes) {
         }
 
         function carregarComentario(data) {
-            var comentario = ComentarioTemplate.cloneNode(true);
+            var comentario = comentarioTemplate.cloneNode(true);
             modalComentarios.appendChild(comentario);
 
             comentario.classList.remove('hidden');
-            comentario.querySelector('#ft_perfil').src = data["ft_perfil"];
-            comentario.querySelector('#username').innerHTML = data["user"];
-            comentario.querySelector('#data').innerHTML = data["data"];
-            comentario.querySelector('#descricao').innerHTML = data['conteudo'];
+            comentario.querySelector('.comentario-ft-perfil').src = data["ft_perfil"];
+            comentario.querySelector('.comentario-username').innerHTML = data["user"];
+            comentario.querySelector('.comentario-data').innerHTML = data["data"];
+            comentario.querySelector('.comentario-conteudo').innerHTML = data['conteudo'];
 
             return comentario;
         }
 
         function clearComentarios() {
-            var Comentarios = Array.from(modalComentarios.children);
+            var comentarios = Array.from(modalComentarios.children);
 
-            Comentarios.forEach(comentario => {
+            comentarios.forEach(comentario => {
                 if (comentario.classList.contains('hidden')) {
                     return;
                 }

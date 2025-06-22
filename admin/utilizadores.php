@@ -75,17 +75,105 @@ if (!$resultado) {
             text-align: center;
             margin-bottom: 20px;
         }
+
+        .sucesso {
+            color: green;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            margin: 0 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-confirmar {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
 </head>
 
 <body><br>
     <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Utilizadores</h1>
+    
+    <!-- Modal de confirmação -->
+    <div id="modalConfirmacao" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Remoção</h3>
+            <p>Tem a certeza que deseja remover este utilizador?</p>
+            <p><strong>Esta ação irá remover:</strong></p>
+            <ul style="text-align: left; margin: 10px 0;">
+                <li>Todas as publicações do utilizador</li>
+                <li>Todos os comentários</li>
+                <li>Todas as mensagens</li>
+                <li>Todos os relacionamentos (seguidores/seguindo)</li>
+                <li>Todos os dados associados</li>
+            </ul>
+            <p style="color: red; font-weight: bold;">Esta ação não pode ser desfeita!</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn-confirmar" onclick="confirmarRemocao()">Remover</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         var botaoAcao = "";
+        var formParaRemover = "";
+        
         function remover(idForm) {
-            document.getElementById(idForm).action = "remover.php";
-            botaoAcao = "remover";
+            formParaRemover = idForm;
+            document.getElementById('modalConfirmacao').style.display = 'block';
         }
+        
+        function confirmarRemocao() {
+            document.getElementById(formParaRemover).action = "remover.php";
+            botaoAcao = "remover";
+            document.getElementById(formParaRemover).submit();
+        }
+        
+        function fecharModal() {
+            document.getElementById('modalConfirmacao').style.display = 'none';
+            formParaRemover = "";
+        }
+        
         function gravar(idForm) {
             document.getElementById(idForm).action = "gravar.php";
             botaoAcao = "gravar";
@@ -97,7 +185,25 @@ if (!$resultado) {
         function acao() {
             return botaoAcao !== "";
         }
+
+        // Fechar modal ao clicar fora dele
+        window.onclick = function(event) {
+            var modal = document.getElementById('modalConfirmacao');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
     </script>
+
+    <?php if (isset($_SESSION["erro"])): ?>
+        <div class="erro"><?= $_SESSION["erro"] ?></div>
+        <?php unset($_SESSION["erro"]); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["sucesso"])): ?>
+        <div class="sucesso"><?= $_SESSION["sucesso"] ?></div>
+        <?php unset($_SESSION["sucesso"]); ?>
+    <?php endif; ?>
 
     <table>
         <tr>
@@ -171,8 +277,8 @@ if (!$resultado) {
                         </select>
                     </td>
                     <td>
-                        <button id='botaoRemover' name='botaoRemover'
-                            onclick='remover("form<?= $registo["idutilizador"] ?>")' <?= $registo["id_tipos_utilizador"] == 0 ? "disabled" : "" ?>>Remover</button>
+                        <button type="button" onclick='remover("form<?= $registo["idutilizador"] ?>")' 
+                                <?= $registo["id_tipos_utilizador"] == 0 ? "disabled" : "" ?>>Remover</button>
                     </td>
                     <td>
                         <button id='botaoGravar' name='botaoGravar'
