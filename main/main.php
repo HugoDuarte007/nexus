@@ -193,7 +193,7 @@ $publicacoes = mysqli_query($con, $sql);
         .media-item img,
         .media-item video {
             width: 100%;
-            max-height: 200px;
+            max-height: 300px;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
@@ -237,6 +237,8 @@ $publicacoes = mysqli_query($con, $sql);
         .action-buttons {
             display: flex;
             gap: 15px;
+            width: 100%;
+            /* Adicionado para ocupar toda a largura */
         }
 
         .action-btn {
@@ -258,6 +260,16 @@ $publicacoes = mysqli_query($con, $sql);
 
         .action-btn.liked {
             color: #e74c3c;
+        }
+
+        .save-btn {
+            margin-left: auto;
+            /* Isso empurrará o botão para a direita */
+        }
+
+        .save-btn {
+            margin-left: auto;
+            /* Isso empurrará o botão para a direita */
         }
 
         .action-btn.saved {
@@ -1002,7 +1014,6 @@ $publicacoes = mysqli_query($con, $sql);
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
                     <div id="comentarios" class="space-y-4">
-                        <!-- Template de comentário (hidden) -->
                         <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
                                 <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
@@ -1070,24 +1081,28 @@ $publicacoes = mysqli_query($con, $sql);
 
         // Função para abrir modal de imagem
         async function abrirModalImagem(postId, startIndex = 0) {
+            console.log('Abrir modal de imagem chamado para postId:', postId); // Debug
             currentPostId = postId;
             currentImageIndex = startIndex;
 
             try {
-                // Buscar mídias da publicação
                 const response = await fetch(`interacoes/get_medias_post.php?id=${postId}`);
                 const data = await response.json();
+                console.log('Dados recebidos:', data); // Debug
 
                 if (data.success) {
                     currentMedias = data.medias;
+                    console.log('Mídias carregadas:', currentMedias); // Debug
                     mostrarImagemAtual();
                     document.getElementById('imageModal').style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                 } else {
                     console.error('Erro ao carregar mídias:', data.message);
+                    alert('Erro ao carregar mídias: ' + data.message);
                 }
             } catch (error) {
                 console.error('Erro na requisição:', error);
+                alert('Erro ao carregar mídias');
             }
         }
 
@@ -1147,48 +1162,99 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Função para abrir modal de ver publicação
+        // Função para abrir modal de ver publicação
         async function abrirModalVerPublicacao(postId) {
             currentModalPostId = postId;
 
-            // Buscar dados da publicação via AJAX
-            fetch(`interacoes/get_publicacao_completa.php?id=${postId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Preencher dados básicos
-                        document.getElementById('modalUsername').textContent = data.user;
-                        document.getElementById('modalData').textContent = data.data_formatada;
-                        document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
-                        document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
-                        document.getElementById('idpublicacao').value = postId;
+            try {
+                const response = await fetch(`interacoes/get_publicacao_completa.php?id=${postId}`);
+                const data = await response.json();
 
-                        // Preencher descrição
-                        const modalDescricao = document.getElementById('modalDescricao');
-                        modalDescricao.innerHTML = data.descricao || '';
-                        modalDescricao.style.display = data.descricao ? 'block' : 'none';
+                if (data.success) {
+                    // Preencher dados básicos
+                    document.getElementById('modalUsername').textContent = data.user;
+                    document.getElementById('modalData').textContent = data.data_formatada;
+                    document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
+                    document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
+                    document.getElementById('idpublicacao').value = postId;
 
-                        // Configurar mídias (seu código existente aqui...)
+                    // Preencher descrição
+                    const modalDescricao = document.getElementById('modalDescricao');
+                    modalDescricao.innerHTML = data.descricao ? nl2br(htmlspecialchars(data.descricao)) : '';
+                    modalDescricao.style.display = data.descricao ? 'block' : 'none';
 
-                        // Focar automaticamente no campo de comentário
-                        setTimeout(() => {
-                            const commentField = document.querySelector('#modalVerPublicacao input[name="comentario"]');
-                            if (commentField) commentField.focus();
-                        }, 300);
+                    // Configurar mídias
+                    const modalMediaContainer = document.getElementById('modalMediaContainer');
+                    const modalImagem = document.getElementById('modalImagem');
+                    const modalVideo = document.getElementById('modalVideo');
 
-                        // Mostrar o modal
-                        document.getElementById('modalVerPublicacao').style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
+                    if (data.medias && data.medias.length > 0) {
+                        modalMedias = data.medias;
+                        modalCurrentIndex = 0;
 
+                        if (data.medias.length > 1) {
+                            // Mostrar container de múltiplas mídias
+                            modalMediaContainer.style.display = 'block';
+                            modalImagem.style.display = 'none';
+                            modalVideo.style.display = 'none';
+                            mostrarModalMediaAtual();
+                        } else {
+                            // Mostrar mídia única
+                            modalMediaContainer.style.display = 'none';
+                            const media = data.medias[0];
+
+                            if (media.tipo === 'video') {
+                                modalImagem.style.display = 'none';
+                                modalVideo.style.display = 'block';
+                                modalVideo.querySelector('source').src = `publicacoes/${media.media}`;
+                                modalVideo.querySelector('source').type = `video/${media.media.split('.').pop()}`;
+                                modalVideo.load();
+                            } else {
+                                modalVideo.style.display = 'none';
+                                modalImagem.style.display = 'block';
+                                modalImagem.src = `publicacoes/${media.media}`;
+                            }
+                        }
                     } else {
-                        console.error('Erro ao carregar publicação:', data.message);
-                        alert('Não foi possível carregar a publicação');
+                        // Sem mídias
+                        modalMediaContainer.style.display = 'none';
+                        modalImagem.style.display = 'none';
+                        modalVideo.style.display = 'none';
                     }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Ocorreu um erro ao carregar a publicação');
-                });
+
+                    // Carregar comentários
+                    carregarComentarios(postId);
+
+                    // Mostrar o modal
+                    document.getElementById('modalVerPublicacao').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+
+                    // Focar no campo de comentário
+                    setTimeout(() => {
+                        const commentField = document.querySelector('#modalVerPublicacao input[name="comentario"]');
+                        if (commentField) commentField.focus();
+                    }, 300);
+                } else {
+                    console.error('Erro ao carregar publicação:', data.message);
+                    alert('Não foi possível carregar a publicação');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao carregar a publicação');
+            }
         }
+
+        // Função auxiliar para nl2br (simulação do PHP)
+        function nl2br(str) {
+            return str.replace(/\n/g, '<br>');
+        }
+
+        // Função auxiliar para htmlspecialchars (simulação do PHP)
+        function htmlspecialchars(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }       
 
         // Função para mostrar mídia atual no modal
         function mostrarModalMediaAtual() {
