@@ -830,8 +830,9 @@ $publicacoes = mysqli_query($con, $sql);
                                     <div class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>"
                                         onclick="abrirModalImagem(<?= $publicacao['idpublicacao'] ?>, <?= $index ?>)">
                                         <?php if ($media['tipo'] == 'video'): ?>
-                                            <video muted>
+                                            <video muted controls>
                                                 <source src="publicacoes/<?= $media['media'] ?>" type="video/mp4">
+                                                Seu navegador não suporta o elemento de vídeo.
                                             </video>
                                         <?php else: ?>
                                             <img src="publicacoes/<?= $media['media'] ?>" alt="Imagem da publicação">
@@ -1146,72 +1147,47 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Função para abrir modal de ver publicação
-        function abrirModalVerPublicacao(postId) {
+        async function abrirModalVerPublicacao(postId) {
             currentModalPostId = postId;
 
-            try {
-                // Buscar dados da publicação
-                const response = await fetch(`interacoes/get_publicacao_completa.php?id=${postId}`);
-                const data = await response.json();
+            // Buscar dados da publicação via AJAX
+            fetch(`interacoes/get_publicacao_completa.php?id=${postId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Preencher dados básicos
+                        document.getElementById('modalUsername').textContent = data.user;
+                        document.getElementById('modalData').textContent = data.data_formatada;
+                        document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
+                        document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
+                        document.getElementById('idpublicacao').value = postId;
 
-                if (data.success) {
-                    // Preencher dados básicos
-                    document.getElementById('modalUsername').textContent = data.user;
-                    document.getElementById('modalData').textContent = data.data_formatada;
-                    document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
-                    document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
-                    document.getElementById('idpublicacao').value = postId;
+                        // Preencher descrição
+                        const modalDescricao = document.getElementById('modalDescricao');
+                        modalDescricao.innerHTML = data.descricao || '';
+                        modalDescricao.style.display = data.descricao ? 'block' : 'none';
 
-                    // Preencher descrição
-                    const modalDescricao = document.getElementById('modalDescricao');
-                    if (data.descricao) {
-                        modalDescricao.innerHTML = data.descricao;
-                        modalDescricao.style.display = 'block';
+                        // Configurar mídias (seu código existente aqui...)
+
+                        // Focar automaticamente no campo de comentário
+                        setTimeout(() => {
+                            const commentField = document.querySelector('#modalVerPublicacao input[name="comentario"]');
+                            if (commentField) commentField.focus();
+                        }, 300);
+
+                        // Mostrar o modal
+                        document.getElementById('modalVerPublicacao').style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+
                     } else {
-                        modalDescricao.style.display = 'none';
+                        console.error('Erro ao carregar publicação:', data.message);
+                        alert('Não foi possível carregar a publicação');
                     }
-
-                    // Limpar mídias anteriores
-                    document.getElementById('modalImagem').style.display = 'none';
-                    document.getElementById('modalVideo').style.display = 'none';
-                    document.getElementById('modalMediaContainer').style.display = 'none';
-
-                    // Configurar mídias
-                    if (data.medias && data.medias.length > 0) {
-                        modalMedias = data.medias;
-                        modalCurrentIndex = 0;
-
-                        if (data.medias.length === 1) {
-                            // Uma única mídia - usar o sistema antigo
-                            const media = data.medias[0];
-                            if (media.tipo === 'video') {
-                                const modalVideo = document.getElementById('modalVideo');
-                                modalVideo.querySelector('source').src = `publicacoes/${media.media}`;
-                                modalVideo.load();
-                                modalVideo.style.display = 'block';
-                            } else {
-                                const modalImagem = document.getElementById('modalImagem');
-                                modalImagem.src = `publicacoes/${media.media}`;
-                                modalImagem.style.display = 'block';
-                            }
-                        } else {
-                            // Múltiplas mídias - usar o novo sistema com navegação
-                            document.getElementById('modalMediaContainer').style.display = 'block';
-                            mostrarModalMediaAtual();
-                        }
-                    }
-
-                    // Carregar comentários
-                    carregarComentarios(postId);
-
-                    document.getElementById('modalVerPublicacao').style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    console.error('Erro ao carregar publicação:', data.message);
-                }
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-            }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Ocorreu um erro ao carregar a publicação');
+                });
         }
 
         // Função para mostrar mídia atual no modal
@@ -1410,34 +1386,27 @@ $publicacoes = mysqli_query($con, $sql);
             }
         }
 
-        function apagarPublicacao(postId) {
-            if (!confirm('Tem certeza que deseja apagar esta publicação? Esta ação não pode ser desfeita.')) {
-                return;
-            }
-
-            try {
+        function apagarPublicacao(idPublicacao) {
+            if (confirm('Tem certeza que deseja apagar esta publicação?')) {
                 const formData = new FormData();
-                formData.append('id_publicacao', postId);
+                formData.append('id_publicacao', idPublicacao);
 
-                const response = await fetch('interacoes/apagar_publicacao.php', {
+                fetch('interacoes/apagar_publicacao.php', {
                     method: 'POST',
                     body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-                    if (postElement) {
-                        postElement.style.animation = 'slideUp 0.5s ease reverse';
-                        setTimeout(() => postElement.remove(), 500);
-                    }
-                } else {
-                    alert('Erro ao apagar publicação: ' + data.message);
-                }
-            } catch (error) {
-                console.error('Erro ao apagar publicação:', error);
-                alert('Erro ao apagar publicação');
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.querySelector(`[data-post-id="${idPublicacao}"]`).remove();
+                        } else {
+                            alert('Erro ao apagar publicação: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao apagar publicação');
+                    });
             }
         }
 
@@ -1499,6 +1468,12 @@ $publicacoes = mysqli_query($con, $sql);
             post.style.transform = 'translateY(30px)';
             post.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             postObserver.observe(post);
+        });
+        // Adicione isso no seu JavaScript
+        document.querySelectorAll('video').forEach(video => {
+            video.addEventListener('error', function () {
+                console.error('Erro ao carregar vídeo:', this.querySelector('source').src);
+            });
         });
     </script>
 </body>
