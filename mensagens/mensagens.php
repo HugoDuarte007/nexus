@@ -39,7 +39,7 @@ $query_conversas = "SELECT DISTINCT u.idutilizador, u.user, u.ft_perfil,
 $conversas = mysqli_query($con, $query_conversas);
 
 // Verificar se há um destinatário selecionado
-$destinatario = isset($_GET['destinatario']) ? (int)$_GET['destinatario'] : null;
+$destinatario = isset($_GET['destinatario']) ? (int) $_GET['destinatario'] : null;
 
 // Buscar mensagens com o destinatário selecionado
 if ($destinatario) {
@@ -96,10 +96,11 @@ if ($destinatario) {
             <div class="conversas-list">
                 <?php if (mysqli_num_rows($conversas) > 0): ?>
                     <?php while ($conversa = mysqli_fetch_assoc($conversas)): ?>
-                        <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>" 
-                           class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?> <?= ($conversa['nao_lidas'] > 0) ? 'nao-lida' : '' ?>"
-                           data-user-id="<?= $conversa['idutilizador'] ?>">
-                            <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="conversa-avatar">
+                        <a href="mensagens.php?destinatario=<?= $conversa['idutilizador'] ?>"
+                            class="conversa-item <?= ($destinatario == $conversa['idutilizador']) ? 'active' : '' ?> <?= ($conversa['nao_lidas'] > 0) ? 'nao-lida' : '' ?>"
+                            data-user-id="<?= $conversa['idutilizador'] ?>">
+                            <img src="<?= $conversa['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($conversa['ft_perfil']) : '../imagens/default.png' ?>"
+                                alt="Foto de perfil" class="conversa-avatar">
                             <div class="conversa-info">
                                 <span class="conversa-nome"><?= htmlspecialchars($conversa['user']) ?></span>
                                 <span class="conversa-ultima"><?= date("d/m H:i", strtotime($conversa['ultima_msg'])) ?></span>
@@ -119,12 +120,17 @@ if ($destinatario) {
         <div class="messages-content">
             <?php if ($destinatario): ?>
                 <div class="conversa-header">
-                    <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="destinatario-avatar">
+                    
+                        data-user-id="<?= $pub['idutilizador'] ?>">
+                        <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : '../imagens/default.png' ?>"
+                            alt="Foto de perfil" class="destinatario-avatar">
+                    
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
                         <button class="action-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="#0e2b3b" d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                                <path fill="#0e2b3b"
+                                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                             </svg>
                         </button>
                     </div>
@@ -143,7 +149,10 @@ if ($destinatario) {
                         <?php foreach ($mensagens_array as $msg): ?>
                             <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
                                 <?php if ($msg['idremetente'] != $id_utilizador): ?>
-                                    <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>" alt="Foto de perfil" class="mensagem-avatar">
+                                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" data-user-id="<?= $pub['idutilizador'] ?>">
+                                    <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>"
+                                        alt="Foto de perfil" class="mensagem-avatar">
+                                        </a>
                                 <?php endif; ?>
                                 <div class="mensagem-conteudo">
                                     <p><?= nl2br(htmlspecialchars($msg['mensagem'])) ?></p>
@@ -161,7 +170,8 @@ if ($destinatario) {
                 <form class="mensagem-form" id="form" action="enviar_mensagem.php" method="POST" id="formMensagem">
                     <input type="hidden" name="destinatario" value="<?= $destinatario ?>">
                     <div class="input-container">
-                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." autofocus required id="inputMensagem"></textarea>
+                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." autofocus
+                            required id="inputMensagem"></textarea>
                         <button type="submit" class="send-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                                 <path fill="#0e2b3b" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -185,7 +195,8 @@ if ($destinatario) {
                     <div class="empty-state">
                         <div class="icon-container">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64">
-                                <path fill="#0e2b3b" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                                <path fill="#0e2b3b"
+                                    d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                             </svg>
                         </div>
                         <h3>Seleciona uma conversa</h3>
@@ -231,7 +242,7 @@ if ($destinatario) {
         }
 
         // Fechar dropdown ao clicar fora
-        window.addEventListener("click", function() {
+        window.addEventListener("click", function () {
             const menu = document.getElementById("dropdownMenu");
             if (menu) {
                 menu.style.display = "none";
@@ -239,7 +250,7 @@ if ($destinatario) {
         });
 
         // Rolagem automática para a última mensagem
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('mensagensContainer');
             if (container) {
                 container.scrollTop = container.scrollHeight;
@@ -256,7 +267,7 @@ if ($destinatario) {
         });
 
         // Envio de mensagem com AJAX
-        document.getElementById('formMensagem')?.addEventListener('submit', function(e) {
+        document.getElementById('formMensagem')?.addEventListener('submit', function (e) {
             e.preventDefault();
 
             const form = this;
@@ -268,9 +279,9 @@ if ($destinatario) {
             if (!mensagemTexto) return;
 
             fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -327,7 +338,7 @@ if ($destinatario) {
                         document.querySelectorAll('.conversa-item').forEach(item => {
                             const userId = item.getAttribute('data-user-id');
                             const badge = item.querySelector('.badge-nao-lida');
-                            
+
                             if (data.conversas_nao_lidas[userId]) {
                                 if (badge) {
                                     badge.textContent = data.conversas_nao_lidas[userId];
