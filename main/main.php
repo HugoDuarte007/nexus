@@ -31,78 +31,53 @@ $hoje = date("m-d");
 $aniversario = $data_nascimento ? date("m-d", strtotime($data_nascimento)) : null;
 $mensagem_aniversario = ($aniversario === $hoje) ? "Feliz aniversário, $utilizador! 🎉🥳" : null;
 
-// Buscar publicações da base de dados
-$sql = "SELECT p.*, u.user, u.ft_perfil 
+// Buscar publicações da base de dados com informações de likes e se o usuário curtiu
+$idutilizador_logado = $_SESSION["idutilizador"];
+$sql = "SELECT p.*, u.user, u.ft_perfil,
+               (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao) as total_likes,
+               (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_liked,
+               (SELECT COUNT(*) FROM guardado WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_saved
         FROM publicacao p
         JOIN utilizador u ON p.idutilizador = u.idutilizador
-        ORDER BY p.data DESC";  // Ordenar pela data de publicação mais recente
+        ORDER BY p.data DESC";
 
 $publicacoes = mysqli_query($con, $sql);
-
-if (!$publicacoes) {
-    die("Erro na query das publicações: " . mysqli_error($con));
-} elseif (mysqli_num_rows($publicacoes) == 0) {
-    echo "<p style='text-align:center;'>Sem publicações encontradas.</p>";
-}
-
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../imagens/favicon.ico" type="image/png">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="../style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Nexus | Página Inicial</title>
     <style>
         /* Estilos gerais */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #1f2937;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-
-        /* Container de posts */
-        .posts {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+        .container {
+            width: 700px;
+            margin: auto;
             margin-top: 20px;
-            padding-bottom: 60px;
+            margin-bottom: 100px;
         }
 
-        /* Post individual */
         .post {
-            width: 100%;
-            max-width: 600px;
+            width: 700px;
             background: white;
-            padding: 16px;
+            padding: 15px;
             margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #0e2b3b;
         }
 
-        .post:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Cabeçalho do post */
         .post-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .profile-picture {
@@ -110,65 +85,93 @@ if (!$publicacoes) {
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #e5e7eb;
         }
 
         .username {
-            font-weight: 600;
-            color: #1f2937;
+            font-weight: bold;
+            flex: 1;
         }
 
         .post-time {
-            color: #6b7280;
-            font-size: 0.8em;
-            margin-left: auto;
+            color: gray;
+            font-size: 0.9em;
         }
 
-        /* Conteúdo do post */
+        .post-options {
+            position: relative;
+        }
+
+        .options-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .options-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .options-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        .options-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .options-menu button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .options-menu button.delete-btn {
+            color: #e74c3c;
+        }
+
         .post-content {
-            margin-left: 52px;
+            margin-bottom: 15px;
         }
 
         .post-content p {
-            text-align: left;
             word-wrap: break-word;
+            overflow-wrap: break-word;
             white-space: pre-wrap;
-            color: #374151;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.4;
         }
 
-        .post-media {
-            width: 100%;
-            max-height: 500px;
-            object-fit: contain;
-            border-radius: 8px;
+        /* Estilos para múltiplas mídias */
+        .post-media-container {
+            position: relative;
             margin-top: 10px;
-            margin-bottom: 10px;
-            background-color: #f3f4f6;
-            cursor: pointer;
-            aspect-ratio: 1/1; /* Mantém proporção quadrada para imagens */
-            object-fit: cover; /* Corta a imagem para preencher o quadrado */
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .post-video {
-            width: 100%;
-            max-height: 500px;
-            border-radius: 8px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            background-color: #000;
-        }
-
-        /* Grid de mídias - NOVO */
         .media-grid {
             display: grid;
-            gap: 4px;
-            border-radius: 12px;
+            gap: 2px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            position: relative;
         }
 
         .media-grid.single {
@@ -191,14 +194,13 @@ if (!$publicacoes) {
 
         .media-item {
             position: relative;
-            overflow: hidden;
             cursor: pointer;
-            background-color: #f3f4f6;
-            min-height: 200px;
+            overflow: hidden;
+            background: #f0f0f0;
         }
 
-        .media-item.main {
-            grid-row: 1 / -1;
+        .media-item.first-triple {
+            grid-row: span 2;
         }
 
         .media-item img,
@@ -225,160 +227,152 @@ if (!$publicacoes) {
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 24px;
             font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* Ações do post */
+        .media-item:hover .media-overlay {
+            opacity: 1;
+        }
+
+        /* Estilos das ações do post */
         .post-actions {
             display: flex;
-            width: 100%;
-            margin-top: 12px;
-            gap: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .action-button {
-            flex: 1;
-            background-color: white;
-            border-radius: 8px;
-            padding: 8px 0;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            color: #4b5563;
-            font-weight: 500;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            margin-top: 15px;
         }
 
-        .action-button:hover {
-            background-color: #f3f4f6;
-            color: #1f2937;
+        .action-buttons {
+            display: flex;
+            gap: 15px;
         }
 
-        .action-button svg {
-            width: 20px;
-            height: 20px;
-            margin-right: 6px;
-        }
-
-        .guardar-button {
+        .action-btn {
             background: none;
             border: none;
             cursor: pointer;
-            padding: 6px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
 
-        .guardar-button:hover {
-            background-color: #f3f4f6;
+        .action-btn:hover {
+            background-color: #f0f0f0;
         }
 
-        .guardar-button svg {
-            width: 20px;
-            height: 20px;
+        .action-btn.liked {
+            color: #e74c3c;
         }
 
-        /* Modal geral */
-        .modal {
+        .action-btn.saved {
+            color: #f39c12;
+        }
+
+        .like-count {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Modal de visualização de imagem */
+        .image-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
         }
 
-        .modal-content {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 600px;
-            max-width: 95%;
+        .image-modal-content {
+            position: relative;
+            max-width: 90vw;
             max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Modal de visualização de publicação */
-        .modal-publicacao {
-            width: 700px;
-        }
-
-        /* Modal de visualização de mídia - ATUALIZADO */
-        #modalMedia .modal-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: transparent;
-            border: none;
-            max-width: 90%;
-            max-height: 90%;
-            box-shadow: none;
-            position: relative;
-        }
-
-        .media-viewer {
-            position: relative;
-            max-width: 100%;
-            max-height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .media-viewer img,
-        .media-viewer video {
+        .image-modal img,
+        .image-modal video {
             max-width: 100%;
             max-height: 90vh;
             object-fit: contain;
+            border-radius: 8px;
         }
 
-        .media-nav {
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            z-index: 2001;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .image-nav {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             background: rgba(0, 0, 0, 0.7);
             color: white;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            font-size: 24px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: background 0.3s;
-            z-index: 10;
+            padding: 15px 20px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            z-index: 2001;
         }
 
-        .media-nav:hover {
+        .image-nav:hover {
             background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
         }
 
-        .media-nav.prev {
-            left: 20px;
+        .image-nav.prev {
+            left: 30px;
         }
 
-        .media-nav.next {
-            right: 20px;
+        .image-nav.next {
+            right: 30px;
         }
 
-        .media-counter {
+        .image-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .image-nav:disabled:hover {
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .image-counter {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
@@ -386,180 +380,196 @@ if (!$publicacoes) {
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
+            z-index: 2001;
         }
 
-        #modalMedia .close {
-            color: white;
-            font-size: 30px;
-            font-weight: bold;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
+        /* Modal de visualização de publicação */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
-            cursor: pointer;
-            border: none;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 10;
+            align-items: center;
         }
 
-        #modalMedia .close:hover {
-            background: rgba(0,0,0,0.7);
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease;
         }
 
-        #mediaAmpliado {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+        .modal-publicacao {
+            width: 700px;
+            max-height: 90vh;
         }
 
         .modal-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
         }
 
         .modal-header h2 {
             margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
             color: #0e2b3b;
+            font-size: 1.2rem;
         }
 
         .close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            color: #6b7280;
-            transition: color 0.2s;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
         }
 
         .close:hover {
-            color: #1f2937;
+            background-color: #f0f0f0;
         }
 
         .modal-body {
             padding: 20px;
             overflow-y: auto;
-            flex: 1;
+            max-height: calc(90vh - 150px);
         }
 
-        /* Formulário de comentário */
-        .comment-form {
+        .modal-post-header {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-post-header img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .modal-post-content {
             margin-bottom: 20px;
         }
 
-        .comment-input {
-            flex: 1;
-            padding: 10px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 24px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .comment-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .comment-submit {
-            padding: 10px 20px;
-            background-color: #0e2b3b;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .comment-submit:hover {
-            background-color: #1a3d4d;
-        }
-
-        /* Lista de comentários */
-        .comments-container {
-            margin-top: 20px;
-        }
-
-        .comments-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 16px;
-        }
-
-        .comment {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .comment-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .comment-content {
-            flex: 1;
-        }
-
-        .comment-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #1f2937;
-            margin-right: 8px;
-        }
-
-        .comment-time {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .comment-text {
-            font-size: 0.9rem;
-            color: #374151;
-            line-height: 1.5;
+        .modal-post-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
             text-align: left;
         }
 
-        .comment-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 6px;
-            font-size: 0.8rem;
-        }
-
-        .comment-action {
-            color: #6b7280;
+        .modal-post-media {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
             cursor: pointer;
-            transition: color 0.2s;
         }
 
-        .comment-action:hover {
-            color: #1f2937;
-            text-decoration: underline;
+        .modal-post-video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Container para múltiplas mídias no modal */
+        .modal-media-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .modal-media-viewer {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .modal-media-current {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .modal-media-current img,
+        .modal-media-current video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .modal-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .modal-nav.prev {
+            left: 15px;
+        }
+
+        .modal-nav.next {
+            right: 15px;
+        }
+
+        .modal-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .modal-nav:disabled:hover {
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-counter {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            z-index: 10;
         }
 
         /* Notificação de aniversário */
@@ -568,155 +578,159 @@ if (!$publicacoes) {
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            animation: slideDown 0.5s ease;
         }
 
-        .notificacao.mostrar {
-            opacity: 1;
-        }
-
-        .notificacao .fechar {
+        .fechar {
             background: none;
             border: none;
             color: white;
             font-size: 18px;
             cursor: pointer;
-            margin-left: 8px;
+            margin-left: 15px;
+            padding: 0 5px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
         }
 
-        /* Ações da publicação no modal */
-        .post-actions-modal {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            margin: 16px 0;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
+        .fechar:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
-        .post-action {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #6b7280;
-            cursor: pointer;
-            transition: color 0.2s;
-            background: none;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
         }
 
-        .post-action:hover {
-            color: #1f2937;
-            background-color: #f3f4f6;
-        }
-
-        .post-action svg {
-            width: 18px;
-            height: 18px;
+        @keyframes slideIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Responsividade */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                margin-top: 10px;
+            }
+
             .post {
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
+                width: 100%;
             }
 
-            .modal-content {
-                max-height: 100vh;
-                height: 100vh;
-                max-width: 100%;
-                border-radius: 0;
+            .modal-publicacao {
+                width: 95%;
+                margin: 20px auto;
             }
 
-            .post-content {
-                margin-left: 0;
-                padding-left: 52px;
+            .media-grid.double,
+            .media-grid.triple,
+            .media-grid.multiple {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
             }
 
-            .media-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+            .media-item.first-triple {
+                grid-row: span 1;
             }
 
-            .media-nav.prev {
+            .image-nav, .modal-nav {
+                padding: 10px 15px;
+                font-size: 18px;
+            }
+
+            .image-nav.prev, .modal-nav.prev {
                 left: 10px;
             }
 
-            .media-nav.next {
+            .image-nav.next, .modal-nav.next {
                 right: 10px;
             }
         }
 
         /* Animações */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
             to {
-                opacity: 1;
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
         .post {
-            animation: fadeIn 0.3s ease-out forwards;
+            animation: slideUp 0.5s ease;
         }
 
-        /* Estilos específicos para o modal de publicação */
-        .modal-post-header {
+        .image-modal {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Estados de carregamento */
+        .loading {
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 20px;
+            color: #666;
         }
 
-        .modal-post-content {
-            margin-bottom: 16px;
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0e2b3b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
 
-        .modal-post-description {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #374151;
-            white-space: pre-wrap;
-            word-break: break-word;
-            text-align: left;
-            margin-bottom: 16px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .modal-post-media {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            cursor: pointer;
+        /* Melhorias visuais */
+        .post:hover {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
         }
 
-        .modal-post-video {
-            width: 100%;
-            max-height: 400px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .post-date {
+            color: #666;
+            font-size: 13px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -731,24 +745,158 @@ if (!$publicacoes) {
 
     <?php require '../partials/header.php'; ?>
 
-    <!-- Modal para visualizar mídia em tamanho real - ATUALIZADO -->
-    <div id="modalMedia" class="modal">
-        <div class="modal-content">
-            <button class="close" onclick="fecharMedia()">&times;</button>
-            <div class="media-viewer">
-                <button class="media-nav prev" onclick="navegarMedia(-1)" style="display: none;">‹</button>
-                <img id="imagemAmpliada" src="" style="display: none;">
-                <video id="videoAmpliado" controls style="display: none;">
-                    <source src="" type="">
-                    Seu navegador não suporta o elemento de vídeo.
-                </video>
-                <button class="media-nav next" onclick="navegarMedia(1)" style="display: none;">›</button>
-                <div class="media-counter" id="mediaCounter" style="display: none;">1 / 1</div>
+    <div class="container">
+        <?php if (mysqli_num_rows($publicacoes) > 0): ?>
+            <?php while ($publicacao = mysqli_fetch_assoc($publicacoes)): ?>
+                <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>">
+                    <div class="post-header">
+                        <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none;">
+                            <img src="<?= $publicacao['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($publicacao['ft_perfil']) : 'default.png' ?>" 
+                                 alt="Foto de perfil" class="profile-picture">
+                        </a>
+                        <div class="username">
+                            <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none; color: inherit;">
+                                <?= htmlspecialchars($publicacao['user']) ?>
+                            </a>
+                        </div>
+                        <span class="post-time"><?= date("d/m/Y H:i", strtotime($publicacao['data'])) ?></span>
+                        
+                        <div class="post-options">
+                            <button class="options-btn" onclick="toggleOptions(<?= $publicacao['idpublicacao'] ?>)">⋯</button>
+                            <div class="options-menu" id="options-<?= $publicacao['idpublicacao'] ?>">
+                                <button onclick="abrirModalVerPublicacao(<?= $publicacao['idpublicacao'] ?>)">Ver publicação</button>
+                                <?php if ($publicacao['idutilizador'] == $_SESSION['idutilizador']): ?>
+                                    <button class="delete-btn" onclick="apagarPublicacao(<?= $publicacao['idpublicacao'] ?>)">Apagar</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($publicacao['descricao'])): ?>
+                        <div class="post-content">
+                            <p><?= nl2br(htmlspecialchars($publicacao['descricao'])) ?></p>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php
+                    // Buscar mídias da publicação
+                    $idpub = $publicacao['idpublicacao'];
+                    $sql_medias = "SELECT * FROM publicacao_media WHERE idpublicacao = $idpub ORDER BY ordem ASC";
+                    $result_medias = mysqli_query($con, $sql_medias);
+                    $medias = [];
+                    
+                    while ($media = mysqli_fetch_assoc($result_medias)) {
+                        $medias[] = $media;
+                    }
+                    
+                    // Se não houver mídias na nova tabela, verificar na tabela antiga
+                    if (empty($medias) && !empty($publicacao['media'])) {
+                        $extensao = strtolower(pathinfo($publicacao['media'], PATHINFO_EXTENSION));
+                        $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
+                        $tipo = in_array($extensao, $extensoes_video) ? 'video' : 'imagem';
+                        
+                        $medias[] = [
+                            'media' => $publicacao['media'],
+                            'tipo' => $tipo,
+                            'ordem' => 1
+                        ];
+                    }
+                    ?>
+
+                    <?php if (!empty($medias)): ?>
+                        <div class="post-media-container">
+                            <?php
+                            $total_medias = count($medias);
+                            $grid_class = 'single';
+                            
+                            if ($total_medias == 2) {
+                                $grid_class = 'double';
+                            } elseif ($total_medias == 3) {
+                                $grid_class = 'triple';
+                            } elseif ($total_medias >= 4) {
+                                $grid_class = 'multiple';
+                            }
+                            ?>
+                            
+                            <div class="media-grid <?= $grid_class ?>" data-post-id="<?= $publicacao['idpublicacao'] ?>">
+                                <?php 
+                                $medias_to_show = ($total_medias > 4) ? array_slice($medias, 0, 4) : $medias;
+                                foreach ($medias_to_show as $index => $media): 
+                                ?>
+                                    <div class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>" 
+                                         onclick="abrirModalImagem(<?= $publicacao['idpublicacao'] ?>, <?= $index ?>)">
+                                        <?php if ($media['tipo'] == 'video'): ?>
+                                            <video muted>
+                                                <source src="publicacoes/<?= $media['media'] ?>" type="video/mp4">
+                                            </video>
+                                        <?php else: ?>
+                                            <img src="publicacoes/<?= $media['media'] ?>" alt="Imagem da publicação">
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($total_medias > 4 && $index == 3): ?>
+                                            <div class="media-overlay">
+                                                +<?= $total_medias - 4 ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn like-btn <?= $publicacao['user_liked'] ? 'liked' : '' ?>" 
+                                    onclick="toggleLike(<?= $publicacao['idpublicacao'] ?>, this)">
+                                <svg fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                                <span class="like-count"><?= $publicacao['total_likes'] ?></span>
+                            </button>
+                            
+                            <button class="action-btn comment-btn" onclick="abrirModalVerPublicacao(<?= $publicacao['idpublicacao'] ?>)">
+                                <svg fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/>
+                                </svg>
+                                Comentar
+                            </button>
+                            
+                            <button class="action-btn save-btn <?= $publicacao['user_saved'] ? 'saved' : '' ?>" 
+                                    onclick="toggleSave(<?= $publicacao['idpublicacao'] ?>, this)">
+                                <svg fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                                </svg>
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <div class="post">
+                <p style="text-align: center; color: #666; padding: 40px;">
+                    Nenhuma publicação encontrada. Comece a seguir pessoas ou crie a sua primeira publicação!
+                </p>
             </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Modal de visualização de imagem -->
+    <div id="imageModal" class="image-modal">
+        <button class="image-modal-close" onclick="fecharModalImagem()">×</button>
+        <button class="image-nav prev" id="prevBtn" onclick="navegarImagem(-1)">‹</button>
+        <button class="image-nav next" id="nextBtn" onclick="navegarImagem(1)">›</button>
+        <div class="image-counter" id="imageCounter">1 / 1</div>
+        <div class="image-modal-content">
+            <img id="modalImage" src="" alt="Imagem ampliada" style="display: none;">
+            <video id="modalVideo" controls style="display: none;">
+                <source src="" type="video/mp4">
+            </video>
         </div>
     </div>
 
-    <!-- Modal para visualizar publicação com comentários -->
+    <!-- Modal de visualização de publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
             <div class="modal-header">
@@ -772,14 +920,30 @@ if (!$publicacoes) {
 
                 <!-- Conteúdo da publicação no modal -->
                 <div class="modal-post-content">
-                    <p id="modalDescricao" class="modal-post-description"></p>
+                    <p id="modalDescricao" class="modal-post-description" style="text-align: left;"></p>
+                    
+                    <!-- Container para múltiplas mídias no modal -->
+                    <div id="modalMediaContainer" class="modal-media-container" style="display: none;">
+                        <div class="modal-media-viewer">
+                            <div class="modal-media-current">
+                                <img id="modalCurrentImage" src="" style="display: none;" alt="Imagem da publicação">
+                                <video id="modalCurrentVideo" controls style="display: none;" alt="Vídeo da publicação">
+                                    <source src="" type="">
+                                    Seu navegador não suporta o elemento de vídeo.
+                                </video>
+                            </div>
+                            <button class="modal-nav prev" id="modalPrevBtn" onclick="navegarModalMedia(-1)">‹</button>
+                            <button class="modal-nav next" id="modalNextBtn" onclick="navegarModalMedia(1)">›</button>
+                            <div class="modal-counter" id="modalMediaCounter">1 / 1</div>
+                        </div>
+                    </div>
+
+                    <!-- Mídia única (compatibilidade com sistema antigo) -->
                     <img id="modalImagem" src="" class="modal-post-media" style="display: none;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
                     <video id="modalVideo" controls class="modal-post-video" style="display: none;" alt="Vídeo da publicação">
                         <source src="" type="">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
-                    <!-- Container para múltiplas mídias no modal -->
-                    <div id="modalMediaGrid" class="media-grid" style="display: none;"></div>
                 </div>
 
                 <!-- Ações da publicação -->
@@ -824,7 +988,6 @@ if (!$publicacoes) {
                     </form>
                 </div>
 
-                <!-- Lista de comentários -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
                     <div id="comentarios" class="space-y-4">
@@ -842,7 +1005,6 @@ if (!$publicacoes) {
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
-                                        <button class="text-xs text-gray-500 hover:text-gray-700">Responder</button>
                                     </div>
                                 </div>
                             </div>
@@ -853,546 +1015,478 @@ if (!$publicacoes) {
         </div>
     </div>
 
-    <div class="posts">
-        <?php while ($pub = mysqli_fetch_assoc($publicacoes)): ?>
-
-            <?php
-            // Buscar mídias da publicação (NOVO)
-            $sql_media = "SELECT * FROM publicacao_media WHERE idpublicacao = " . $pub['idpublicacao'] . " ORDER BY ordem ASC";
-            $medias_result = mysqli_query($con, $sql_media);
-            $medias_array = [];
-            if ($medias_result) {
-                while ($media = mysqli_fetch_assoc($medias_result)) {
-                    $medias_array[] = $media;
-                }
-            }
-
-            $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
-            $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
-
-            $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
-            $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
-
-            // Determinar o tipo de mídia (mantendo compatibilidade com sistema antigo)
-            $media_path = $pub['media'];
-            $is_video = false;
-            if ($media_path) {
-                $extensao = strtolower(pathinfo($media_path, PATHINFO_EXTENSION));
-                $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
-                $is_video = in_array($extensao, $extensoes_video);
-            }
-            ?>
-
-            <div class="post" id="post_<?= $pub['idpublicacao'] ?>">
-                <div class="post-header">
-                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" data-user-id="<?= $pub['idutilizador'] ?>">
-                        <img class="post-ft-perfil profile-picture"
-                            src="<?= $pub['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($pub['ft_perfil']) : 'default.png'; ?>"
-                            alt="Foto de Perfil">
-                    </a>
-                    <span class="post-username username"><?= htmlspecialchars($pub['user']); ?></span>
-                    <p class="post-data post-time" style="max-height: 20px;">
-                        <?= date("d/m/Y H:i", strtotime($pub['data'])); ?>
-                    </p>
-                </div>
-
-                <div class="post-content">
-                    <p class="post-descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
-                    
-                    <?php if (!empty($medias_array)): ?>
-                        <!-- Sistema de múltiplas mídias (NOVO) -->
-                        <?php
-                        $total_medias = count($medias_array);
-                        $grid_class = '';
-                        if ($total_medias == 1) {
-                            $grid_class = 'single';
-                        } elseif ($total_medias == 2) {
-                            $grid_class = 'double';
-                        } elseif ($total_medias == 3) {
-                            $grid_class = 'triple';
-                        } else {
-                            $grid_class = 'multiple';
-                        }
-                        ?>
-                        <div class="media-grid <?= $grid_class ?>" data-post-id="<?= $pub['idpublicacao'] ?>">
-                            <?php for ($i = 0; $i < min(4, $total_medias); $i++): ?>
-                                <?php $media = $medias_array[$i]; ?>
-                                <div class="media-item <?= ($grid_class == 'triple' && $i == 0) ? 'main' : '' ?>" 
-                                     onclick="abrirGaleriaMedia(<?= $pub['idpublicacao'] ?>, <?= $i ?>)">
-                                    <?php if ($media['tipo'] == 'video'): ?>
-                                        <video muted>
-                                            <source src="publicacoes/<?= htmlspecialchars($media['media']); ?>" type="video/mp4">
-                                        </video>
-                                    <?php else: ?>
-                                        <img src="publicacoes/<?= htmlspecialchars($media['media']); ?>" alt="Imagem da publicação">
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($i == 3 && $total_medias > 4): ?>
-                                        <div class="media-overlay">+<?= $total_medias - 3 ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endfor; ?>
-                        </div>
-                    <?php elseif (!empty($pub['media'])): ?>
-                        <!-- Sistema antigo de mídia única (mantendo compatibilidade) -->
-                        <?php if ($is_video): ?>
-                            <video class="post-video" controls style="display: block;">
-                                <source src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= $extensao ?>">
-                                Seu navegador não suporta o elemento de vídeo.
-                            </video>
-                        <?php else: ?>
-                            <img class="post-imagem post-media" src="publicacoes/<?= htmlspecialchars($pub['media']); ?>"
-                                alt="Imagem da publicação" style="display: block" onclick="ampliarMedia(this.src, 'image')">
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-
-                <div class="post-actions">
-                    <button class="action-button" title="Comentar" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path fill="#0e2b3b"
-                                d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
-                        </svg>
-                        <span style="margin-left: 5px;"><?= count($comentarios) ?></span>
-                    </button>
-                    <button class="action-button" title="Republicar">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path fill="#0e2b3b"
-                                d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
-                        </svg>
-                        <span style="margin-left: 5px;">2</span>
-                    </button>
-                    <button class="action-button like-button" title="Gostar" data-post-id="<?= $pub['idpublicacao'] ?>">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path fill="<?= in_array($utilizador, array_column($like, 'user')) ? '#ff0000' : '#0e2b3b' ?>"
-                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                        </svg>
-                        <span class="like-count" style="margin-left: 5px;"><?= count($like) ?></span>
-                    </button>
-                </div>
-            </div>
-        <?php endwhile; ?>
-    </div>
-
     <script>
-        // Variáveis globais para navegação de mídia (NOVO)
+        // Variáveis globais para o modal de imagem
+        let currentPostId = null;
+        let currentImageIndex = 0;
         let currentMedias = [];
-        let currentMediaIndex = 0;
+        let currentModalPostId = null;
+        let modalMedias = [];
+        let modalCurrentIndex = 0;
 
-        const modalVerPublicacao = document.getElementById('modalVerPublicacao');
-        const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
-        const comentarioTemplate = modalComentarios.querySelector('#comentarioTemplate');
-
-        // Função para abrir galeria de múltiplas mídias (NOVO)
-        function abrirGaleriaMedia(postId, startIndex = 0) {
-            // Buscar todas as mídias do post
-            fetch(`get_medias_post.php?id=${postId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        currentMedias = data.medias;
-                        currentMediaIndex = startIndex;
-                        mostrarMedia();
-                        document.getElementById('modalMedia').style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar mídias:', error);
-                    // Fallback para sistema antigo se não houver múltiplas mídias
-                    const post = document.getElementById(`post_${postId}`);
-                    const singleMedia = post.querySelector('.post-imagem, .post-video source');
-                    if (singleMedia) {
-                        const src = singleMedia.src || singleMedia.getAttribute('src');
-                        const isVideo = singleMedia.tagName === 'SOURCE';
-                        ampliarMedia(src, isVideo ? 'video' : 'image');
-                    }
-                });
-        }
-
-        // Função para mostrar mídia atual (NOVO)
-        function mostrarMedia() {
-            const modal = document.getElementById('modalMedia');
-            const imagem = document.getElementById('imagemAmpliada');
-            const video = document.getElementById('videoAmpliado');
-            const counter = document.getElementById('mediaCounter');
-            const prevBtn = modal.querySelector('.media-nav.prev');
-            const nextBtn = modal.querySelector('.media-nav.next');
-
-            // Esconder ambos primeiro
-            imagem.style.display = 'none';
-            video.style.display = 'none';
-
-            if (currentMedias.length === 0) return;
-
-            const media = currentMedias[currentMediaIndex];
-            
-            if (media.tipo === 'video') {
-                video.querySelector('source').src = `publicacoes/${media.media}`;
-                video.load();
-                video.style.display = 'block';
-            } else {
-                imagem.src = `publicacoes/${media.media}`;
-                imagem.style.display = 'block';
+        // Função para fechar notificação de aniversário
+        function fecharNotificacao() {
+            const notificacao = document.getElementById('notificacao');
+            if (notificacao) {
+                notificacao.style.animation = 'slideUp 0.5s ease reverse';
+                setTimeout(() => notificacao.remove(), 500);
             }
-
-            // Atualizar contador
-            counter.textContent = `${currentMediaIndex + 1} / ${currentMedias.length}`;
-            counter.style.display = currentMedias.length > 1 ? 'block' : 'none';
-
-            // Mostrar/esconder botões de navegação
-            prevBtn.style.display = currentMedias.length > 1 ? 'flex' : 'none';
-            nextBtn.style.display = currentMedias.length > 1 ? 'flex' : 'none';
         }
 
-        // Função para navegar entre mídias (NOVO)
-        function navegarMedia(direction) {
-            currentMediaIndex += direction;
+        // Função para toggle do menu de opções
+        function toggleOptions(postId) {
+            const menu = document.getElementById(`options-${postId}`);
+            const isVisible = menu.style.display === 'block';
             
-            if (currentMediaIndex < 0) {
-                currentMediaIndex = currentMedias.length - 1;
-            } else if (currentMediaIndex >= currentMedias.length) {
-                currentMediaIndex = 0;
+            // Fechar todos os menus
+            document.querySelectorAll('.options-menu').forEach(m => m.style.display = 'none');
+            
+            // Abrir o menu clicado se não estava visível
+            if (!isVisible) {
+                menu.style.display = 'block';
             }
-            
-            mostrarMedia();
         }
 
-        function abrirPublicacao(pubid) {
-            const publicacao = document.querySelector('#post_' + pubid);
-
-            // Buscar elementos da publicação
-            const ftPerfil = publicacao.querySelector('.post-ft-perfil').src;
-            const userLink = publicacao.querySelector('.post-ft-perfil').parentElement.href;
-            const username = publicacao.querySelector('.post-username').innerText;
-            const data = publicacao.querySelector('.post-data').innerText;
-            const descricao = publicacao.querySelector('.post-descricao').innerText;
-            
-            // Verificar se é imagem ou vídeo único (sistema antigo)
-            const imagem = publicacao.querySelector('.post-imagem');
-            const video = publicacao.querySelector('.post-video');
-            
-            // Verificar se há múltiplas mídias (sistema novo)
-            const mediaGrid = publicacao.querySelector('.media-grid');
-            
-            // Preencher dados no modal
-            document.getElementById("modalFtPerfil").src = ftPerfil;
-            document.getElementById("modalPerfilLink").href = userLink;
-            document.getElementById("modalUsername").innerText = username;
-            document.getElementById("modalData").innerText = data;
-            document.getElementById("modalDescricao").innerText = descricao;
-
-            // Limpar mídia anterior
-            const imagemModal = document.getElementById("modalImagem");
-            const videoModal = document.getElementById("modalVideo");
-            const mediaGridModal = document.getElementById("modalMediaGrid");
-            
-            imagemModal.style.display = "none";
-            videoModal.style.display = "none";
-            mediaGridModal.style.display = "none";
-            mediaGridModal.innerHTML = "";
-
-            // Mostrar mídia apropriada
-            if (mediaGrid) {
-                // Sistema de múltiplas mídias
-                const postId = mediaGrid.getAttribute('data-post-id');
-                fetch(`get_medias_post.php?id=${postId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.medias.length > 0) {
-                            const medias = data.medias;
-                            const total = medias.length;
-                            
-                            let gridClass = '';
-                            if (total == 1) gridClass = 'single';
-                            else if (total == 2) gridClass = 'double';
-                            else if (total == 3) gridClass = 'triple';
-                            else gridClass = 'multiple';
-                            
-                            mediaGridModal.className = `media-grid ${gridClass}`;
-                            
-                            for (let i = 0; i < Math.min(4, total); i++) {
-                                const media = medias[i];
-                                const mediaItem = document.createElement('div');
-                                mediaItem.className = `media-item ${(gridClass == 'triple' && i == 0) ? 'main' : ''}`;
-                                mediaItem.onclick = () => abrirGaleriaMedia(postId, i);
-                                
-                                if (media.tipo === 'video') {
-                                    mediaItem.innerHTML = `<video muted><source src="publicacoes/${media.media}" type="video/mp4"></video>`;
-                                } else {
-                                    mediaItem.innerHTML = `<img src="publicacoes/${media.media}" alt="Imagem da publicação">`;
-                                }
-                                
-                                if (i == 3 && total > 4) {
-                                    mediaItem.innerHTML += `<div class="media-overlay">+${total - 3}</div>`;
-                                }
-                                
-                                mediaGridModal.appendChild(mediaItem);
-                            }
-                            
-                            mediaGridModal.style.display = "grid";
-                        }
-                    })
-                    .catch(error => console.error('Erro ao carregar mídias:', error));
-            } else if (imagem && imagem.style.display !== "none") {
-                // Sistema antigo - imagem única
-                imagemModal.src = imagem.src;
-                imagemModal.style.display = "block";
-            } else if (video && video.style.display !== "none") {
-                // Sistema antigo - vídeo único
-                videoModal.querySelector('source').src = video.querySelector('source').src;
-                videoModal.load();
-                videoModal.style.display = "block";
+        // Fechar menus ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.post-options')) {
+                document.querySelectorAll('.options-menu').forEach(m => m.style.display = 'none');
             }
+        });
 
-            // Definir o id da publicação no formulário
-            document.getElementById("idpublicacao").value = pubid;
-
-            // Limpa e carrega comentários
-            carregarComentarios(pubid);
-
-            modalVerPublicacao.style.display = 'flex';
-        }
-
-        function carregarComentario(data) {
-            var comentario = comentarioTemplate.cloneNode(true);
-            modalComentarios.appendChild(comentario);
-
-            comentario.classList.remove('hidden');
-            comentario.querySelector('.comentario-ft-perfil').src = data["ft_perfil"];
-            comentario.querySelector('.comentario-username').innerHTML = data["user"];
-            comentario.querySelector('.comentario-data').innerHTML = data["data"];
-            comentario.querySelector('.comentario-conteudo').innerHTML = data['conteudo'];
-
-            return comentario;
-        }
-
-        function clearComentarios() {
-            var comentarios = Array.from(modalComentarios.children);
-
-            comentarios.forEach(comentario => {
-                if (comentario.classList.contains('hidden')) {
-                    return;
+        // Função para abrir modal de imagem
+        async function abrirModalImagem(postId, startIndex = 0) {
+            currentPostId = postId;
+            currentImageIndex = startIndex;
+            
+            try {
+                // Buscar mídias da publicação
+                const response = await fetch(`interacoes/get_medias_post.php?id=${postId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentMedias = data.medias;
+                    mostrarImagemAtual();
+                    document.getElementById('imageModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Erro ao carregar mídias:', data.message);
                 }
-
-                modalComentarios.removeChild(comentario);
-            });
-        }
-
-        function carregarComentarios(pubid) {
-            clearComentarios();
-
-            fetch(`interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
-                .then(response => response.text())
-                .then(data => {
-                    JSON.parse(data).forEach(comentario => {
-                        carregarComentario(comentario);
-                    });
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar comentários:', error);
-                    modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
-                });
-        }
-
-        function fecharPublicacao() {
-            modalVerPublicacao.style.display = 'none';
-        }
-
-        // Funções para ampliar mídia (mantendo compatibilidade com sistema antigo)
-        function ampliarMedia(src, type) {
-            const modal = document.getElementById('modalMedia');
-            const imagem = document.getElementById('imagemAmpliada');
-            const video = document.getElementById('videoAmpliado');
-            const counter = document.getElementById('mediaCounter');
-            const prevBtn = modal.querySelector('.media-nav.prev');
-            const nextBtn = modal.querySelector('.media-nav.next');
-            
-            // Esconder ambos primeiro
-            imagem.style.display = 'none';
-            video.style.display = 'none';
-            
-            // Esconder controles de navegação para mídia única
-            counter.style.display = 'none';
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            
-            if (type === 'image') {
-                imagem.src = src;
-                imagem.style.display = 'block';
-            } else if (type === 'video') {
-                video.querySelector('source').src = src;
-                video.load();
-                video.style.display = 'block';
+            } catch (error) {
+                console.error('Erro na requisição:', error);
             }
-            
-            modal.style.display = 'flex';
-            
-            // Desativar scroll da página quando o modal está aberto
-            document.body.style.overflow = 'hidden';
         }
 
-        function fecharMedia() {
-            const modal = document.getElementById('modalMedia');
-            const video = document.getElementById('videoAmpliado');
+        // Função para mostrar imagem atual
+        function mostrarImagemAtual() {
+            if (!currentMedias || currentMedias.length === 0) return;
             
-            // Pausar vídeo se estiver tocando
-            if (!video.paused) {
-                video.pause();
+            const media = currentMedias[currentImageIndex];
+            const modalImage = document.getElementById('modalImage');
+            const modalVideo = document.getElementById('modalVideo');
+            const counter = document.getElementById('imageCounter');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            // Atualizar contador
+            counter.textContent = `${currentImageIndex + 1} / ${currentMedias.length}`;
+            
+            // Mostrar/ocultar botões de navegação
+            prevBtn.disabled = currentImageIndex === 0;
+            nextBtn.disabled = currentImageIndex === currentMedias.length - 1;
+            prevBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
+            nextBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
+            counter.style.display = currentMedias.length > 1 ? 'block' : 'none';
+            
+            // Mostrar mídia
+            if (media.tipo === 'video') {
+                modalImage.style.display = 'none';
+                modalVideo.style.display = 'block';
+                modalVideo.querySelector('source').src = `publicacoes/${media.media}`;
+                modalVideo.load();
+            } else {
+                modalVideo.style.display = 'none';
+                modalImage.style.display = 'block';
+                modalImage.src = `publicacoes/${media.media}`;
             }
+        }
+
+        // Função para navegar entre imagens
+        function navegarImagem(direction) {
+            const newIndex = currentImageIndex + direction;
             
-            modal.style.display = 'none';
-            
-            // Reativar scroll da página
+            if (newIndex >= 0 && newIndex < currentMedias.length) {
+                currentImageIndex = newIndex;
+                mostrarImagemAtual();
+            }
+        }
+
+        // Função para fechar modal de imagem
+        function fecharModalImagem() {
+            document.getElementById('imageModal').style.display = 'none';
             document.body.style.overflow = 'auto';
             
-            // Limpar dados de navegação
-            currentMedias = [];
-            currentMediaIndex = 0;
+            // Pausar vídeo se estiver tocando
+            const modalVideo = document.getElementById('modalVideo');
+            modalVideo.pause();
+            modalVideo.currentTime = 0;
         }
 
-        // Navegação por teclado (NOVO)
-        document.addEventListener('keydown', function(e) {
-            const modal = document.getElementById('modalMedia');
-            if (modal.style.display === 'flex') {
-                if (e.key === 'ArrowLeft') {
-                    navegarMedia(-1);
-                } else if (e.key === 'ArrowRight') {
-                    navegarMedia(1);
-                } else if (e.key === 'Escape') {
-                    fecharMedia();
-                }
-            }
-        });
-
-        // Fechar modal ao clicar fora da mídia
-        document.getElementById('modalMedia').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fecharMedia();
-            }
-        });
-
-        function abrirModal() {
-            document.getElementById("modalPublicacao").style.display = "flex";
-        }
-
-        function fecharModal() {
-            document.getElementById("modalPublicacao").style.display = "none";
-        }
-
-        function darLike(idPublicacao) {
-            fetch('../interacoes/like.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'id_publicacao=' + encodeURIComponent(idPublicacao)
-            })
-                .then(response => response.text())
-                .then(data => {
-                    // console.log(data);
-                })
-                .catch(error => {
-                    console.error('Erro ao dar like:', error);
-                });
-        }
-
-        function preverImagem() {
-            const input = document.getElementById('imagemInput');
-            const preview = document.getElementById('previewImagem');
-            const container = document.getElementById('previewContainer');
-
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    container.style.display = "block";
-                }
-
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                container.style.display = "none";
-                preview.src = "#";
-            }
-        }
-
-        // Função para enviar a publicação via AJAX
-        function enviarPublicacao(e) {
-            e.preventDefault();
-
-            const form = document.getElementById('publicacaoForm');
-            const formData = new FormData(form);
-
-            fetch('interacoes/publicar.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        fecharModal();
-                        // Atualizar a página ou adicionar a nova publicação dinamicamente
-                        window.location.reload();
+        // Função para abrir modal de ver publicação
+        async function abrirModalVerPublicacao(postId) {
+            currentModalPostId = postId;
+            
+            try {
+                // Buscar dados da publicação
+                const response = await fetch(`interacoes/get_publicacao_completa.php?id=${postId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Preencher dados básicos
+                    document.getElementById('modalUsername').textContent = data.user;
+                    document.getElementById('modalData').textContent = data.data_formatada;
+                    document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
+                    document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
+                    document.getElementById('idpublicacao').value = postId;
+                    
+                    // Preencher descrição
+                    const modalDescricao = document.getElementById('modalDescricao');
+                    if (data.descricao) {
+                        modalDescricao.innerHTML = data.descricao;
+                        modalDescricao.style.display = 'block';
                     } else {
-                        alert(data.message || 'Erro ao publicar');
+                        modalDescricao.style.display = 'none';
                     }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro na comunicação com o servidor');
-                });
-        }
-
-        // Adicionar evento ao formulário
-        document.getElementById('publicacaoForm').addEventListener('submit', enviarPublicacao);
-        document.addEventListener("DOMContentLoaded", function () {
-            setTimeout(() => {
-                let notificacao = document.getElementById("notificacao");
-                if (notificacao) {
-                    notificacao.classList.add("mostrar");
-                }
-            }, 1500);
-        });
-
-        function fecharNotificacao() {
-            let notificacao = document.getElementById("notificacao");
-            if (notificacao) {
-                notificacao.style.display = "none";
-            }
-        }
-
-        document.querySelectorAll('.guardar-button').forEach(button => {
-            button.addEventListener('click', function () {
-                // Obter o ID da publicação do elemento pai
-                const postElement = this.closest('.post');
-                const idpublicacao = postElement.id.split('_')[1];
-
-                fetch('guardar.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `idpublicacao=${idpublicacao}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const svgPath = this.querySelector('path');
-                            if (data.guardado) {
-                                svgPath.setAttribute('fill', '#ff0000');
-                                this.setAttribute('title', 'Remover dos guardados');
+                    
+                    // Limpar mídias anteriores
+                    document.getElementById('modalImagem').style.display = 'none';
+                    document.getElementById('modalVideo').style.display = 'none';
+                    document.getElementById('modalMediaContainer').style.display = 'none';
+                    
+                    // Configurar mídias
+                    if (data.medias && data.medias.length > 0) {
+                        modalMedias = data.medias;
+                        modalCurrentIndex = 0;
+                        
+                        if (data.medias.length === 1) {
+                            // Uma única mídia - usar o sistema antigo
+                            const media = data.medias[0];
+                            if (media.tipo === 'video') {
+                                const modalVideo = document.getElementById('modalVideo');
+                                modalVideo.querySelector('source').src = `publicacoes/${media.media}`;
+                                modalVideo.load();
+                                modalVideo.style.display = 'block';
                             } else {
-                                // Estilo para quando não está guardado
-                                svgPath.setAttribute('fill', '#0e2b3b');
-                                this.setAttribute('title', 'Guardar');
+                                const modalImagem = document.getElementById('modalImagem');
+                                modalImagem.src = `publicacoes/${media.media}`;
+                                modalImagem.style.display = 'block';
                             }
                         } else {
-                            alert(data.message);
+                            // Múltiplas mídias - usar o novo sistema com navegação
+                            document.getElementById('modalMediaContainer').style.display = 'block';
+                            mostrarModalMediaAtual();
                         }
-                    })
-                    .catch(error => console.error('Erro:', error));
+                    }
+                    
+                    // Carregar comentários
+                    carregarComentarios(postId);
+                    
+                    document.getElementById('modalVerPublicacao').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Erro ao carregar publicação:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+            }
+        }
+
+        // Função para mostrar mídia atual no modal
+        function mostrarModalMediaAtual() {
+            if (!modalMedias || modalMedias.length === 0) return;
+            
+            const media = modalMedias[modalCurrentIndex];
+            const modalCurrentImage = document.getElementById('modalCurrentImage');
+            const modalCurrentVideo = document.getElementById('modalCurrentVideo');
+            const modalCounter = document.getElementById('modalMediaCounter');
+            const modalPrevBtn = document.getElementById('modalPrevBtn');
+            const modalNextBtn = document.getElementById('modalNextBtn');
+            
+            // Atualizar contador
+            modalCounter.textContent = `${modalCurrentIndex + 1} / ${modalMedias.length}`;
+            
+            // Mostrar/ocultar botões de navegação
+            modalPrevBtn.disabled = modalCurrentIndex === 0;
+            modalNextBtn.disabled = modalCurrentIndex === modalMedias.length - 1;
+            modalPrevBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
+            modalNextBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
+            modalCounter.style.display = modalMedias.length > 1 ? 'block' : 'none';
+            
+            // Mostrar mídia
+            if (media.tipo === 'video') {
+                modalCurrentImage.style.display = 'none';
+                modalCurrentVideo.style.display = 'block';
+                modalCurrentVideo.querySelector('source').src = `publicacoes/${media.media}`;
+                modalCurrentVideo.load();
+            } else {
+                modalCurrentVideo.style.display = 'none';
+                modalCurrentImage.style.display = 'block';
+                modalCurrentImage.src = `publicacoes/${media.media}`;
+            }
+        }
+
+        // Função para navegar entre mídias no modal
+        function navegarModalMedia(direction) {
+            const newIndex = modalCurrentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < modalMedias.length) {
+                modalCurrentIndex = newIndex;
+                mostrarModalMediaAtual();
+            }
+        }
+
+        // Função para fechar modal de publicação
+        function fecharPublicacao() {
+            document.getElementById('modalVerPublicacao').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentModalPostId = null;
+            modalMedias = [];
+            modalCurrentIndex = 0;
+        }
+
+        // Função para ampliar mídia (compatibilidade)
+        function ampliarMedia(src, type) {
+            // Encontrar o índice da mídia atual
+            const mediaIndex = modalMedias.findIndex(media => src.includes(media.media));
+            if (mediaIndex !== -1) {
+                currentPostId = currentModalPostId;
+                currentMedias = modalMedias;
+                currentImageIndex = mediaIndex;
+                mostrarImagemAtual();
+                document.getElementById('imageModal').style.display = 'flex';
+            }
+        }
+
+        // Navegação por teclado
+        document.addEventListener('keydown', function(e) {
+            const imageModal = document.getElementById('imageModal');
+            const publicacaoModal = document.getElementById('modalVerPublicacao');
+            
+            if (imageModal.style.display === 'flex') {
+                switch(e.key) {
+                    case 'Escape':
+                        fecharModalImagem();
+                        break;
+                    case 'ArrowLeft':
+                        navegarImagem(-1);
+                        break;
+                    case 'ArrowRight':
+                        navegarImagem(1);
+                        break;
+                }
+            } else if (publicacaoModal.style.display === 'flex') {
+                switch(e.key) {
+                    case 'Escape':
+                        fecharPublicacao();
+                        break;
+                    case 'ArrowLeft':
+                        if (modalMedias.length > 1) navegarModalMedia(-1);
+                        break;
+                    case 'ArrowRight':
+                        if (modalMedias.length > 1) navegarModalMedia(1);
+                        break;
+                }
+            }
+        });
+
+        // Função para carregar comentários
+        async function carregarComentarios(postId) {
+            try {
+                const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
+                const comentarios = await response.json();
+                
+                const comentariosContainer = document.getElementById('comentarios');
+                const template = document.getElementById('comentarioTemplate');
+                
+                // Limpar comentários existentes (exceto o template)
+                const existingComments = comentariosContainer.querySelectorAll(':not(#comentarioTemplate)');
+                existingComments.forEach(comment => comment.remove());
+                
+                if (comentarios.length > 0) {
+                    comentarios.forEach(comentario => {
+                        const comentarioElement = template.cloneNode(true);
+                        comentarioElement.id = '';
+                        comentarioElement.classList.remove('hidden');
+                        
+                        comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil !== 'default.png' ? comentario.ft_perfil : 'default.png';
+                        comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
+                        comentarioElement.querySelector('.comentario-data').textContent = comentario.data;
+                        comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
+                        
+                        comentariosContainer.appendChild(comentarioElement);
+                    });
+                } else {
+                    const noComments = document.createElement('p');
+                    noComments.style.textAlign = 'center';
+                    noComments.style.color = '#666';
+                    noComments.style.padding = '20px';
+                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                    comentariosContainer.appendChild(noComments);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+                const errorMsg = document.createElement('p');
+                errorMsg.style.textAlign = 'center';
+                errorMsg.style.color = '#e74c3c';
+                errorMsg.textContent = 'Erro ao carregar comentários';
+                document.getElementById('comentarios').appendChild(errorMsg);
+            }
+        }
+
+        // Função para toggle like
+        async function toggleLike(postId, button) {
+            try {
+                const formData = new FormData();
+                formData.append('id_publicacao', postId);
+                
+                const response = await fetch('interacoes/like.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.text();
+                const likeCount = button.querySelector('.like-count');
+                let currentCount = parseInt(likeCount.textContent);
+                
+                if (result === 'liked') {
+                    button.classList.add('liked');
+                    likeCount.textContent = currentCount + 1;
+                } else if (result === 'unliked') {
+                    button.classList.remove('liked');
+                    likeCount.textContent = Math.max(0, currentCount - 1);
+                }
+            } catch (error) {
+                console.error('Erro ao dar like:', error);
+            }
+        }
+
+        // Função para toggle save
+        async function toggleSave(postId, button) {
+            try {
+                const formData = new FormData();
+                formData.append('idpublicacao', postId);
+                
+                const response = await fetch('interacoes/guardar.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.guardado) {
+                        button.classList.add('saved');
+                    } else {
+                        button.classList.remove('saved');
+                    }
+                } else {
+                    console.error('Erro ao guardar:', data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao guardar publicação:', error);
+            }
+        }
+
+        // Função para apagar publicação
+        async function apagarPublicacao(postId) {
+            if (!confirm('Tem certeza que deseja apagar esta publicação? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('id_publicacao', postId);
+                
+                const response = await fetch('interacoes/apagar_publicacao.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+                    if (postElement) {
+                        postElement.style.animation = 'slideUp 0.5s ease reverse';
+                        setTimeout(() => postElement.remove(), 500);
+                    }
+                } else {
+                    alert('Erro ao apagar publicação: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao apagar publicação:', error);
+                alert('Erro ao apagar publicação');
+            }
+        }
+
+        // Fechar modais ao clicar fora
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModalImagem();
+            }
+        });
+
+        document.getElementById('modalVerPublicacao').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharPublicacao();
+            }
+        });
+
+        // Auto-fechar notificação de aniversário
+        if (document.getElementById('notificacao')) {
+            setTimeout(fecharNotificacao, 5000);
+        }
+
+        // Lazy loading para imagens
+        const observerOptions = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.1
+        };
+
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        imageObserver.unobserve(img);
+                    }
+                }
             });
+        }, observerOptions);
+
+        // Observar todas as imagens com data-src
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
+
+        // Adicionar animação de entrada para posts
+        const postObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.post').forEach(post => {
+            post.style.opacity = '0';
+            post.style.transform = 'translateY(30px)';
+            post.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            postObserver.observe(post);
         });
     </script>
 </body>
