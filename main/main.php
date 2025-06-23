@@ -160,6 +160,75 @@ if (!$publicacoes) {
             background-color: #000;
         }
 
+        /* Grid de mídias - NOVO */
+        .media-grid {
+            display: grid;
+            gap: 4px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .media-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .media-grid.double {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .media-grid.triple {
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .media-grid.multiple {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .media-item {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #f3f4f6;
+            min-height: 200px;
+        }
+
+        .media-item.main {
+            grid-row: 1 / -1;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .media-item:hover img,
+        .media-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .media-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
         /* Ações do post */
         .post-actions {
             display: flex;
@@ -247,7 +316,7 @@ if (!$publicacoes) {
             width: 700px;
         }
 
-        /* Modal de visualização de mídia */
+        /* Modal de visualização de mídia - ATUALIZADO */
         #modalMedia .modal-content {
             display: flex;
             justify-content: center;
@@ -257,6 +326,66 @@ if (!$publicacoes) {
             max-width: 90%;
             max-height: 90%;
             box-shadow: none;
+            position: relative;
+        }
+
+        .media-viewer {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-viewer img,
+        .media-viewer video {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .media-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.3s;
+            z-index: 10;
+        }
+
+        .media-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .media-nav.prev {
+            left: 20px;
+        }
+
+        .media-nav.next {
+            right: 20px;
+        }
+
+        .media-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
         }
 
         #modalMedia .close {
@@ -517,6 +646,20 @@ if (!$publicacoes) {
                 margin-left: 0;
                 padding-left: 52px;
             }
+
+            .media-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .media-nav.prev {
+                left: 10px;
+            }
+
+            .media-nav.next {
+                right: 10px;
+            }
         }
 
         /* Animações */
@@ -588,15 +731,20 @@ if (!$publicacoes) {
 
     <?php require '../partials/header.php'; ?>
 
-    <!-- Modal para visualizar mídia em tamanho real -->
+    <!-- Modal para visualizar mídia em tamanho real - ATUALIZADO -->
     <div id="modalMedia" class="modal">
-        <div class="modal-content" style="max-width: 90%; max-height: 90%; background: transparent; box-shadow: none;">
-            <button class="close" onclick="fecharMedia()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
-            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
-            <video id="videoAmpliado" controls style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
-                <source src="" type="">
-                Seu navegador não suporta o elemento de vídeo.
-            </video>
+        <div class="modal-content">
+            <button class="close" onclick="fecharMedia()">&times;</button>
+            <div class="media-viewer">
+                <button class="media-nav prev" onclick="navegarMedia(-1)" style="display: none;">‹</button>
+                <img id="imagemAmpliada" src="" style="display: none;">
+                <video id="videoAmpliado" controls style="display: none;">
+                    <source src="" type="">
+                    Seu navegador não suporta o elemento de vídeo.
+                </video>
+                <button class="media-nav next" onclick="navegarMedia(1)" style="display: none;">›</button>
+                <div class="media-counter" id="mediaCounter" style="display: none;">1 / 1</div>
+            </div>
         </div>
     </div>
 
@@ -630,6 +778,8 @@ if (!$publicacoes) {
                         <source src="" type="">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
+                    <!-- Container para múltiplas mídias no modal -->
+                    <div id="modalMediaGrid" class="media-grid" style="display: none;"></div>
                 </div>
 
                 <!-- Ações da publicação -->
@@ -707,13 +857,23 @@ if (!$publicacoes) {
         <?php while ($pub = mysqli_fetch_assoc($publicacoes)): ?>
 
             <?php
+            // Buscar mídias da publicação (NOVO)
+            $sql_media = "SELECT * FROM publicacao_media WHERE idpublicacao = " . $pub['idpublicacao'] . " ORDER BY ordem ASC";
+            $medias_result = mysqli_query($con, $sql_media);
+            $medias_array = [];
+            if ($medias_result) {
+                while ($media = mysqli_fetch_assoc($medias_result)) {
+                    $medias_array[] = $media;
+                }
+            }
+
             $sql = "SELECT * FROM comentario WHERE idpublicacao = " . $pub['idpublicacao'];
             $comentarios = mysqli_fetch_all(mysqli_query($con, $sql), MYSQLI_ASSOC);
 
             $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
             $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
 
-            // Determinar o tipo de mídia
+            // Determinar o tipo de mídia (mantendo compatibilidade com sistema antigo)
             $media_path = $pub['media'];
             $is_video = false;
             if ($media_path) {
@@ -739,7 +899,42 @@ if (!$publicacoes) {
                 <div class="post-content">
                     <p class="post-descricao"><?= nl2br(htmlspecialchars($pub['descricao'])); ?></p>
                     
-                    <?php if (!empty($pub['media'])): ?>
+                    <?php if (!empty($medias_array)): ?>
+                        <!-- Sistema de múltiplas mídias (NOVO) -->
+                        <?php
+                        $total_medias = count($medias_array);
+                        $grid_class = '';
+                        if ($total_medias == 1) {
+                            $grid_class = 'single';
+                        } elseif ($total_medias == 2) {
+                            $grid_class = 'double';
+                        } elseif ($total_medias == 3) {
+                            $grid_class = 'triple';
+                        } else {
+                            $grid_class = 'multiple';
+                        }
+                        ?>
+                        <div class="media-grid <?= $grid_class ?>" data-post-id="<?= $pub['idpublicacao'] ?>">
+                            <?php for ($i = 0; $i < min(4, $total_medias); $i++): ?>
+                                <?php $media = $medias_array[$i]; ?>
+                                <div class="media-item <?= ($grid_class == 'triple' && $i == 0) ? 'main' : '' ?>" 
+                                     onclick="abrirGaleriaMedia(<?= $pub['idpublicacao'] ?>, <?= $i ?>)">
+                                    <?php if ($media['tipo'] == 'video'): ?>
+                                        <video muted>
+                                            <source src="publicacoes/<?= htmlspecialchars($media['media']); ?>" type="video/mp4">
+                                        </video>
+                                    <?php else: ?>
+                                        <img src="publicacoes/<?= htmlspecialchars($media['media']); ?>" alt="Imagem da publicação">
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($i == 3 && $total_medias > 4): ?>
+                                        <div class="media-overlay">+<?= $total_medias - 3 ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    <?php elseif (!empty($pub['media'])): ?>
+                        <!-- Sistema antigo de mídia única (mantendo compatibilidade) -->
                         <?php if ($is_video): ?>
                             <video class="post-video" controls style="display: block;">
                                 <source src="publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= $extensao ?>">
@@ -780,9 +975,88 @@ if (!$publicacoes) {
     </div>
 
     <script>
+        // Variáveis globais para navegação de mídia (NOVO)
+        let currentMedias = [];
+        let currentMediaIndex = 0;
+
         const modalVerPublicacao = document.getElementById('modalVerPublicacao');
         const modalComentarios = modalVerPublicacao.querySelector('#comentarios');
         const comentarioTemplate = modalComentarios.querySelector('#comentarioTemplate');
+
+        // Função para abrir galeria de múltiplas mídias (NOVO)
+        function abrirGaleriaMedia(postId, startIndex = 0) {
+            // Buscar todas as mídias do post
+            fetch(`get_medias_post.php?id=${postId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentMedias = data.medias;
+                        currentMediaIndex = startIndex;
+                        mostrarMedia();
+                        document.getElementById('modalMedia').style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar mídias:', error);
+                    // Fallback para sistema antigo se não houver múltiplas mídias
+                    const post = document.getElementById(`post_${postId}`);
+                    const singleMedia = post.querySelector('.post-imagem, .post-video source');
+                    if (singleMedia) {
+                        const src = singleMedia.src || singleMedia.getAttribute('src');
+                        const isVideo = singleMedia.tagName === 'SOURCE';
+                        ampliarMedia(src, isVideo ? 'video' : 'image');
+                    }
+                });
+        }
+
+        // Função para mostrar mídia atual (NOVO)
+        function mostrarMedia() {
+            const modal = document.getElementById('modalMedia');
+            const imagem = document.getElementById('imagemAmpliada');
+            const video = document.getElementById('videoAmpliado');
+            const counter = document.getElementById('mediaCounter');
+            const prevBtn = modal.querySelector('.media-nav.prev');
+            const nextBtn = modal.querySelector('.media-nav.next');
+
+            // Esconder ambos primeiro
+            imagem.style.display = 'none';
+            video.style.display = 'none';
+
+            if (currentMedias.length === 0) return;
+
+            const media = currentMedias[currentMediaIndex];
+            
+            if (media.tipo === 'video') {
+                video.querySelector('source').src = `publicacoes/${media.media}`;
+                video.load();
+                video.style.display = 'block';
+            } else {
+                imagem.src = `publicacoes/${media.media}`;
+                imagem.style.display = 'block';
+            }
+
+            // Atualizar contador
+            counter.textContent = `${currentMediaIndex + 1} / ${currentMedias.length}`;
+            counter.style.display = currentMedias.length > 1 ? 'block' : 'none';
+
+            // Mostrar/esconder botões de navegação
+            prevBtn.style.display = currentMedias.length > 1 ? 'flex' : 'none';
+            nextBtn.style.display = currentMedias.length > 1 ? 'flex' : 'none';
+        }
+
+        // Função para navegar entre mídias (NOVO)
+        function navegarMedia(direction) {
+            currentMediaIndex += direction;
+            
+            if (currentMediaIndex < 0) {
+                currentMediaIndex = currentMedias.length - 1;
+            } else if (currentMediaIndex >= currentMedias.length) {
+                currentMediaIndex = 0;
+            }
+            
+            mostrarMedia();
+        }
 
         function abrirPublicacao(pubid) {
             const publicacao = document.querySelector('#post_' + pubid);
@@ -794,9 +1068,12 @@ if (!$publicacoes) {
             const data = publicacao.querySelector('.post-data').innerText;
             const descricao = publicacao.querySelector('.post-descricao').innerText;
             
-            // Verificar se é imagem ou vídeo
+            // Verificar se é imagem ou vídeo único (sistema antigo)
             const imagem = publicacao.querySelector('.post-imagem');
             const video = publicacao.querySelector('.post-video');
+            
+            // Verificar se há múltiplas mídias (sistema novo)
+            const mediaGrid = publicacao.querySelector('.media-grid');
             
             // Preencher dados no modal
             document.getElementById("modalFtPerfil").src = ftPerfil;
@@ -808,16 +1085,63 @@ if (!$publicacoes) {
             // Limpar mídia anterior
             const imagemModal = document.getElementById("modalImagem");
             const videoModal = document.getElementById("modalVideo");
+            const mediaGridModal = document.getElementById("modalMediaGrid");
+            
             imagemModal.style.display = "none";
             videoModal.style.display = "none";
+            mediaGridModal.style.display = "none";
+            mediaGridModal.innerHTML = "";
 
             // Mostrar mídia apropriada
-            if (imagem && imagem.style.display !== "none") {
+            if (mediaGrid) {
+                // Sistema de múltiplas mídias
+                const postId = mediaGrid.getAttribute('data-post-id');
+                fetch(`get_medias_post.php?id=${postId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.medias.length > 0) {
+                            const medias = data.medias;
+                            const total = medias.length;
+                            
+                            let gridClass = '';
+                            if (total == 1) gridClass = 'single';
+                            else if (total == 2) gridClass = 'double';
+                            else if (total == 3) gridClass = 'triple';
+                            else gridClass = 'multiple';
+                            
+                            mediaGridModal.className = `media-grid ${gridClass}`;
+                            
+                            for (let i = 0; i < Math.min(4, total); i++) {
+                                const media = medias[i];
+                                const mediaItem = document.createElement('div');
+                                mediaItem.className = `media-item ${(gridClass == 'triple' && i == 0) ? 'main' : ''}`;
+                                mediaItem.onclick = () => abrirGaleriaMedia(postId, i);
+                                
+                                if (media.tipo === 'video') {
+                                    mediaItem.innerHTML = `<video muted><source src="publicacoes/${media.media}" type="video/mp4"></video>`;
+                                } else {
+                                    mediaItem.innerHTML = `<img src="publicacoes/${media.media}" alt="Imagem da publicação">`;
+                                }
+                                
+                                if (i == 3 && total > 4) {
+                                    mediaItem.innerHTML += `<div class="media-overlay">+${total - 3}</div>`;
+                                }
+                                
+                                mediaGridModal.appendChild(mediaItem);
+                            }
+                            
+                            mediaGridModal.style.display = "grid";
+                        }
+                    })
+                    .catch(error => console.error('Erro ao carregar mídias:', error));
+            } else if (imagem && imagem.style.display !== "none") {
+                // Sistema antigo - imagem única
                 imagemModal.src = imagem.src;
                 imagemModal.style.display = "block";
             } else if (video && video.style.display !== "none") {
+                // Sistema antigo - vídeo único
                 videoModal.querySelector('source').src = video.querySelector('source').src;
-                videoModal.load(); // Recarregar o vídeo
+                videoModal.load();
                 videoModal.style.display = "block";
             }
 
@@ -875,15 +1199,23 @@ if (!$publicacoes) {
             modalVerPublicacao.style.display = 'none';
         }
 
-        // Funções para ampliar mídia
+        // Funções para ampliar mídia (mantendo compatibilidade com sistema antigo)
         function ampliarMedia(src, type) {
             const modal = document.getElementById('modalMedia');
             const imagem = document.getElementById('imagemAmpliada');
             const video = document.getElementById('videoAmpliado');
+            const counter = document.getElementById('mediaCounter');
+            const prevBtn = modal.querySelector('.media-nav.prev');
+            const nextBtn = modal.querySelector('.media-nav.next');
             
             // Esconder ambos primeiro
             imagem.style.display = 'none';
             video.style.display = 'none';
+            
+            // Esconder controles de navegação para mídia única
+            counter.style.display = 'none';
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
             
             if (type === 'image') {
                 imagem.src = src;
@@ -913,7 +1245,25 @@ if (!$publicacoes) {
             
             // Reativar scroll da página
             document.body.style.overflow = 'auto';
+            
+            // Limpar dados de navegação
+            currentMedias = [];
+            currentMediaIndex = 0;
         }
+
+        // Navegação por teclado (NOVO)
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('modalMedia');
+            if (modal.style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    navegarMedia(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navegarMedia(1);
+                } else if (e.key === 'Escape') {
+                    fecharMedia();
+                }
+            }
+        });
 
         // Fechar modal ao clicar fora da mídia
         document.getElementById('modalMedia').addEventListener('click', function(e) {
