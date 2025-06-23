@@ -153,6 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'message' => 'Publicação criada com sucesso!',
             'total_medias' => count($medias_salvas)
         ]);
+        header("Location: ../main.php");
     } else {
         // Se houve erro na inserção, remover arquivos salvos
         foreach ($medias_salvas as $arquivo) {

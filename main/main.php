@@ -78,6 +78,8 @@ $publicacoes = mysqli_query($con, $sql);
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            position: relative;
+            /* Adicione esta linha */
         }
 
         .profile-picture {
@@ -92,71 +94,56 @@ $publicacoes = mysqli_query($con, $sql);
             flex: 1;
         }
 
+
+
         .post-time {
             color: gray;
             font-size: 0.9em;
+            margin-left: auto;
+            /* Isso empurra a data para a direita */
+            margin-right: 10px;
+            /* Espaço entre a data e o botão */
         }
 
         .post-options {
             position: relative;
         }
 
-        .options-btn {
+        .delete-btn {
             background: none;
             border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-
-        .options-btn:hover {
-            background-color: #f0f0f0;
-        }
-
-        .options-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 100;
-            min-width: 150px;
-        }
-
-        .options-menu button {
-            display: block;
-            width: 100%;
-            padding: 10px 15px;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .options-menu button:hover {
-            background-color: #f5f5f5;
-        }
-
-        .options-menu button.delete-btn {
             color: #e74c3c;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+            margin-left: auto;
+            /* Isso empurra o botão para a direita */
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .delete-btn svg {
+            width: 16px;
+            height: 16px;
         }
 
         .post-content {
             margin-bottom: 15px;
+
         }
 
         .post-content p {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap;
             margin: 0;
             line-height: 1.4;
+            text-align: left;
+            padding: 0;
+            width: 100%;
         }
 
         /* Estilos para múltiplas mídias */
@@ -206,7 +193,7 @@ $publicacoes = mysqli_query($con, $sql);
         .media-item img,
         .media-item video {
             width: 100%;
-            height: 100%;
+            max-height: 200px;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
@@ -608,6 +595,7 @@ $publicacoes = mysqli_query($con, $sql);
                 transform: translateX(-50%) translateY(-100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(-50%) translateY(0);
                 opacity: 1;
@@ -619,6 +607,7 @@ $publicacoes = mysqli_query($con, $sql);
                 transform: scale(0.8);
                 opacity: 0;
             }
+
             to {
                 transform: scale(1);
                 opacity: 1;
@@ -652,24 +641,32 @@ $publicacoes = mysqli_query($con, $sql);
                 grid-row: span 1;
             }
 
-            .image-nav, .modal-nav {
+            .image-nav,
+            .modal-nav {
                 padding: 10px 15px;
                 font-size: 18px;
             }
 
-            .image-nav.prev, .modal-nav.prev {
+            .image-nav.prev,
+            .modal-nav.prev {
                 left: 10px;
             }
 
-            .image-nav.next, .modal-nav.next {
+            .image-nav.next,
+            .modal-nav.next {
                 right: 10px;
             }
         }
 
         /* Animações */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
@@ -677,6 +674,7 @@ $publicacoes = mysqli_query($con, $sql);
                 transform: translateY(30px);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -711,8 +709,13 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Melhorias visuais */
@@ -751,25 +754,26 @@ $publicacoes = mysqli_query($con, $sql);
                 <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>">
                     <div class="post-header">
                         <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none;">
-                            <img src="<?= $publicacao['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($publicacao['ft_perfil']) : 'default.png' ?>" 
-                                 alt="Foto de perfil" class="profile-picture">
+                            <img src="<?= $publicacao['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($publicacao['ft_perfil']) : 'default.png' ?>"
+                                alt="Foto de perfil" class="profile-picture">
                         </a>
-                        <div class="username">
-                            <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none; color: inherit;">
-                                <?= htmlspecialchars($publicacao['user']) ?>
-                            </a>
-                        </div>
+                        <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>"
+                            style="text-decoration: none; color: inherit;">
+                            <?= htmlspecialchars($publicacao['user']) ?>
+                        </a>
                         <span class="post-time"><?= date("d/m/Y H:i", strtotime($publicacao['data'])) ?></span>
-                        
-                        <div class="post-options">
-                            <button class="options-btn" onclick="toggleOptions(<?= $publicacao['idpublicacao'] ?>)">⋯</button>
-                            <div class="options-menu" id="options-<?= $publicacao['idpublicacao'] ?>">
-                                <button onclick="abrirModalVerPublicacao(<?= $publicacao['idpublicacao'] ?>)">Ver publicação</button>
-                                <?php if ($publicacao['idutilizador'] == $_SESSION['idutilizador']): ?>
-                                    <button class="delete-btn" onclick="apagarPublicacao(<?= $publicacao['idpublicacao'] ?>)">Apagar</button>
-                                <?php endif; ?>
-                            </div>
-                        </div>
+
+                        <?php if ($publicacao['idutilizador'] == $_SESSION['idutilizador']): ?>
+                            <button class="delete-btn" onclick="apagarPublicacao(<?= $publicacao['idpublicacao'] ?>)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </button>
+                        <?php endif; ?>
                     </div>
 
                     <?php if (!empty($publicacao['descricao'])): ?>
@@ -784,17 +788,17 @@ $publicacoes = mysqli_query($con, $sql);
                     $sql_medias = "SELECT * FROM publicacao_media WHERE idpublicacao = $idpub ORDER BY ordem ASC";
                     $result_medias = mysqli_query($con, $sql_medias);
                     $medias = [];
-                    
+
                     while ($media = mysqli_fetch_assoc($result_medias)) {
                         $medias[] = $media;
                     }
-                    
+
                     // Se não houver mídias na nova tabela, verificar na tabela antiga
                     if (empty($medias) && !empty($publicacao['media'])) {
                         $extensao = strtolower(pathinfo($publicacao['media'], PATHINFO_EXTENSION));
                         $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
                         $tipo = in_array($extensao, $extensoes_video) ? 'video' : 'imagem';
-                        
+
                         $medias[] = [
                             'media' => $publicacao['media'],
                             'tipo' => $tipo,
@@ -808,7 +812,7 @@ $publicacoes = mysqli_query($con, $sql);
                             <?php
                             $total_medias = count($medias);
                             $grid_class = 'single';
-                            
+
                             if ($total_medias == 2) {
                                 $grid_class = 'double';
                             } elseif ($total_medias == 3) {
@@ -817,14 +821,14 @@ $publicacoes = mysqli_query($con, $sql);
                                 $grid_class = 'multiple';
                             }
                             ?>
-                            
+
                             <div class="media-grid <?= $grid_class ?>" data-post-id="<?= $publicacao['idpublicacao'] ?>">
-                                <?php 
+                                <?php
                                 $medias_to_show = ($total_medias > 4) ? array_slice($medias, 0, 4) : $medias;
-                                foreach ($medias_to_show as $index => $media): 
-                                ?>
-                                    <div class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>" 
-                                         onclick="abrirModalImagem(<?= $publicacao['idpublicacao'] ?>, <?= $index ?>)">
+                                foreach ($medias_to_show as $index => $media):
+                                    ?>
+                                    <div class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>"
+                                        onclick="abrirModalImagem(<?= $publicacao['idpublicacao'] ?>, <?= $index ?>)">
                                         <?php if ($media['tipo'] == 'video'): ?>
                                             <video muted>
                                                 <source src="publicacoes/<?= $media['media'] ?>" type="video/mp4">
@@ -832,7 +836,7 @@ $publicacoes = mysqli_query($con, $sql);
                                         <?php else: ?>
                                             <img src="publicacoes/<?= $media['media'] ?>" alt="Imagem da publicação">
                                         <?php endif; ?>
-                                        
+
                                         <?php if ($total_medias > 4 && $index == 3): ?>
                                             <div class="media-overlay">
                                                 +<?= $total_medias - 4 ?>
@@ -846,25 +850,28 @@ $publicacoes = mysqli_query($con, $sql);
 
                     <div class="post-actions">
                         <div class="action-buttons">
-                            <button class="action-btn like-btn <?= $publicacao['user_liked'] ? 'liked' : '' ?>" 
-                                    onclick="toggleLike(<?= $publicacao['idpublicacao'] ?>, this)">
+                            <button class="action-btn like-btn <?= $publicacao['user_liked'] ? 'liked' : '' ?>"
+                                onclick="toggleLike(<?= $publicacao['idpublicacao'] ?>, this)">
                                 <svg fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    <path
+                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                 </svg>
                                 <span class="like-count"><?= $publicacao['total_likes'] ?></span>
                             </button>
-                            
-                            <button class="action-btn comment-btn" onclick="abrirModalVerPublicacao(<?= $publicacao['idpublicacao'] ?>)">
+
+                            <button class="action-btn comment-btn"
+                                onclick="abrirModalVerPublicacao(<?= $publicacao['idpublicacao'] ?>)">
                                 <svg fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/>
+                                    <path
+                                        d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z" />
                                 </svg>
                                 Comentar
                             </button>
-                            
-                            <button class="action-btn save-btn <?= $publicacao['user_saved'] ? 'saved' : '' ?>" 
-                                    onclick="toggleSave(<?= $publicacao['idpublicacao'] ?>, this)">
+
+                            <button class="action-btn save-btn <?= $publicacao['user_saved'] ? 'saved' : '' ?>"
+                                onclick="toggleSave(<?= $publicacao['idpublicacao'] ?>, this)">
                                 <svg fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
                                 </svg>
                                 Guardar
                             </button>
@@ -908,7 +915,8 @@ $publicacoes = mysqli_query($con, $sql);
                 <!-- Cabeçalho da publicação no modal -->
                 <div class="modal-post-header">
                     <a href="" id="modalPerfilLink">
-                        <img id="modalFtPerfil" alt="Foto de Perfil" class="profile-picture" style="width: 48px; height: 48px;">
+                        <img id="modalFtPerfil" alt="Foto de Perfil" class="profile-picture"
+                            style="width: 48px; height: 48px;">
                     </a>
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
@@ -921,7 +929,7 @@ $publicacoes = mysqli_query($con, $sql);
                 <!-- Conteúdo da publicação no modal -->
                 <div class="modal-post-content">
                     <p id="modalDescricao" class="modal-post-description" style="text-align: left;"></p>
-                    
+
                     <!-- Container para múltiplas mídias no modal -->
                     <div id="modalMediaContainer" class="modal-media-container" style="display: none;">
                         <div class="modal-media-viewer">
@@ -939,8 +947,10 @@ $publicacoes = mysqli_query($con, $sql);
                     </div>
 
                     <!-- Mídia única (compatibilidade com sistema antigo) -->
-                    <img id="modalImagem" src="" class="modal-post-media" style="display: none;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
-                    <video id="modalVideo" controls class="modal-post-video" style="display: none;" alt="Vídeo da publicação">
+                    <img id="modalImagem" src="" class="modal-post-media" style="display: none;"
+                        alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                    <video id="modalVideo" controls class="modal-post-video" style="display: none;"
+                        alt="Vídeo da publicação">
                         <source src="" type="">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
@@ -994,14 +1004,17 @@ $publicacoes = mysqli_query($con, $sql);
                         <!-- Template de comentário (hidden) -->
                         <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
-                                <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover" alt="Foto de Perfil">
+                                <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
+                                    alt="Foto de Perfil">
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-lg p-3">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span class="comentario-username font-semibold text-sm text-gray-800"></span>
+                                            <span
+                                                class="comentario-username font-semibold text-sm text-gray-800"></span>
                                             <span class="comentario-data text-xs text-gray-500"></span>
                                         </div>
-                                        <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;"></p>
+                                        <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;">
+                                        </p>
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
@@ -1037,10 +1050,10 @@ $publicacoes = mysqli_query($con, $sql);
         function toggleOptions(postId) {
             const menu = document.getElementById(`options-${postId}`);
             const isVisible = menu.style.display === 'block';
-            
+
             // Fechar todos os menus
             document.querySelectorAll('.options-menu').forEach(m => m.style.display = 'none');
-            
+
             // Abrir o menu clicado se não estava visível
             if (!isVisible) {
                 menu.style.display = 'block';
@@ -1048,7 +1061,7 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Fechar menus ao clicar fora
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (!e.target.closest('.post-options')) {
                 document.querySelectorAll('.options-menu').forEach(m => m.style.display = 'none');
             }
@@ -1058,12 +1071,12 @@ $publicacoes = mysqli_query($con, $sql);
         async function abrirModalImagem(postId, startIndex = 0) {
             currentPostId = postId;
             currentImageIndex = startIndex;
-            
+
             try {
                 // Buscar mídias da publicação
                 const response = await fetch(`interacoes/get_medias_post.php?id=${postId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     currentMedias = data.medias;
                     mostrarImagemAtual();
@@ -1080,24 +1093,24 @@ $publicacoes = mysqli_query($con, $sql);
         // Função para mostrar imagem atual
         function mostrarImagemAtual() {
             if (!currentMedias || currentMedias.length === 0) return;
-            
+
             const media = currentMedias[currentImageIndex];
             const modalImage = document.getElementById('modalImage');
             const modalVideo = document.getElementById('modalVideo');
             const counter = document.getElementById('imageCounter');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
-            
+
             // Atualizar contador
             counter.textContent = `${currentImageIndex + 1} / ${currentMedias.length}`;
-            
+
             // Mostrar/ocultar botões de navegação
             prevBtn.disabled = currentImageIndex === 0;
             nextBtn.disabled = currentImageIndex === currentMedias.length - 1;
             prevBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
             nextBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
             counter.style.display = currentMedias.length > 1 ? 'block' : 'none';
-            
+
             // Mostrar mídia
             if (media.tipo === 'video') {
                 modalImage.style.display = 'none';
@@ -1114,7 +1127,7 @@ $publicacoes = mysqli_query($con, $sql);
         // Função para navegar entre imagens
         function navegarImagem(direction) {
             const newIndex = currentImageIndex + direction;
-            
+
             if (newIndex >= 0 && newIndex < currentMedias.length) {
                 currentImageIndex = newIndex;
                 mostrarImagemAtual();
@@ -1125,7 +1138,7 @@ $publicacoes = mysqli_query($con, $sql);
         function fecharModalImagem() {
             document.getElementById('imageModal').style.display = 'none';
             document.body.style.overflow = 'auto';
-            
+
             // Pausar vídeo se estiver tocando
             const modalVideo = document.getElementById('modalVideo');
             modalVideo.pause();
@@ -1133,14 +1146,14 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Função para abrir modal de ver publicação
-        async function abrirModalVerPublicacao(postId) {
+        function abrirModalVerPublicacao(postId) {
             currentModalPostId = postId;
-            
+
             try {
                 // Buscar dados da publicação
                 const response = await fetch(`interacoes/get_publicacao_completa.php?id=${postId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Preencher dados básicos
                     document.getElementById('modalUsername').textContent = data.user;
@@ -1148,7 +1161,7 @@ $publicacoes = mysqli_query($con, $sql);
                     document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
                     document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
                     document.getElementById('idpublicacao').value = postId;
-                    
+
                     // Preencher descrição
                     const modalDescricao = document.getElementById('modalDescricao');
                     if (data.descricao) {
@@ -1157,17 +1170,17 @@ $publicacoes = mysqli_query($con, $sql);
                     } else {
                         modalDescricao.style.display = 'none';
                     }
-                    
+
                     // Limpar mídias anteriores
                     document.getElementById('modalImagem').style.display = 'none';
                     document.getElementById('modalVideo').style.display = 'none';
                     document.getElementById('modalMediaContainer').style.display = 'none';
-                    
+
                     // Configurar mídias
                     if (data.medias && data.medias.length > 0) {
                         modalMedias = data.medias;
                         modalCurrentIndex = 0;
-                        
+
                         if (data.medias.length === 1) {
                             // Uma única mídia - usar o sistema antigo
                             const media = data.medias[0];
@@ -1187,10 +1200,10 @@ $publicacoes = mysqli_query($con, $sql);
                             mostrarModalMediaAtual();
                         }
                     }
-                    
+
                     // Carregar comentários
                     carregarComentarios(postId);
-                    
+
                     document.getElementById('modalVerPublicacao').style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                 } else {
@@ -1204,24 +1217,24 @@ $publicacoes = mysqli_query($con, $sql);
         // Função para mostrar mídia atual no modal
         function mostrarModalMediaAtual() {
             if (!modalMedias || modalMedias.length === 0) return;
-            
+
             const media = modalMedias[modalCurrentIndex];
             const modalCurrentImage = document.getElementById('modalCurrentImage');
             const modalCurrentVideo = document.getElementById('modalCurrentVideo');
             const modalCounter = document.getElementById('modalMediaCounter');
             const modalPrevBtn = document.getElementById('modalPrevBtn');
             const modalNextBtn = document.getElementById('modalNextBtn');
-            
+
             // Atualizar contador
             modalCounter.textContent = `${modalCurrentIndex + 1} / ${modalMedias.length}`;
-            
+
             // Mostrar/ocultar botões de navegação
             modalPrevBtn.disabled = modalCurrentIndex === 0;
             modalNextBtn.disabled = modalCurrentIndex === modalMedias.length - 1;
             modalPrevBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
             modalNextBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
             modalCounter.style.display = modalMedias.length > 1 ? 'block' : 'none';
-            
+
             // Mostrar mídia
             if (media.tipo === 'video') {
                 modalCurrentImage.style.display = 'none';
@@ -1238,7 +1251,7 @@ $publicacoes = mysqli_query($con, $sql);
         // Função para navegar entre mídias no modal
         function navegarModalMedia(direction) {
             const newIndex = modalCurrentIndex + direction;
-            
+
             if (newIndex >= 0 && newIndex < modalMedias.length) {
                 modalCurrentIndex = newIndex;
                 mostrarModalMediaAtual();
@@ -1268,12 +1281,12 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Navegação por teclado
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             const imageModal = document.getElementById('imageModal');
             const publicacaoModal = document.getElementById('modalVerPublicacao');
-            
+
             if (imageModal.style.display === 'flex') {
-                switch(e.key) {
+                switch (e.key) {
                     case 'Escape':
                         fecharModalImagem();
                         break;
@@ -1285,7 +1298,7 @@ $publicacoes = mysqli_query($con, $sql);
                         break;
                 }
             } else if (publicacaoModal.style.display === 'flex') {
-                switch(e.key) {
+                switch (e.key) {
                     case 'Escape':
                         fecharPublicacao();
                         break;
@@ -1304,25 +1317,25 @@ $publicacoes = mysqli_query($con, $sql);
             try {
                 const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
                 const comentarios = await response.json();
-                
+
                 const comentariosContainer = document.getElementById('comentarios');
                 const template = document.getElementById('comentarioTemplate');
-                
+
                 // Limpar comentários existentes (exceto o template)
                 const existingComments = comentariosContainer.querySelectorAll(':not(#comentarioTemplate)');
                 existingComments.forEach(comment => comment.remove());
-                
+
                 if (comentarios.length > 0) {
                     comentarios.forEach(comentario => {
                         const comentarioElement = template.cloneNode(true);
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
-                        
+
                         comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil !== 'default.png' ? comentario.ft_perfil : 'default.png';
                         comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
                         comentarioElement.querySelector('.comentario-data').textContent = comentario.data;
                         comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
-                        
+
                         comentariosContainer.appendChild(comentarioElement);
                     });
                 } else {
@@ -1348,16 +1361,16 @@ $publicacoes = mysqli_query($con, $sql);
             try {
                 const formData = new FormData();
                 formData.append('id_publicacao', postId);
-                
+
                 const response = await fetch('interacoes/like.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const result = await response.text();
                 const likeCount = button.querySelector('.like-count');
                 let currentCount = parseInt(likeCount.textContent);
-                
+
                 if (result === 'liked') {
                     button.classList.add('liked');
                     likeCount.textContent = currentCount + 1;
@@ -1375,14 +1388,14 @@ $publicacoes = mysqli_query($con, $sql);
             try {
                 const formData = new FormData();
                 formData.append('idpublicacao', postId);
-                
+
                 const response = await fetch('interacoes/guardar.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     if (data.guardado) {
                         button.classList.add('saved');
@@ -1397,23 +1410,22 @@ $publicacoes = mysqli_query($con, $sql);
             }
         }
 
-        // Função para apagar publicação
-        async function apagarPublicacao(postId) {
+        function apagarPublicacao(postId) {
             if (!confirm('Tem certeza que deseja apagar esta publicação? Esta ação não pode ser desfeita.')) {
                 return;
             }
-            
+
             try {
                 const formData = new FormData();
                 formData.append('id_publicacao', postId);
-                
+
                 const response = await fetch('interacoes/apagar_publicacao.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
                     if (postElement) {
@@ -1430,13 +1442,13 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Fechar modais ao clicar fora
-        document.getElementById('imageModal').addEventListener('click', function(e) {
+        document.getElementById('imageModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 fecharModalImagem();
             }
         });
 
-        document.getElementById('modalVerPublicacao').addEventListener('click', function(e) {
+        document.getElementById('modalVerPublicacao').addEventListener('click', function (e) {
             if (e.target === this) {
                 fecharPublicacao();
             }
