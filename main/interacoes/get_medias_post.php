@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../ligabd.php";
+require "../../ligabd.php";
 
 header('Content-Type: application/json');
 
@@ -45,7 +45,7 @@ try {
             if (!empty($row_old['media'])) {
                 $extensao = strtolower(pathinfo($row_old['media'], PATHINFO_EXTENSION));
                 $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
-                $tipo = in_array($extensao, $extensoes_video) ? 'video' : 'image';
+                $tipo = in_array($extensao, $extensoes_video) ? 'video' : 'imagem';
                 
                 $medias[] = [
                     'media' => $row_old['media'],

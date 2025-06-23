@@ -92,6 +92,7 @@ $publicacoes = mysqli_query($con, $sql);
         .username {
             font-weight: bold;
             flex: 1;
+            padding: 10px;
         }
 
 
@@ -763,7 +764,7 @@ $publicacoes = mysqli_query($con, $sql);
     <div class="container">
         <?php if (mysqli_num_rows($publicacoes) > 0): ?>
             <?php while ($publicacao = mysqli_fetch_assoc($publicacoes)): ?>
-                <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>">
+                <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>" id="post_<?= $publicacao['idpublicacao'] ?>">
                     <div class="post-header">
                         <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none;">
                             <img src="<?= $publicacao['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($publicacao['ft_perfil']) : 'default.png' ?>"
@@ -927,13 +928,15 @@ $publicacoes = mysqli_query($con, $sql);
             <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
                 <!-- Cabeçalho da publicação no modal -->
                 <div class="modal-post-header">
-                    <a href="" id="modalPerfilLink">
+                    <a href="" id="modalPerfilLink" class="flex items-center">
                         <img id="modalFtPerfil" alt="Foto de Perfil" class="profile-picture"
                             style="width: 48px; height: 48px;">
+                        <span id="modalUsername" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
                     </a>
+
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <span id="modalUsername" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
+
                             <span id="modalData" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
                         </div>
                     </div>
@@ -1161,8 +1164,6 @@ $publicacoes = mysqli_query($con, $sql);
             modalVideo.currentTime = 0;
         }
 
-        // Função para abrir modal de ver publicação
-        // Função para abrir modal de ver publicação
         async function abrirModalVerPublicacao(postId) {
             currentModalPostId = postId;
 
@@ -1171,10 +1172,12 @@ $publicacoes = mysqli_query($con, $sql);
                 const data = await response.json();
 
                 if (data.success) {
+                    const publicacao = document.querySelector('#post_' + postId);
+                    const ftPerfil = publicacao.querySelector('.profile-picture').src;
                     // Preencher dados básicos
                     document.getElementById('modalUsername').textContent = data.user;
                     document.getElementById('modalData').textContent = data.data_formatada;
-                    document.getElementById('modalFtPerfil').src = data.ft_perfil ? 'data:image/jpeg;base64,' + data.ft_perfil : 'default.png';
+                    document.getElementById("modalFtPerfil").src = ftPerfil;
                     document.getElementById('modalPerfilLink').href = `../perfil/perfil.php?id=${data.idutilizador}`;
                     document.getElementById('idpublicacao').value = postId;
 
@@ -1254,7 +1257,7 @@ $publicacoes = mysqli_query($con, $sql);
             const div = document.createElement('div');
             div.appendChild(document.createTextNode(str));
             return div.innerHTML;
-        }       
+        }
 
         // Função para mostrar mídia atual no modal
         function mostrarModalMediaAtual() {
@@ -1402,7 +1405,7 @@ $publicacoes = mysqli_query($con, $sql);
         async function toggleLike(postId, button) {
             try {
                 const formData = new FormData();
-                formData.append('id_publicacao', postId);
+                formData.append('idpublicacao', postId);
 
                 const response = await fetch('interacoes/like.php', {
                     method: 'POST',
@@ -1455,7 +1458,7 @@ $publicacoes = mysqli_query($con, $sql);
         function apagarPublicacao(idPublicacao) {
             if (confirm('Tem certeza que deseja apagar esta publicação?')) {
                 const formData = new FormData();
-                formData.append('id_publicacao', idPublicacao);
+                formData.append('idpublicacao', idPublicacao);
 
                 fetch('interacoes/apagar_publicacao.php', {
                     method: 'POST',
