@@ -50,7 +50,7 @@ if ($destinatario) {
                           WHERE ld.iddestinatario = $id_utilizador AND m.idremetente = $destinatario AND ld.lida = 0";
     mysqli_query($con, $query_marcar_lida);
 
-    $query_mensagens = "SELECT m.*, u.user as remetente_nome, u.ft_perfil as remetente_foto
+    $query_mensagens = "SELECT m.*, u.user as remetente_nome, u.ft_perfil as remetente_foto, u.idutilizador as remetente_id
                         FROM mensagem m
                         JOIN utilizador u ON m.idremetente = u.idutilizador
                         JOIN listadestinatarios ld ON m.idmensagem = ld.idmensagem
@@ -120,11 +120,10 @@ if ($destinatario) {
         <div class="messages-content">
             <?php if ($destinatario): ?>
                 <div class="conversa-header">
-                    
-                        data-user-id="<?= $pub['idutilizador'] ?>">
+                    <a href="../perfil/perfil.php?id=<?= $destinatario ?>" style="text-decoration: none; color: inherit;">
                         <img src="<?= $destinatario_data['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($destinatario_data['ft_perfil']) : '../imagens/default.png' ?>"
                             alt="Foto de perfil" class="destinatario-avatar">
-                    
+                    </a>
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
                         <button class="action-btn">
@@ -149,10 +148,10 @@ if ($destinatario) {
                         <?php foreach ($mensagens_array as $msg): ?>
                             <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
                                 <?php if ($msg['idremetente'] != $id_utilizador): ?>
-                                    <a href="../perfil/perfil.php?id=<?= $pub['idutilizador'] ?>" data-user-id="<?= $pub['idutilizador'] ?>">
-                                    <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>"
-                                        alt="Foto de perfil" class="mensagem-avatar">
-                                        </a>
+                                    <a href="../perfil/perfil.php?id=<?= $msg['remetente_id'] ?>" style="text-decoration: none;">
+                                        <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>"
+                                            alt="Foto de perfil" class="mensagem-avatar">
+                                    </a>
                                 <?php endif; ?>
                                 <div class="mensagem-conteudo">
                                     <p><?= nl2br(htmlspecialchars($msg['mensagem'])) ?></p>
