@@ -3,7 +3,7 @@
 session_start();
 require "ligabd.php";
 
-if(isset($_SESSION["user"])){
+if (isset($_SESSION["user"])) {
     header("Location: main/main.php");
 }
 
@@ -157,7 +157,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="form-group">
                     <div class="column">
-                        <input type="password" name="pass" class="input" placeholder="Palavra-Passe*" required>
+                        <div style="position: relative;">
+                            <input type="password" name="pass" id="password" class="input" placeholder="Palavra-Passe*"
+                                required>
+                            <button type="button" id="togglePassword"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #555; font-size: 12px; cursor: pointer;">
+                                Mostrar
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <?php if (isset($_SESSION['erro'])) {
@@ -199,5 +206,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <footer>
     © 2025 Nexus. Todos os direitos reservados.
 </footer>
+<script>
+    document.getElementById("togglePassword").addEventListener("click", function () {
+        const passwordInput = document.getElementById("password");
+        const isPassword = passwordInput.type === "password";
+
+        passwordInput.type = isPassword ? "text" : "password";
+        this.textContent = isPassword ? "Ocultar" : "Mostrar";
+    });
+</script>
 
 </html>

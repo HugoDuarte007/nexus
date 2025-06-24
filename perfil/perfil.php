@@ -96,16 +96,20 @@ $foto_base64 = $foto_perfil ? "data:image/jpeg;base64," . base64_encode($foto_pe
 $foto_capa_base64 = $foto_capa ? "data:image/jpeg;base64," . base64_encode($foto_capa) : "capa_default.jpg";
 
 // Função para verificar se é vídeo
-function isVideo($filename) {
-    if (empty($filename)) return false;
+function isVideo($filename)
+{
+    if (empty($filename))
+        return false;
     $videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     return in_array($extension, $videoExtensions);
 }
 
 // Função para verificar se é imagem
-function isImage($filename) {
-    if (empty($filename)) return false;
+function isImage($filename)
+{
+    if (empty($filename))
+        return false;
     $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     return in_array($extension, $imageExtensions);
@@ -455,307 +459,278 @@ function isImage($filename) {
             height: 16px;
         }
 
-        /* Modal para visualizar mídia em tamanho real */
-        .modal {
+        /* Modal de visualização de imagem */
+        .image-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-modal img,
+        .image-modal video {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            z-index: 2001;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 15px 20px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            z-index: 2001;
+        }
+
+        .image-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .image-nav.prev {
+            left: 30px;
+        }
+
+        .image-nav.next {
+            right: 30px;
+        }
+
+        .image-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .image-nav:disabled:hover {
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2001;
+        }
+
+        /* Modal de visualização de publicação */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
         }
 
         .modal-content {
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 600px;
-            max-width: 95%;
-            max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease;
         }
 
-        /* Modal de visualização de publicação */
         .modal-publicacao {
             width: 700px;
-        }
-
-        /* Modal de visualização de mídia */
-        #modalMedia .modal-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: transparent;
-            border: none;
-            max-width: 90%;
-            max-height: 90%;
-            box-shadow: none;
-        }
-
-        #modalMedia .close {
-            color: white;
-            font-size: 30px;
-            font-weight: bold;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 10;
-        }
-
-        #modalMedia .close:hover {
-            background: rgba(0,0,0,0.7);
-        }
-
-        #mediaAmpliado {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            max-height: 90vh;
         }
 
         .modal-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
         }
 
         .modal-header h2 {
             margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
             color: #0e2b3b;
+            font-size: 1.2rem;
         }
 
         .close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            color: #6b7280;
-            transition: color 0.2s;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
         }
 
         .close:hover {
-            color: #1f2937;
+            background-color: #f0f0f0;
         }
 
         .modal-body {
             padding: 20px;
             overflow-y: auto;
-            flex: 1;
+            max-height: calc(90vh - 150px);
         }
 
-        /* Formulário de comentário */
-        .comment-form {
+        .modal-post-header {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-post-header img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .modal-post-content {
             margin-bottom: 20px;
         }
 
-        .comment-input {
-            flex: 1;
-            padding: 10px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 24px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .comment-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .comment-submit {
-            padding: 10px 20px;
-            background-color: #0e2b3b;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .comment-submit:hover {
-            background-color: #1a3d4d;
-        }
-
-        /* Lista de comentários */
-        .comments-container {
-            margin-top: 20px;
-        }
-
-        .comments-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 16px;
-        }
-
-        .comment {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .comment-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .comment-content {
-            flex: 1;
-        }
-
-        .comment-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #1f2937;
-            margin-right: 8px;
-        }
-
-        .comment-time {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .comment-text {
-            font-size: 0.9rem;
-            color: #374151;
-            line-height: 1.5;
+        .modal-post-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
             text-align: left;
         }
 
-        .comment-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 6px;
-            font-size: 0.8rem;
+        /* Container para múltiplas mídias no modal */
+        .modal-media-container {
+            position: relative;
+            margin-bottom: 15px;
         }
 
-        .comment-action {
-            color: #6b7280;
-            cursor: pointer;
-            transition: color 0.2s;
+        .modal-media-viewer {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .comment-action:hover {
-            color: #1f2937;
-            text-decoration: underline;
-        }
-
-        /* Ações da publicação no modal */
-        .post-actions-modal {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            margin: 16px 0;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .post-action {
+        .modal-media-current {
+            width: 100%;
+            height: 400px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: #6b7280;
-            cursor: pointer;
-            transition: color 0.2s;
-            background: none;
+            justify-content: center;
+            position: relative;
+        }
+
+        .modal-media-current img,
+        .modal-media-current video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
             border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .modal-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .modal-nav.prev {
+            left: 15px;
+        }
+
+        .modal-nav.next {
+            right: 15px;
+        }
+
+        .modal-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .modal-nav:disabled:hover {
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-counter {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
             padding: 6px 12px;
-            border-radius: 6px;
-        }
-
-        .post-action:hover {
-            color: #1f2937;
-            background-color: #f3f4f6;
-        }
-
-        .post-action svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .cover-container {
-                height: 250px;
-            }
-
-            .profile-picture {
-                width: 140px;
-                height: 140px;
-            }
-
-            .profile-name {
-                font-size: 24px;
-            }
-
-            .profile-username {
-                font-size: 16px;
-            }
-
-            .profile-stats {
-                gap: 15px;
-            }
-
-            .stat-number {
-                font-size: 20px;
-            }
-
-            .perfil-posts {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .delete-post-btn {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 4px;
-            margin-left: 10px;
-            transition: all 0.2s;
-        }
-
-        .delete-post-btn:hover {
-            color: #a71d2a;
-            transform: scale(1.1);
-        }
-
-        .delete-post-btn svg {
-            width: 16px;
-            height: 16px;
-            vertical-align: middle;
+            border-radius: 15px;
+            font-size: 12px;
+            z-index: 10;
         }
 
         /* Indicador de tipo de mídia */
@@ -774,6 +749,79 @@ function isImage($filename) {
 
         .perfil-post-media-container {
             position: relative;
+        }
+
+        /* Grid para múltiplas imagens */
+        .media-grid {
+            display: grid;
+            gap: 2px;
+            border-radius: 6px;
+            overflow: hidden;
+            width: 100%;
+            height: 250px;
+        }
+
+        .media-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .media-grid.double {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .media-grid.triple {
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .media-grid.multiple {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .media-item {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .media-item.first-triple {
+            grid-row: span 2;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .media-item:hover img,
+        .media-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .media-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .media-item:hover .media-overlay {
+            opacity: 1;
         }
 
         /* Estilos do Modal de Seguidores */
@@ -897,23 +945,68 @@ function isImage($filename) {
             color: #6b7280;
         }
 
-        /* Melhorar formatação das imagens no modal */
-        .post-media-modal {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-            margin: 10px 0;
-            background-color: #f3f4f6;
-            cursor: pointer;
+        @media (max-width: 768px) {
+            .cover-container {
+                height: 250px;
+            }
+
+            .profile-picture {
+                width: 140px;
+                height: 140px;
+            }
+
+            .profile-name {
+                font-size: 24px;
+            }
+
+            .profile-username {
+                font-size: 16px;
+            }
+
+            .profile-stats {
+                gap: 15px;
+            }
+
+            .stat-number {
+                font-size: 20px;
+            }
+
+            .perfil-posts {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .post-video-modal {
-            width: 100%;
-            max-height: 400px;
-            border-radius: 8px;
-            margin: 10px 0;
-            background-color: #000;
+        .delete-post-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .delete-post-btn:hover {
+            color: #a71d2a;
+            transform: scale(1.1);
+        }
+
+        .delete-post-btn svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -994,6 +1087,29 @@ function isImage($filename) {
 
                             $sql1 = "SELECT * FROM likes WHERE idpublicacao = " . $pub['idpublicacao'];
                             $like = mysqli_fetch_all(mysqli_query($con, $sql1), MYSQLI_ASSOC);
+
+                            // Buscar mídias da publicação
+                            $idpub = $pub['idpublicacao'];
+                            $sql_medias = "SELECT * FROM publicacao_media WHERE idpublicacao = $idpub ORDER BY ordem ASC";
+                            $result_medias = mysqli_query($con, $sql_medias);
+                            $medias = [];
+
+                            while ($media = mysqli_fetch_assoc($result_medias)) {
+                                $medias[] = $media;
+                            }
+
+                            // Se não houver mídias na nova tabela, verificar na tabela antiga
+                            if (empty($medias) && !empty($pub['media'])) {
+                                $extensao = strtolower(pathinfo($pub['media'], PATHINFO_EXTENSION));
+                                $extensoes_video = ['mp4', 'mov', 'avi', 'webm'];
+                                $tipo = in_array($extensao, $extensoes_video) ? 'video' : 'imagem';
+
+                                $medias[] = [
+                                    'media' => $pub['media'],
+                                    'tipo' => $tipo,
+                                    'ordem' => 1
+                                ];
+                            }
                             ?>
 
                             <div class="perfil-post flex flex-col justify-between" id="post_<?= $pub['idpublicacao'] ?>">
@@ -1003,7 +1119,7 @@ function isImage($filename) {
                                             alt="Foto de Perfil" class="perfil-post-avatar">
                                         <span class="perfil-post-user"><?= htmlspecialchars($pub['user']); ?></span>
                                         <span class="perfil-post-time"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
-    
+
                                         <?php if ($perfil_utilizador == $utilizador): ?>
                                             <button class="delete-post-btn" onclick="confirmarDelete(<?= $pub['idpublicacao'] ?>)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -1019,36 +1135,61 @@ function isImage($filename) {
                                     <div class="perfil-post-content">
                                         <?= nl2br(htmlspecialchars($pub['descricao'])); ?>
                                     </div>
-    
-                                    <?php if (!empty($pub['media'])): ?>
+
+                                    <?php if (!empty($medias)): ?>
                                         <div class="perfil-post-media-container">
-                                            <?php if (isVideo($pub['media'])): ?>
-                                                <div class="media-type-indicator">Vídeo</div>
-                                                <video class="perfil-post-video" controls preload="metadata">
-                                                    <source src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>" type="video/<?= pathinfo($pub['media'], PATHINFO_EXTENSION); ?>">
-                                                    Seu navegador não suporta o elemento de vídeo.
-                                                </video>
-                                            <?php elseif (isImage($pub['media'])): ?>
-                                                <div class="media-type-indicator">Imagem</div>
-                                                <img src="../main/publicacoes/<?= htmlspecialchars($pub['media']); ?>"
-                                                    class="perfil-post-image" alt="Imagem da publicação" 
-                                                    onclick="ampliarMedia(this.src, 'image')">
-                                            <?php else: ?>
-                                                <div class="media-type-indicator">Arquivo</div>
-                                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
-                                                    <i class="fas fa-file fa-3x"></i>
-                                                    <p style="margin-left: 10px;">Arquivo: <?= htmlspecialchars($pub['media']); ?></p>
-                                                </div>
-                                            <?php endif; ?>
+                                            <?php
+                                            $total_medias = count($medias);
+                                            $grid_class = 'single';
+
+                                            if ($total_medias == 2) {
+                                                $grid_class = 'double';
+                                            } elseif ($total_medias == 3) {
+                                                $grid_class = 'triple';
+                                            } elseif ($total_medias >= 4) {
+                                                $grid_class = 'multiple';
+                                            }
+                                            ?>
+
+                                            <div class="media-grid <?= $grid_class ?>" data-post-id="<?= $pub['idpublicacao'] ?>"
+                                                onclick="abrirModalImagem(<?= $pub['idpublicacao'] ?>, 0)">
+                                                <?php
+                                                $medias_to_show = ($total_medias > 4) ? array_slice($medias, 0, 4) : $medias;
+                                                foreach ($medias_to_show as $index => $media):
+                                                    ?>
+                                                    <div
+                                                        class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>">
+                                                        <?php if ($media['tipo'] == 'video'): ?>
+                                                            <video muted>
+                                                                <source src="../main/publicacoes/<?= $media['media'] ?>" type="video/mp4">
+                                                                Seu navegador não suporta o elemento de vídeo.
+                                                            </video>
+                                                            <div class="media-type-indicator">Vídeo</div>
+                                                        <?php else: ?>
+                                                            <img src="../main/publicacoes/<?= $media['media'] ?>"
+                                                                alt="Imagem da publicação">
+                                                            <div class="media-type-indicator">Imagem</div>
+                                                        <?php endif; ?>
+
+                                                        <?php if ($total_medias > 4 && $index == 3): ?>
+                                                            <div class="media-overlay">
+                                                                +<?= $total_medias - 4 ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                     <?php endif; ?>
                                 </div>
 
                                 <div>
                                     <div class="perfil-post-actions">
-                                        <div class="perfil-post-action" onclick="abrirPublicacao(<?= $pub['idpublicacao'] ?>)">
+                                        <div class="perfil-post-action"
+                                            onclick="abrirModalVerPublicacao(<?= $pub['idpublicacao'] ?>)">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+                                                <path
+                                                    d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
                                             </svg>
                                             <span><?= count($comentarios) ?></span>
                                         </div>
@@ -1083,47 +1224,69 @@ function isImage($filename) {
         </div>
     </div>
 
-    <!-- Modal para visualizar mídia em tamanho real -->
-    <div id="modalMedia" class="modal">
-        <div class="modal-content" style="max-width: 90%; max-height: 90%; background: transparent; box-shadow: none;">
-            <button class="close" onclick="fecharMedia()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
-            <img id="imagemAmpliada" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
-            <video id="videoAmpliado" controls style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
-                <source src="" type="">
-                Seu navegador não suporta o elemento de vídeo.
+    <!-- Modal de visualização de imagem -->
+    <div id="imageModal" class="image-modal">
+        <button class="image-modal-close" onclick="fecharModalImagem()">×</button>
+        <button class="image-nav prev" id="prevBtn" onclick="navegarImagem(-1)">‹</button>
+        <button class="image-nav next" id="nextBtn" onclick="navegarImagem(1)">›</button>
+        <div class="image-counter" id="imageCounter">1 / 1</div>
+        <div class="image-modal-content">
+            <img id="modalImage" src="" alt="Imagem ampliada" style="display: none;">
+            <video id="modalVideo" controls style="display: none;">
+                <source src="" type="video/mp4">
             </video>
         </div>
     </div>
 
-    <!-- Modal para visualizar publicação com comentários -->
+    <!-- Modal de visualização de publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
-            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
-                <h2 style="font-size: 1.25rem; font-weight: 600; color: #0e2b3b;">Publicação</h2>
-                <button class="close" onclick="fecharPublicacao()"
-                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+            <div class="modal-header">
+                <h2>Publicação</h2>
+                <button class="close" onclick="fecharPublicacao()">&times;</button>
             </div>
 
             <div class="modal-body" id="conteudoPublicacao" style="overflow-y: auto; max-height: calc(90vh - 150px);">
-                <div class="flex items-center gap-3 mb-4">
-                    <a href=""><img id="ft_perfil_modal" alt="Foto de Perfil" class="profile-picture"
-                            style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;"></a>
+                <!-- Cabeçalho da publicação no modal -->
+                <div class="modal-post-header">
+                    <a href="" id="modalPerfilLink" class="flex items-center">
+                        <img id="modalFtPerfil" alt="Foto de Perfil" class="profile-picture"
+                            style="width: 48px; height: 48px;">
+                        <span id="modalUsername" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
+                    </a>
+
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <span id="username_modal" class="username" style="font-weight: 600; color: #0e2b3b;"></span>
-                            <span id="data_modal" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
+                            <span id="modalData" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Conteúdo da publicação -->
-                <div class="post-content mb-4" style="margin-left: 60px;">
-                    <p id="descricao_modal" class="text-gray-800 mb-3" style="white-space: pre-wrap; word-break: break-word;">
-                    </p>
-                    <img id="imagem_modal" src="" class="post-media-modal"
-                        style="display: none; cursor: pointer;" alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
-                    <video id="video_modal" controls class="post-video-modal"
-                        style="display: none;" alt="Vídeo da publicação">
+                <!-- Conteúdo da publicação no modal -->
+                <div class="modal-post-content">
+                    <p id="modalDescricao" class="modal-post-description" style="text-align: left;"></p>
+
+                    <!-- Container para múltiplas mídias no modal -->
+                    <div id="modalMediaContainer" class="modal-media-container" style="display: none;">
+                        <div class="modal-media-viewer">
+                            <div class="modal-media-current">
+                                <img id="modalCurrentImage" src="" style="display: none;" alt="Imagem da publicação">
+                                <video id="modalCurrentVideo" controls style="display: none;" alt="Vídeo da publicação">
+                                    <source src="" type="">
+                                    Seu navegador não suporta o elemento de vídeo.
+                                </video>
+                            </div>
+                            <button class="modal-nav prev" id="modalPrevBtn" onclick="navegarModalMedia(-1)">‹</button>
+                            <button class="modal-nav next" id="modalNextBtn" onclick="navegarModalMedia(1)">›</button>
+                            <div class="modal-counter" id="modalMediaCounter">1 / 1</div>
+                        </div>
+                    </div>
+
+                    <!-- Mídia única (compatibilidade com sistema antigo) -->
+                    <img id="modalImagem" src="" class="modal-post-media" style="display: none;"
+                        alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                    <video id="modalVideo" controls class="modal-post-video" style="display: none;"
+                        alt="Vídeo da publicação">
                         <source src="" type="">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
@@ -1178,14 +1341,17 @@ function isImage($filename) {
                         <!-- Template de comentário (hidden) -->
                         <div id="comentario_template" class="hidden">
                             <div class="flex gap-3">
-                                <img id="ft_perfil_comentario" alt="Foto de Perfil" class="w-10 h-10 rounded-full object-cover">
+                                <img id="ft_perfil_comentario" alt="Foto de Perfil"
+                                    class="w-10 h-10 rounded-full object-cover">
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-lg p-3">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span id="username_comentario" class="font-semibold text-sm text-gray-800"></span>
+                                            <span id="username_comentario"
+                                                class="font-semibold text-sm text-gray-800"></span>
                                             <span id="data_comentario" class="text-xs text-gray-500"></span>
                                         </div>
-                                        <p id="descricao_comentario" class="text-gray-800 text-sm " style="text-align:left;"></p>
+                                        <p id="descricao_comentario" class="text-gray-800 text-sm "
+                                            style="text-align:left;"></p>
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
@@ -1229,6 +1395,14 @@ function isImage($filename) {
     </div>
 
     <script>
+        // Variáveis globais para o modal de imagem
+        let currentPostId = null;
+        let currentImageIndex = 0;
+        let currentMedias = [];
+        let currentModalPostId = null;
+        let modalMedias = [];
+        let modalCurrentIndex = 0;
+
         function uploadImage(inputId, uploadUrl) {
             let fileInput = document.getElementById(inputId);
             if (fileInput.files.length === 0) return;
@@ -1287,147 +1461,464 @@ function isImage($filename) {
                 .catch(error => console.error('Erro na requisição:', error));
         }
 
-        // Funções para ampliar mídia
-        function ampliarMedia(src, type) {
-            const modal = document.getElementById('modalMedia');
-            const imagem = document.getElementById('imagemAmpliada');
-            const video = document.getElementById('videoAmpliado');
-            
-            // Esconder ambos primeiro
-            imagem.style.display = 'none';
-            video.style.display = 'none';
-            
-            if (type === 'image') {
-                imagem.src = src;
-                imagem.style.display = 'block';
-            } else if (type === 'video') {
-                video.querySelector('source').src = src;
-                video.load();
-                video.style.display = 'block';
+        // Função para abrir modal de imagem
+        async function abrirModalImagem(postId, startIndex = 0) {
+            currentPostId = postId;
+            currentImageIndex = startIndex;
+
+            try {
+                const response = await fetch(`../main/interacoes/get_medias_post.php?id=${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentMedias = data.medias;
+                    mostrarImagemAtual();
+                    document.getElementById('imageModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Erro ao carregar mídias:', data.message);
+                    alert('Erro ao carregar mídias: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                alert('Erro ao carregar mídias');
             }
-            
-            modal.style.display = 'flex';
-            
-            // Desativar scroll da página quando o modal está aberto
-            document.body.style.overflow = 'hidden';
         }
 
-        function fecharMedia() {
-            const modal = document.getElementById('modalMedia');
-            const video = document.getElementById('videoAmpliado');
-            
-            // Pausar vídeo se estiver tocando
-            if (!video.paused) {
-                video.pause();
+        // Função para mostrar imagem atual
+        function mostrarImagemAtual() {
+            if (!currentMedias || currentMedias.length === 0) return;
+
+            const media = currentMedias[currentImageIndex];
+            const modalImage = document.getElementById('modalImage');
+            const modalVideo = document.getElementById('modalVideo');
+            const counter = document.getElementById('imageCounter');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Atualizar contador
+            counter.textContent = `${currentImageIndex + 1} / ${currentMedias.length}`;
+
+            // Mostrar/ocultar botões de navegação
+            prevBtn.disabled = currentImageIndex === 0;
+            nextBtn.disabled = currentImageIndex === currentMedias.length - 1;
+            prevBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
+            nextBtn.style.display = currentMedias.length > 1 ? 'block' : 'none';
+            counter.style.display = currentMedias.length > 1 ? 'block' : 'none';
+
+            // Mostrar mídia
+            if (media.tipo === 'video') {
+                modalImage.style.display = 'none';
+                modalVideo.style.display = 'block';
+                modalVideo.querySelector('source').src = `../main/publicacoes/${media.media}`;
+                modalVideo.load();
+            } else {
+                modalVideo.style.display = 'none';
+                modalImage.style.display = 'block';
+                modalImage.src = `../main/publicacoes/${media.media}`;
             }
-            
-            modal.style.display = 'none';
-            
-            // Reativar scroll da página
+        }
+
+        // Função para navegar entre imagens
+        function navegarImagem(direction) {
+            const newIndex = currentImageIndex + direction;
+
+            if (newIndex >= 0 && newIndex < currentMedias.length) {
+                currentImageIndex = newIndex;
+                mostrarImagemAtual();
+            }
+        }
+
+        // Função para fechar modal de imagem
+        function fecharModalImagem() {
+            document.getElementById('imageModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+
+            // Pausar vídeo se estiver tocando
+            const modalVideo = document.getElementById('modalVideo');
+            modalVideo.pause();
+            modalVideo.currentTime = 0;
         }
 
-        // Fechar modal ao clicar fora da mídia
-        document.getElementById('modalMedia').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fecharMedia();
+        async function abrirModalVerPublicacao(postId) {
+            currentModalPostId = postId;
+
+            try {
+                const response = await fetch(`../main/interacoes/get_publicacao_completa.php?id=${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const publicacao = document.querySelector('#post_' + postId);
+                    const ftPerfil = publicacao.querySelector('.perfil-post-avatar').src;
+
+                    // Preencher dados básicos
+                    document.getElementById('modalUsername').textContent = data.user;
+                    document.getElementById('modalData').textContent = data.data_formatada;
+                    document.getElementById("modalFtPerfil").src = ftPerfil;
+                    document.getElementById('modalPerfilLink').href = `perfil.php?id=${data.idutilizador}`;
+                    document.getElementById('idpublicacao_modal').value = postId;
+
+                    // Preencher descrição
+                    const modalDescricao = document.getElementById('modalDescricao');
+                    modalDescricao.innerHTML = data.descricao ? nl2br(htmlspecialchars(data.descricao)) : '';
+                    modalDescricao.style.display = data.descricao ? 'block' : 'none';
+
+                    // Configurar mídias
+                    const modalMediaContainer = document.getElementById('modalMediaContainer');
+                    const modalImagem = document.getElementById('modalImagem');
+                    const modalVideo = document.getElementById('modalVideo');
+
+                    if (data.medias && data.medias.length > 0) {
+                        modalMedias = data.medias;
+                        modalCurrentIndex = 0;
+
+                        if (data.medias.length > 1) {
+                            // Mostrar container de múltiplas mídias
+                            modalMediaContainer.style.display = 'block';
+                            modalImagem.style.display = 'none';
+                            modalVideo.style.display = 'none';
+                            mostrarModalMediaAtual();
+                        } else {
+                            // Mostrar mídia única
+                            modalMediaContainer.style.display = 'none';
+                            const media = data.medias[0];
+
+                            if (media.tipo === 'video') {
+                                modalImagem.style.display = 'none';
+                                modalVideo.style.display = 'block';
+                                modalVideo.querySelector('source').src = `../main/publicacoes/${media.media}`;
+                                modalVideo.querySelector('source').type = `video/${media.media.split('.').pop()}`;
+                                modalVideo.load();
+                            } else {
+                                modalVideo.style.display = 'none';
+                                modalImagem.style.display = 'block';
+                                modalImagem.src = `../main/publicacoes/${media.media}`;
+                            }
+                        }
+                    } else {
+                        // Sem mídias
+                        modalMediaContainer.style.display = 'none';
+                        modalImagem.style.display = 'none';
+                        modalVideo.style.display = 'none';
+                    }
+
+                    // Carregar comentários
+                    carregarComentarios(postId);
+
+                    // Mostrar o modal
+                    document.getElementById('modalVerPublicacao').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+
+                    // Focar no campo de comentário
+                    setTimeout(() => {
+                        const commentField = document.querySelector('#modalVerPublicacao input[name="comentario"]');
+                        if (commentField) commentField.focus();
+                    }, 300);
+                } else {
+                    console.error('Erro ao carregar publicação:', data.message);
+                    alert('Não foi possível carregar a publicação');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao carregar a publicação');
             }
-        });
+        }
 
-        // Funções para o modal de publicação
-        const modalVerPublicacao = document.getElementById('modalVerPublicacao');
-        const modalComentarios = modalVerPublicacao.querySelector('#comentarios_modal');
-        const ComentarioTemplate = modalComentarios.querySelector('#comentario_template');
+        // Função auxiliar para nl2br (simulação do PHP)
+        function nl2br(str) {
+            return str.replace(/\n/g, '<br>');
+        }
 
-        function abrirPublicacao(pubid) {
-            const publicacao = document.querySelector('#post_' + pubid);
+        // Função auxiliar para htmlspecialchars (simulação do PHP)
+        function htmlspecialchars(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
 
-            // Buscar elementos da publicação
-            const ft_perfil = publicacao.querySelector('.perfil-post-avatar').src;
-            const username = publicacao.querySelector('.perfil-post-user').innerText;
-            const data = publicacao.querySelector('.perfil-post-time').innerText;
-            const descricao = publicacao.querySelector('.perfil-post-content').innerText;
-            
-            // Verificar se é imagem ou vídeo
-            const imagem = publicacao.querySelector('.perfil-post-image');
-            const video = publicacao.querySelector('.perfil-post-video');
-            
-            // Preencher dados no modal
-            document.getElementById("ft_perfil_modal").src = ft_perfil;
-            document.getElementById("username_modal").innerText = username;
-            document.getElementById("data_modal").innerText = data;
-            document.getElementById("descricao_modal").innerText = descricao;
+        // Função para mostrar mídia atual no modal
+        function mostrarModalMediaAtual() {
+            if (!modalMedias || modalMedias.length === 0) return;
 
-            // Limpar mídia anterior
-            const imagemModal = document.getElementById("imagem_modal");
-            const videoModal = document.getElementById("video_modal");
-            imagemModal.style.display = "none";
-            videoModal.style.display = "none";
+            const media = modalMedias[modalCurrentIndex];
+            const modalCurrentImage = document.getElementById('modalCurrentImage');
+            const modalCurrentVideo = document.getElementById('modalCurrentVideo');
+            const modalCounter = document.getElementById('modalMediaCounter');
+            const modalPrevBtn = document.getElementById('modalPrevBtn');
+            const modalNextBtn = document.getElementById('modalNextBtn');
 
-            // Mostrar mídia apropriada
-            if (imagem && imagem.style.display !== "none") {
-                imagemModal.src = imagem.src;
-                imagemModal.style.display = "block";
-            } else if (video && video.style.display !== "none") {
-                videoModal.querySelector('source').src = video.querySelector('source').src;
-                videoModal.load(); // Recarregar o vídeo
-                videoModal.style.display = "block";
+            // Atualizar contador
+            modalCounter.textContent = `${modalCurrentIndex + 1} / ${modalMedias.length}`;
+
+            // Mostrar/ocultar botões de navegação
+            modalPrevBtn.disabled = modalCurrentIndex === 0;
+            modalNextBtn.disabled = modalCurrentIndex === modalMedias.length - 1;
+            modalPrevBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
+            modalNextBtn.style.display = modalMedias.length > 1 ? 'block' : 'none';
+            modalCounter.style.display = modalMedias.length > 1 ? 'block' : 'none';
+
+            // Mostrar mídia
+            if (media.tipo === 'video') {
+                modalCurrentImage.style.display = 'none';
+                modalCurrentVideo.style.display = 'block';
+                modalCurrentVideo.querySelector('source').src = `../main/publicacoes/${media.media}`;
+                modalCurrentVideo.load();
+            } else {
+                modalCurrentVideo.style.display = 'none';
+                modalCurrentImage.style.display = 'block';
+                modalCurrentImage.src = `../main/publicacoes/${media.media}`;
             }
-
-            // Definir o id da publicação no formulário
-            document.getElementById("idpublicacao_modal").value = pubid;
-
-            // Limpa e carrega comentários
-            carregarComentarios(pubid);
-
-            modalVerPublicacao.style.display = 'flex';
         }
 
-        function carregarComentario(data) {
-            var comentario = ComentarioTemplate.cloneNode(true);
-            modalComentarios.appendChild(comentario);
+        // Função para navegar entre mídias no modal
+        function navegarModalMedia(direction) {
+            const newIndex = modalCurrentIndex + direction;
 
-            comentario.classList.remove('hidden');
-            comentario.querySelector('#ft_perfil_comentario').src = data["ft_perfil"];
-            comentario.querySelector('#username_comentario').innerHTML = data["user"];
-            comentario.querySelector('#data_comentario').innerHTML = data["data"];
-            comentario.querySelector('#descricao_comentario').innerHTML = data['conteudo'];
-
-            return comentario;
+            if (newIndex >= 0 && newIndex < modalMedias.length) {
+                modalCurrentIndex = newIndex;
+                mostrarModalMediaAtual();
+            }
         }
 
-        function clearComentarios() {
-            var Comentarios = Array.from(modalComentarios.children);
+        // Função para fechar modal de publicação
+        function fecharPublicacao() {
+            document.getElementById('modalVerPublicacao').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentModalPostId = null;
+            modalMedias = [];
+            modalCurrentIndex = 0;
+        }
 
-            Comentarios.forEach(comentario => {
-                if (comentario.classList.contains('hidden')) {
-                    return;
+        // Função para ampliar mídia (compatibilidade)
+        function ampliarMedia(src, type) {
+            // Encontrar o índice da mídia atual
+            const mediaIndex = modalMedias.findIndex(media => src.includes(media.media));
+            if (mediaIndex !== -1) {
+                currentPostId = currentModalPostId;
+                currentMedias = modalMedias;
+                currentImageIndex = mediaIndex;
+                mostrarImagemAtual();
+                document.getElementById('imageModal').style.display = 'flex';
+            }
+        }
+
+        // Função para carregar comentários
+        async function carregarComentarios(postId) {
+            try {
+                const response = await fetch(`../main/interacoes/obter_comentarios.php?idpublicacao=${postId}`);
+
+                // Verificar se a resposta é válida
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
                 }
 
-                modalComentarios.removeChild(comentario);
+                const comentarios = await response.json();
+
+                const comentariosContainer = document.getElementById('comentarios_modal');
+                const template = document.getElementById('comentario_template');
+
+                // Limpar comentários existentes (exceto o template)
+                comentariosContainer.innerHTML = '';
+
+                if (comentarios && comentarios.length > 0) {
+                    comentarios.forEach(comentario => {
+                        const comentarioElement = template.cloneNode(true);
+                        comentarioElement.id = '';
+                        comentarioElement.classList.remove('hidden');
+
+                        // Verificar se ft_perfil já está em base64 ou precisa ser codificado
+                        const fotoPerfil = comentario.ft_perfil
+                            ? (comentario.ft_perfil.startsWith('data:image')
+                                ? comentario.ft_perfil
+                                : 'data:image/jpeg;base64,' + comentario.ft_perfil)
+                            : 'default.png';
+
+                        comentarioElement.querySelector('#ft_perfil_comentario').src = fotoPerfil;
+                        comentarioElement.querySelector('#username_comentario').textContent = comentario.user || 'Utilizador';
+                        comentarioElement.querySelector('#data_comentario').textContent = formatarData(comentario.data);
+                        comentarioElement.querySelector('#descricao_comentario').textContent = comentario.conteudo || comentario.contenido || '';
+
+                        comentariosContainer.appendChild(comentarioElement);
+                    });
+                } else {
+                    const noComments = document.createElement('p');
+                    noComments.style.textAlign = 'center';
+                    noComments.style.color = '#666';
+                    noComments.style.padding = '20px';
+                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                    comentariosContainer.appendChild(noComments);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+                const comentariosContainer = document.getElementById('comentarios_modal');
+                comentariosContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Erro ao carregar comentários</p>
+                <p class="error-details">${error.message}</p>
+            </div>
+        `;
+            }
+        }
+
+        // Função auxiliar para formatar data
+        function formatarData(dataString) {
+            if (!dataString) return '';
+            const data = new Date(dataString);
+            return data.toLocaleString('pt-PT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
         }
 
-        function carregarComentarios(pubid) {
-            clearComentarios();
+        // Funções para os modais de seguidores
+        function abrirModalSeguidores() {
+            document.getElementById('modalSeguidores').style.display = 'block';
+            carregarSeguidores();
+        }
 
-            fetch(`../main/interacoes/obter_comentarios.php?idpublicacao=${pubid}`)
-                .then(response => response.text())
+        function abrirModalSeguindo() {
+            document.getElementById('modalSeguindo').style.display = 'block';
+            carregarSeguindo();
+        }
+
+        function fecharModalSeguidores(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function carregarSeguidores() {
+            const loading = document.getElementById('loadingSeguidores');
+            const lista = document.getElementById('listaSeguidores');
+
+            loading.style.display = 'block';
+            lista.innerHTML = '';
+
+            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguidores`)
+                .then(response => response.json())
                 .then(data => {
-                    JSON.parse(data).forEach(comentario => {
-                        carregarComentario(comentario);
-                    });
+                    loading.style.display = 'none';
+
+                    if (data.success && data.users.length > 0) {
+                        data.users.forEach(user => {
+                            const userItem = criarItemUtilizador(user);
+                            lista.appendChild(userItem);
+                        });
+                    } else {
+                        lista.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>Nenhum seguidor encontrado</p>
+                            </div>
+                        `;
+                    }
                 })
                 .catch(error => {
-                    console.error('Erro ao carregar comentários:', error);
-                    modalComentarios.innerHTML = '<p style="color:red;">Erro ao carregar comentários.</p>';
+                    console.error('Erro:', error);
+                    loading.style.display = 'none';
+                    lista.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar seguidores</p>
+                        </div>
+                    `;
                 });
         }
 
-        function fecharPublicacao() {
-            modalVerPublicacao.style.display = 'none';
+        function carregarSeguindo() {
+            const loading = document.getElementById('loadingSeguindo');
+            const lista = document.getElementById('listaSeguindo');
+
+            loading.style.display = 'block';
+            lista.innerHTML = '';
+
+            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguindo`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+
+                    if (data.success && data.users.length > 0) {
+                        data.users.forEach(user => {
+                            const userItem = criarItemUtilizador(user);
+                            lista.appendChild(userItem);
+                        });
+                    } else {
+                        lista.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-plus"></i>
+                                <p>Não está a seguir ninguém</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    loading.style.display = 'none';
+                    lista.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar utilizadores</p>
+                        </div>
+                    `;
+                });
         }
-        
+
+        function criarItemUtilizador(user) {
+            const li = document.createElement('li');
+
+            const link = document.createElement('a');
+            link.href = `perfil.php?id=${user.idutilizador}`;
+            link.className = 'user-item';
+
+            link.innerHTML = `
+                <img src="${user.ft_perfil ? 'data:image/jpeg;base64,' + user.ft_perfil : 'default.png'}" 
+                     alt="Foto de perfil" class="user-avatar">
+                <div class="user-info">
+                    <div class="user-name">${user.nome}</div>
+                    <div class="user-username">@${user.user}</div>
+                </div>
+            `;
+
+            // Adicionar botão de seguir apenas se não for o próprio utilizador
+            if (user.idutilizador != <?= $iduser ?>) {
+                const followBtn = document.createElement('button');
+                followBtn.className = user.is_following ? 'follow-btn following' : 'follow-btn';
+                followBtn.textContent = user.is_following ? 'Seguindo' : 'Seguir';
+                followBtn.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    seguirUtilizadorModal(user.idutilizador, followBtn);
+                };
+
+                link.appendChild(followBtn);
+            }
+
+            li.appendChild(link);
+            return li;
+        }
+
+        function seguirUtilizadorModal(idSeguido, button) {
+            fetch('../main/interacoes/seguir.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id_seguido=' + encodeURIComponent(idSeguido)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        button.textContent = data.seguindo ? 'Seguindo' : 'Seguir';
+                        button.className = data.seguindo ? 'follow-btn following' : 'follow-btn';
+                    } else {
+                        console.error('Erro:', data.message);
+                    }
+                })
+                .catch(error => console.error('Erro na requisição:', error));
+        }
+
         function confirmarDelete(idPublicacao) {
             if (confirm('Tem certeza que deseja excluir esta publicação?')) {
                 deletarPublicacao(idPublicacao);
@@ -1463,165 +1954,60 @@ function isImage($filename) {
                 });
         }
 
-        // Funções para os modais de seguidores
-        function abrirModalSeguidores() {
-            document.getElementById('modalSeguidores').style.display = 'block';
-            carregarSeguidores();
-        }
+        // Navegação por teclado
+        document.addEventListener('keydown', function (e) {
+            const imageModal = document.getElementById('imageModal');
+            const publicacaoModal = document.getElementById('modalVerPublicacao');
 
-        function abrirModalSeguindo() {
-            document.getElementById('modalSeguindo').style.display = 'block';
-            carregarSeguindo();
-        }
-
-        function fecharModalSeguidores(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function carregarSeguidores() {
-            const loading = document.getElementById('loadingSeguidores');
-            const lista = document.getElementById('listaSeguidores');
-            
-            loading.style.display = 'block';
-            lista.innerHTML = '';
-
-            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguidores`)
-                .then(response => response.json())
-                .then(data => {
-                    loading.style.display = 'none';
-                    
-                    if (data.success && data.users.length > 0) {
-                        data.users.forEach(user => {
-                            const userItem = criarItemUtilizador(user);
-                            lista.appendChild(userItem);
-                        });
-                    } else {
-                        lista.innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-users"></i>
-                                <p>Nenhum seguidor encontrado</p>
-                            </div>
-                        `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    loading.style.display = 'none';
-                    lista.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Erro ao carregar seguidores</p>
-                        </div>
-                    `;
-                });
-        }
-
-        function carregarSeguindo() {
-            const loading = document.getElementById('loadingSeguindo');
-            const lista = document.getElementById('listaSeguindo');
-            
-            loading.style.display = 'block';
-            lista.innerHTML = '';
-
-            fetch(`get_seguidores.php?id=<?= $idperfil ?>&tipo=seguindo`)
-                .then(response => response.json())
-                .then(data => {
-                    loading.style.display = 'none';
-                    
-                    if (data.success && data.users.length > 0) {
-                        data.users.forEach(user => {
-                            const userItem = criarItemUtilizador(user);
-                            lista.appendChild(userItem);
-                        });
-                    } else {
-                        lista.innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-user-plus"></i>
-                                <p>Não está a seguir ninguém</p>
-                            </div>
-                        `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    loading.style.display = 'none';
-                    lista.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Erro ao carregar utilizadores</p>
-                        </div>
-                    `;
-                });
-        }
-
-        function criarItemUtilizador(user) {
-            const li = document.createElement('li');
-            
-            const link = document.createElement('a');
-            link.href = `perfil.php?id=${user.idutilizador}`;
-            link.className = 'user-item';
-            
-            link.innerHTML = `
-                <img src="${user.ft_perfil ? 'data:image/jpeg;base64,' + user.ft_perfil : 'default.png'}" 
-                     alt="Foto de perfil" class="user-avatar">
-                <div class="user-info">
-                    <div class="user-name">${user.nome}</div>
-                    <div class="user-username">@${user.user}</div>
-                </div>
-            `;
-
-            // Adicionar botão de seguir apenas se não for o próprio utilizador
-            if (user.idutilizador != <?= $iduser ?>) {
-                const followBtn = document.createElement('button');
-                followBtn.className = user.is_following ? 'follow-btn following' : 'follow-btn';
-                followBtn.textContent = user.is_following ? 'Seguindo' : 'Seguir';
-                followBtn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    seguirUtilizadorModal(user.idutilizador, followBtn);
-                };
-                
-                link.appendChild(followBtn);
+            if (imageModal.style.display === 'flex') {
+                switch (e.key) {
+                    case 'Escape':
+                        fecharModalImagem();
+                        break;
+                    case 'ArrowLeft':
+                        navegarImagem(-1);
+                        break;
+                    case 'ArrowRight':
+                        navegarImagem(1);
+                        break;
+                }
+            } else if (publicacaoModal.style.display === 'flex') {
+                switch (e.key) {
+                    case 'Escape':
+                        fecharPublicacao();
+                        break;
+                    case 'ArrowLeft':
+                        if (modalMedias.length > 1) navegarModalMedia(-1);
+                        break;
+                    case 'ArrowRight':
+                        if (modalMedias.length > 1) navegarModalMedia(1);
+                        break;
+                }
             }
-            
-            li.appendChild(link);
-            return li;
-        }
+        });
 
-        function seguirUtilizadorModal(idSeguido, button) {
-            fetch('../main/interacoes/seguir.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'id_seguido=' + encodeURIComponent(idSeguido)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        button.textContent = data.seguindo ? 'Seguindo' : 'Seguir';
-                        button.className = data.seguindo ? 'follow-btn following' : 'follow-btn';
-                    } else {
-                        console.error('Erro:', data.message);
-                    }
-                })
-                .catch(error => console.error('Erro na requisição:', error));
-        }
+        // Fechar modais ao clicar fora
+        document.getElementById('imageModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                fecharModalImagem();
+            }
+        });
 
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
+        document.getElementById('modalVerPublicacao').addEventListener('click', function (e) {
+            if (e.target === this) {
+                fecharPublicacao();
+            }
+        });
+
+        window.onclick = function (event) {
             const modalSeguidores = document.getElementById('modalSeguidores');
             const modalSeguindo = document.getElementById('modalSeguindo');
-            const modalVerPublicacao = document.getElementById('modalVerPublicacao');
-            
+
             if (event.target === modalSeguidores) {
                 modalSeguidores.style.display = 'none';
             }
             if (event.target === modalSeguindo) {
                 modalSeguindo.style.display = 'none';
-            }
-            if (event.target === modalVerPublicacao) {
-                modalVerPublicacao.style.display = 'none';
             }
         }
     </script>

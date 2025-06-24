@@ -1,7 +1,7 @@
-<?php session_start(); 
+<?php session_start();
 include 'partials/paises.php';
 
-?>  
+?>
 
 <!DOCTYPE html>
 <html lang="pt">
