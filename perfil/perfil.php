@@ -175,7 +175,7 @@ function isImage($filename)
                     </button>
                 <?php endif; ?>
                 <?php if ($iduser != $idperfil): ?>
-                    <button onclick="window.location.href='../mensagens/mensagens.php?id=<?= $idperfil ?>'"
+                    <button onclick="window.location.href='../mensagens/mensagens.php?destinatario=<?= $idperfil ?>'"
                         class="bg-green-500 text-white hover:bg-green-600 px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300 ml-2">
                         <i class="fas fa-envelope"></i> Mensagem
                     </button>
