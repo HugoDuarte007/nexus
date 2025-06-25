@@ -171,7 +171,13 @@ function isImage($filename)
                 <?php if ($iduser != $idperfil): ?>
                     <button id="botaoSeguir" onclick="seguirUtilizador(<?= $idperfil ?>)" class="<?= $isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-blue-500 text-white hover:bg-blue-600' ?> 
                        px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300">
-                        <?= $isFollowing ? 'Seguindo ✓' : 'Seguir' ?>
+                        <?= $isFollowing ? 'A seguir ✓' : 'Seguir' ?>
+                    </button>
+                <?php endif; ?>
+                <?php if ($iduser != $idperfil): ?>
+                    <button onclick="window.location.href='../mensagens/mensagens.php?id=<?= $idperfil ?>'"
+                        class="bg-green-500 text-white hover:bg-green-600 px-6 py-2 rounded-full text-sm font-medium mt-3 transition-colors duration-300 ml-2">
+                        <i class="fas fa-envelope"></i> Mensagem
                     </button>
                 <?php endif; ?>
                 <div class="profile-stats">
@@ -185,7 +191,7 @@ function isImage($filename)
                     </div>
                     <div class="stat-item" onclick="abrirModalSeguindo()">
                         <div class="stat-number"><?= $totalSeguindo ?></div>
-                        <div class="stat-label">Seguindo</div>
+                        <div class="stat-label">A seguir</div>
                     </div>
                 </div>
 
@@ -504,7 +510,7 @@ function isImage($filename)
     <div id="modalSeguindo" class="modal-seguidores">
         <div class="modal-content-seguidores">
             <div class="modal-header">
-                <h2>Seguindo</h2>
+                <h2>A seguir</h2>
                 <button class="close" onclick="fecharModalSeguidores('modalSeguindo')">&times;</button>
             </div>
             <div class="modal-body">
