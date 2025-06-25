@@ -357,6 +357,7 @@ function isImage($filename)
     </div>
 
     <!-- Modal de visualização de publicação -->
+    <!-- Modal de visualização de publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
             <div class="modal-header">
@@ -400,14 +401,16 @@ function isImage($filename)
                         </div>
                     </div>
 
-                    <!-- Mídia única (compatibilidade com sistema antigo) -->
-                    <img id="modalImagem" src="" class="modal-post-media" style="display: none;"
-                        alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
-                    <video id="modalVideo" controls class="modal-post-video" style="display: none;"
-                        alt="Vídeo da publicação">
-                        <source src="" type="">
-                        Seu navegador não suporta o elemento de vídeo.
-                    </video>
+                    <!-- Container para mídia única -->
+                    <div id="modalSingleMediaContainer" class="flex justify-center my-4" style="display: none;">
+                        <img id="modalSingleImage" src="" style="max-width: 100%; max-height: 400px; display: none;"
+                            alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
+                        <video id="modalSingleVideo" controls style="max-width: 100%; max-height: 400px; display: none;"
+                            alt="Vídeo da publicação">
+                            <source src="" type="">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                    </div>
                 </div>
 
                 <!-- Ações da publicação -->
@@ -455,25 +458,24 @@ function isImage($filename)
                 <!-- Lista de comentários -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
-                    <div id="comentarios_modal" class="space-y-4">
-                        <!-- Template de comentário (hidden) -->
-                        <div id="comentario_template" class="hidden">
+                    <div id="comentarios" class="space-y-4">
+                        <!-- Comentários serão carregados aqui -->
+                        <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
-                                <img id="ft_perfil_comentario" alt="Foto de Perfil"
-                                    class="w-10 h-10 rounded-full object-cover">
+                                <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
+                                    alt="Foto de Perfil">
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-lg p-3">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span id="username_comentario"
-                                                class="font-semibold text-sm text-gray-800"></span>
-                                            <span id="data_comentario" class="text-xs text-gray-500"></span>
+                                            <span
+                                                class="comentario-username font-semibold text-sm text-gray-800"></span>
+                                            <span class="comentario-data text-xs text-gray-500"></span>
                                         </div>
-                                        <p id="descricao_comentario" class="text-gray-800 text-sm "
-                                            style="text-align:left;"></p>
+                                        <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;">
+                                        </p>
                                     </div>
                                     <div class="flex gap-4 mt-1 ml-3">
                                         <button class="text-xs text-gray-500 hover:text-gray-700">Gostar</button>
-                                        <button class="text-xs text-gray-500 hover:text-gray-700">Responder</button>
                                     </div>
                                 </div>
                             </div>
@@ -683,8 +685,15 @@ function isImage($filename)
 
                     // Configurar mídias
                     const modalMediaContainer = document.getElementById('modalMediaContainer');
-                    const modalImagem = document.getElementById('modalImagem');
-                    const modalVideo = document.getElementById('modalVideo');
+                    const modalSingleMediaContainer = document.getElementById('modalSingleMediaContainer');
+                    const modalSingleImage = document.getElementById('modalSingleImage');
+                    const modalSingleVideo = document.getElementById('modalSingleVideo');
+
+                    // Esconder todos os containers primeiro
+                    modalMediaContainer.style.display = 'none';
+                    modalSingleMediaContainer.style.display = 'none';
+                    modalSingleImage.style.display = 'none';
+                    modalSingleVideo.style.display = 'none';
 
                     if (data.medias && data.medias.length > 0) {
                         modalMedias = data.medias;
@@ -693,31 +702,26 @@ function isImage($filename)
                         if (data.medias.length > 1) {
                             // Mostrar container de múltiplas mídias
                             modalMediaContainer.style.display = 'block';
-                            modalImagem.style.display = 'none';
-                            modalVideo.style.display = 'none';
+                            modalSingleMediaContainer.style.display = 'none';
                             mostrarModalMediaAtual();
                         } else {
-                            // Mostrar mídia única
+                            // Mostrar mídia única no container centralizado
                             modalMediaContainer.style.display = 'none';
+                            modalSingleMediaContainer.style.display = 'flex';
                             const media = data.medias[0];
 
                             if (media.tipo === 'video') {
-                                modalImagem.style.display = 'none';
-                                modalVideo.style.display = 'block';
-                                modalVideo.querySelector('source').src = `../main/publicacoes/${media.media}`;
-                                modalVideo.querySelector('source').type = `video/${media.media.split('.').pop()}`;
-                                modalVideo.load();
+                                modalSingleImage.style.display = 'none';
+                                modalSingleVideo.style.display = 'block';
+                                modalSingleVideo.querySelector('source').src = `../main/publicacoes/${media.media}`;
+                                modalSingleVideo.querySelector('source').type = `video/${media.media.split('.').pop()}`;
+                                modalSingleVideo.load();
                             } else {
-                                modalVideo.style.display = 'none';
-                                modalImagem.style.display = 'block';
-                                modalImagem.src = `../main/publicacoes/${media.media}`;
+                                modalSingleVideo.style.display = 'none';
+                                modalSingleImage.style.display = 'block';
+                                modalSingleImage.src = `../main/publicacoes/${media.media}`;
                             }
                         }
-                    } else {
-                        // Sem mídias
-                        modalMediaContainer.style.display = 'none';
-                        modalImagem.style.display = 'none';
-                        modalVideo.style.display = 'none';
                     }
 
                     // Carregar comentários
@@ -825,18 +829,17 @@ function isImage($filename)
             try {
                 const response = await fetch(`../main/interacoes/obter_comentarios.php?idpublicacao=${postId}`);
 
-                // Verificar se a resposta é válida
                 if (!response.ok) {
                     throw new Error('Erro na resposta do servidor');
                 }
 
                 const comentarios = await response.json();
-
-                const comentariosContainer = document.getElementById('comentarios_modal');
-                const template = document.getElementById('comentario_template');
+                const comentariosContainer = document.getElementById('comentarios');
+                const template = document.getElementById('comentarioTemplate');
 
                 // Limpar comentários existentes (exceto o template)
                 comentariosContainer.innerHTML = '';
+                comentariosContainer.appendChild(template); // Manter o template
 
                 if (comentarios && comentarios.length > 0) {
                     comentarios.forEach(comentario => {
@@ -844,41 +847,55 @@ function isImage($filename)
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
 
-                        // Verificar se ft_perfil já está em base64 ou precisa ser codificado
-                        const fotoPerfil = comentario.ft_perfil
-                            ? (comentario.ft_perfil.startsWith('data:image')
-                                ? comentario.ft_perfil
-                                : 'data:image/jpeg;base64,' + comentario.ft_perfil)
-                            : 'default.png';
+                        // Preencher dados do comentário
+                        const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
+                        imgElement.src = comentario.ft_perfil ?
+                            (comentario.ft_perfil.startsWith('data:image') ?
+                                comentario.ft_perfil :
+                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil)) :
+                            'default.png';
 
-                        comentarioElement.querySelector('#ft_perfil_comentario').src = fotoPerfil;
-                        comentarioElement.querySelector('#username_comentario').textContent = comentario.user || 'Utilizador';
-                        comentarioElement.querySelector('#data_comentario').textContent = formatarData(comentario.data);
-                        comentarioElement.querySelector('#descricao_comentario').textContent = comentario.conteudo || comentario.contenido || '';
+                        comentarioElement.querySelector('.comentario-username').textContent = comentario.user || 'Utilizador';
+                        comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
+                        comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
 
                         comentariosContainer.appendChild(comentarioElement);
                     });
                 } else {
                     const noComments = document.createElement('p');
+                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
                     noComments.style.textAlign = 'center';
                     noComments.style.color = '#666';
                     noComments.style.padding = '20px';
-                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
                     comentariosContainer.appendChild(noComments);
                 }
             } catch (error) {
                 console.error('Erro ao carregar comentários:', error);
-                const comentariosContainer = document.getElementById('comentarios_modal');
+                const comentariosContainer = document.getElementById('comentarios');
                 comentariosContainer.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Erro ao carregar comentários</p>
-                <p class="error-details">${error.message}</p>
-            </div>
+            <p style="color: red; text-align: center; padding: 20px;">
+                Erro ao carregar comentários: ${error.message}
+            </p>
         `;
             }
         }
 
+        // Função auxiliar para formatar data (adicione ao seu código)
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleString('pt-PT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Função auxiliar para simular base64_encode (se necessário)
+        function base64_encode(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
         // Função auxiliar para formatar data
         function formatarData(dataString) {
             if (!dataString) return '';

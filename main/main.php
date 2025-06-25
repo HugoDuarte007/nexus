@@ -625,6 +625,18 @@ $publicacoes = mysqli_query($con, $sql);
             }
         }
 
+        .delete-comment-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            margin-left: 10px;
+        }
+
+        .delete-comment-btn:hover {
+            color: #e74c3c;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .container {
@@ -1021,6 +1033,7 @@ $publicacoes = mysqli_query($con, $sql);
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
                     <div id="comentarios" class="space-y-4">
+                        <!-- Comentários serão carregados aqui -->
                         <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
                                 <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
@@ -1031,6 +1044,18 @@ $publicacoes = mysqli_query($con, $sql);
                                             <span
                                                 class="comentario-username font-semibold text-sm text-gray-800"></span>
                                             <span class="comentario-data text-xs text-gray-500"></span>
+                                            <button
+                                                class="delete-comment-btn ml-auto text-red-500 hover:text-red-700 text-xs"
+                                                onclick="apagarComentario(this, <?= $_SESSION['idutilizador'] ?>, '%%IDCOMENTARIO%%')"
+                                                style="display: none;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                    fill="currentColor" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                    <path fill-rule="evenodd"
+                                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                </svg>
+                                            </button>
                                         </div>
                                         <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;">
                                         </p>
@@ -1062,6 +1087,44 @@ $publicacoes = mysqli_query($con, $sql);
             if (notificacao) {
                 notificacao.style.animation = 'slideUp 0.5s ease reverse';
                 setTimeout(() => notificacao.remove(), 500);
+            }
+        }
+        async function apagarComentario(button, idUtilizadorLogado, idComentario) {
+            if (!confirm('Tem certeza que deseja apagar este comentário?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('interacoes/apagar_comentario.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `idcomentario=${idComentario}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove o elemento do comentário
+                    button.closest('.flex.gap-3').remove();
+
+                    // Se não houver mais comentários, mostra mensagem
+                    const comentariosContainer = document.getElementById('comentarios');
+                    if (comentariosContainer.children.length === 1) { // Apenas o template
+                        const noComments = document.createElement('p');
+                        noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                        noComments.style.textAlign = 'center';
+                        noComments.style.color = '#666';
+                        noComments.style.padding = '20px';
+                        comentariosContainer.appendChild(noComments);
+                    }
+                } else {
+                    alert('Erro ao apagar comentário: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao apagar comentário');
             }
         }
 
@@ -1345,70 +1408,84 @@ $publicacoes = mysqli_query($con, $sql);
 
         // Função para carregar comentários
         async function carregarComentarios(postId) {
-            const comentariosContainer = document.getElementById('comentarios');
-            comentariosContainer.innerHTML = '<div class="loading">Carregando comentários...</div>';
-
             try {
-                const response = await fetch(`obter_comentarios.php?idpublicacao=${postId}`, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                // Verificar se a resposta é JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    throw new Error(`Resposta não é JSON: ${text.substring(0, 100)}...`);
-                }
-
+                const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
                 const comentarios = await response.json();
-
-                // Verificar se é um array
-                if (!Array.isArray(comentarios)) {
-                    throw new Error('Resposta não é um array de comentários');
-                }
-
+                const comentariosContainer = document.getElementById('comentarios');
                 const template = document.getElementById('comentarioTemplate');
+                const idUtilizadorLogado = <?= $_SESSION['idutilizador'] ?>;
+
+                // Limpar comentários existentes (exceto o template)
                 comentariosContainer.innerHTML = '';
+                comentariosContainer.appendChild(template); // Manter o template
 
-                if (comentarios.length === 0) {
-                    comentariosContainer.innerHTML = '<p class="no-comments">Nenhum comentário ainda</p>';
-                    return;
+                if (comentarios && comentarios.length > 0) {
+                    comentarios.forEach(comentario => {
+                        const comentarioElement = template.cloneNode(true);
+                        comentarioElement.id = '';
+                        comentarioElement.classList.remove('hidden');
+
+                        // Preencher dados do comentário
+                        const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
+                        imgElement.src = comentario.ft_perfil ?
+                            (comentario.ft_perfil.startsWith('data:image') ?
+                                comentario.ft_perfil :
+                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil)) :
+                            'default.png';
+
+                        comentarioElement.querySelector('.comentario-username').textContent = comentario.user || 'Utilizador';
+                        comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
+                        comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
+
+                        // Configurar botão de apagar
+                        const deleteBtn = comentarioElement.querySelector('.delete-comment-btn');
+                        deleteBtn.setAttribute('onclick', `apagarComentario(this, ${idUtilizadorLogado}, ${comentario.idcomentario})`);
+
+                        // Mostrar apenas se o usuário logado for o autor
+                        if (comentario.idutilizador == idUtilizadorLogado) {
+                            deleteBtn.style.display = 'block'; // Alterado de 'inline-block' para 'block'
+                        } else {
+                            deleteBtn.style.display = 'none';
+                        }
+
+                        // Remover o placeholder %%IDCOMENTARIO%% do template
+                        const deleteBtnHtml = deleteBtn.outerHTML.replace('%%IDCOMENTARIO%%', comentario.idcomentario);
+                        deleteBtn.outerHTML = deleteBtnHtml;
+
+                        comentariosContainer.appendChild(comentarioElement);
+                    });
+                } else {
+                    const noComments = document.createElement('p');
+                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                    noComments.style.textAlign = 'center';
+                    noComments.style.color = '#666';
+                    noComments.style.padding = '20px';
+                    comentariosContainer.appendChild(noComments);
                 }
-
-                comentarios.forEach(comentario => {
-                    const comentarioElement = template.cloneNode(true);
-                    comentarioElement.id = '';
-                    comentarioElement.classList.remove('hidden');
-
-                    // Preencher dados do comentário
-                    const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
-                    imgElement.src = comentario.ft_perfil || 'default.png';
-                    imgElement.onerror = () => { imgElement.src = 'default.png'; };
-
-                    comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
-
-                    // Formatando a data
-                    const dataObj = new Date(comentario.data);
-                    const options = { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-                    const dataFormatada = dataObj.toLocaleDateString('pt-PT', options);
-                    comentarioElement.querySelector('.comentario-data').textContent = dataFormatada;
-
-                    comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
-
-                    comentariosContainer.appendChild(comentarioElement);
-                });
-
             } catch (error) {
                 console.error('Erro ao carregar comentários:', error);
+                const comentariosContainer = document.getElementById('comentarios');
                 comentariosContainer.innerHTML = `
-            <div class="error">
-                Erro ao carregar comentários
-                <button onclick="carregarComentarios(${postId})">Tentar novamente</button>
-            </div>
+            <p style="color: red; text-align: center; padding: 20px;">
+                Erro ao carregar comentários: ${error.message}
+            </p>
         `;
             }
+        }
+
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleString('pt-PT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function base64_encode(str) {
+            return btoa(unescape(encodeURIComponent(str)));
         }
         // Função para toggle like
         async function toggleLike(postId, button) {

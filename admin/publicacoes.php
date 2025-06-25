@@ -197,13 +197,56 @@ $resultado = mysqli_query($con, $sql);
         .view-btn:hover {
             background-color: #1a4b6b;
         }
+
+        /* Estilos para múltiplas mídias */
+        .media-container {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .media-container.single {
+            grid-template-columns: 1fr;
+        }
+
+        .media-container.double {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .media-container.multiple {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .media-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .media-type-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 
 <body>
     <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Publicações</h1>
-
-    
 
     <table>
         <tr>
@@ -225,7 +268,7 @@ $resultado = mysqli_query($con, $sql);
                     <td><?= $reg['data'] ?></td>
                     <td>
                         <?php if ($reg['total_media'] > 0): ?>
-                            <button class="view-btn"
+                            <button type="button" class="view-btn"
                                 onclick="loadPostDetails(<?= $reg['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($reg['descricao'])) ?>')">
                                 Ver (<?= $reg['total_media'] ?>)
                             </button>
@@ -259,12 +302,12 @@ $resultado = mysqli_query($con, $sql);
     <div id="postModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('postModal')">&times;</span>
-            <h2 class="modal-title" id="postModalTitle"></h2>
+            <h2 class="modal-title" id="postModalTitle">Detalhes da Publicação</h2>
             <div id="postModalContent">
                 <div class="loading">A carregar publicação...</div>
                 <div class="post-content" style="display:none;">
                     <p class="post-description" id="postDescription"></p>
-                    <div id="postMediaContainer"></div>
+                    <div id="postMediaContainer" class="media-container"></div>
                     <p class="post-date" id="postDate"></p>
                 </div>
             </div>
@@ -294,7 +337,7 @@ $resultado = mysqli_query($con, $sql);
 
         // Fechar modal quando clicar fora do conteúdo
         window.onclick = function (event) {
-            if (event.target.className === "modal") {
+            if (event.target.classList.contains("modal")) {
                 event.target.style.display = "none";
             }
         }
@@ -302,11 +345,10 @@ $resultado = mysqli_query($con, $sql);
         // Função para carregar os detalhes da publicação
         function loadPostDetails(postId, postTitle) {
             // Abrir o modal
-            event.stopPropagation(); // Adicione esta linha para evitar que o evento se propague
             openModal('postModal');
 
             // Atualizar o título
-            document.getElementById('postModalTitle').textContent = postTitle;
+            document.getElementById('postModalTitle').textContent = 'Publicação #' + postId;
 
             // Mostrar loading e esconder conteúdo
             document.querySelector('#postModalContent .loading').style.display = 'block';
@@ -321,7 +363,7 @@ $resultado = mysqli_query($con, $sql);
                 success: function (response) {
                     if (response.success) {
                         // Preencher os dados da publicação
-                        document.getElementById('postDescription').textContent = response.descricao;
+                        document.getElementById('postDescription').textContent = response.descricao || 'Sem descrição';
                         document.getElementById('postDate').textContent = 'Publicado em: ' + response.data;
 
                         // Limpar e adicionar media
@@ -329,32 +371,52 @@ $resultado = mysqli_query($con, $sql);
                         mediaContainer.innerHTML = '';
 
                         if (response.medias && response.medias.length > 0) {
-                            response.medias.forEach(media => {
+                            // Definir classe do container baseado no número de mídias
+                            if (response.medias.length === 1) {
+                                mediaContainer.className = 'media-container single';
+                            } else if (response.medias.length === 2) {
+                                mediaContainer.className = 'media-container double';
+                            } else {
+                                mediaContainer.className = 'media-container multiple';
+                            }
+
+                            response.medias.forEach((media, index) => {
+                                const mediaItem = document.createElement('div');
+                                mediaItem.className = 'media-item';
+
                                 let mediaHtml = '';
                                 if (media.tipo === 'imagem') {
-                                    mediaHtml = `<img src="../main/publicacoes/${media.media}" alt="Imagem da publicação" class="post-media">`;
+                                    mediaHtml = `
+                                        <img src="../main/publicacoes/${media.media}" alt="Imagem da publicação" class="post-media">
+                                        <div class="media-type-badge">IMG</div>
+                                    `;
                                 } else if (media.tipo === 'video') {
-                                    mediaHtml = `<video controls class="post-video">
-                                                    <source src="../main/publicacoes/${media.media}" type="video/mp4">
-                                                    Seu navegador não suporta o elemento de vídeo.
-                                                </video>`;
+                                    mediaHtml = `
+                                        <video controls class="post-video">
+                                            <source src="../main/publicacoes/${media.media}" type="video/mp4">
+                                            Seu navegador não suporta o elemento de vídeo.
+                                        </video>
+                                        <div class="media-type-badge">VID</div>
+                                    `;
                                 }
 
-                                if (mediaHtml) {
-                                    mediaContainer.innerHTML += mediaHtml;
-                                }
+                                mediaItem.innerHTML = mediaHtml;
+                                mediaContainer.appendChild(mediaItem);
                             });
+                        } else {
+                            mediaContainer.innerHTML = '<p style="text-align: center; color: #666;">Nenhuma mídia encontrada</p>';
                         }
 
                         // Esconder loading e mostrar conteúdo
                         document.querySelector('#postModalContent .loading').style.display = 'none';
                         document.querySelector('#postModalContent .post-content').style.display = 'block';
                     } else {
-                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
+                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação: ' + (response.message || 'Erro desconhecido');
                     }
                 },
-                error: function () {
-                    document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
+                error: function (xhr, status, error) {
+                    console.error('Erro AJAX:', error);
+                    document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação. Verifique a conexão.';
                 }
             });
         }
@@ -377,6 +439,27 @@ $resultado = mysqli_query($con, $sql);
 
             window.location.href = url;
         }
+
+        // Prevenir fechamento acidental do modal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar event listeners para os botões de fechar
+            document.querySelectorAll('.close').forEach(function(closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+
+            // Prevenir fechamento quando clicar no conteúdo do modal
+            document.querySelectorAll('.modal-content').forEach(function(content) {
+                content.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
     </script>
 </body>
 

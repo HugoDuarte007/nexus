@@ -319,6 +319,51 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             font-style: italic;
             color: #7f8c8d;
         }
+
+        /* Estilos para múltiplas mídias */
+        .media-container {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .media-container.single {
+            grid-template-columns: 1fr;
+        }
+
+        .media-container.double {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .media-container.multiple {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .media-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .media-type-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 
@@ -337,6 +382,10 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
         <div class="stat-card">
             <h3>Comentários</h3>
             <div class="value"><?= $totalComments ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Likes</h3>
+            <div class="value"><?= $totalLikes ?></div>
         </div>
     </div>
 
@@ -361,9 +410,9 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                     <div class="activity-icon"><?= substr($activity['nome'], 0, 1) ?></div>
                     <div class="activity-details">
                         <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
-                        <?php if ($activity['acao'] == 'publicou'): ?>
+                        <?php if ($activity['acao'] == 'publicou' && $activity['idpublicacao']): ?>
                             <button class="view-btn"
-                                onclick="loadPostDetails(<?= $reg['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($reg['descricao'])) ?>', event)">Ver</button>
+                                onclick="loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['post_descricao'])) ?>', event)">Ver</button>
                         <?php endif; ?>
                         <div class="activity-time"><?= $activity['data_acao'] ?></div>
                     </div>
@@ -409,7 +458,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Título</th>
+                        <th>Descrição</th>
                         <th>Autor</th>
                         <th>Data</th>
                         <th>Ação</th>
@@ -419,7 +468,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                     <?php while ($post = mysqli_fetch_assoc($resultAllPosts)): ?>
                         <tr>
                             <td><?= $post['idpublicacao'] ?></td>
-                            <td><?= htmlspecialchars($post['descricao']) ?></td>
+                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50)) ?>...</td>
                             <td><?= htmlspecialchars($post['autor']) ?></td>
                             <td><?= $post['data'] ?></td>
                             <td><button class="view-btn"
@@ -436,12 +485,12 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
     <div id="postModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('postModal')">&times;</span>
-            <h2 class="modal-title" id="postModalTitle"></h2>
+            <h2 class="modal-title" id="postModalTitle">Detalhes da Publicação</h2>
             <div id="postModalContent">
                 <div class="loading">A carregar publicação...</div>
                 <div class="post-content" style="display:none;">
                     <p class="post-description" id="postDescription"></p>
-                    <div id="postMediaContainer"></div>
+                    <div id="postMediaContainer" class="media-container"></div>
                     <p class="post-date" id="postDate"></p>
                 </div>
             </div>
@@ -460,7 +509,6 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
     </footer>
 
     <script>
-
         // Funções para abrir e fechar modais
         function openModal(modalId) {
             document.getElementById(modalId).style.display = "block";
@@ -472,21 +520,22 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 
         // Fechar modal quando clicar fora do conteúdo
         window.onclick = function (event) {
-            if (event.target.className === "modal") {
+            if (event.target.classList.contains("modal")) {
                 event.target.style.display = "none";
             }
         }
 
         // Função para carregar os detalhes da publicação
-        function loadPostDetails(postId, postTitle) {
+        function loadPostDetails(postId, postTitle, event) {
+            // Prevenir propagação do evento se existir
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
             // Abrir o modal
-            event.stopPropagation(); // Adicione esta linha para evitar que o evento se propague
-
-            // Restante do código permanece o mesmo
             openModal('postModal');
-            document.getElementById('postModalTitle').textContent = postTitle;
-
-            // Atualizar o título
+            document.getElementById('postModalTitle').textContent = 'Publicação #' + postId;
 
             // Mostrar loading e esconder conteúdo
             document.querySelector('#postModalContent .loading').style.display = 'block';
@@ -501,45 +550,84 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                 success: function (response) {
                     if (response.success) {
                         // Preencher os dados da publicação
-                        document.getElementById('postDescription').textContent = response.descricao;
+                        document.getElementById('postDescription').textContent = response.descricao || 'Sem descrição';
                         document.getElementById('postDate').textContent = 'Publicado em: ' + response.data;
 
-                        // Limpar e adicionar media se existir
+                        // Limpar e adicionar media
                         const mediaContainer = document.getElementById('postMediaContainer');
                         mediaContainer.innerHTML = '';
 
-                        if (response.media) {
-                            let mediaHtml = '';
-                            const mediaExt = response.media.split('.').pop().toLowerCase();
-
-                            if (['jpeg', 'jpg', 'gif', 'png', 'webp'].includes(mediaExt)) {
-                                mediaHtml = `<img src="../main/publicacoes/${response.media}" alt="Imagem da publicação" class="post-media">`;
-                            } else if (['mp4', 'webm', 'ogg'].includes(mediaExt)) {
-                                mediaHtml = `<video controls class="post-video">
-                                                <source src="../${response.media}" type="video/${mediaExt}">
-                                                Seu navegador não suporta o elemento de vídeo.
-                                            </video>`;
-                            } else if (mediaExt === 'pdf') {
-                                mediaHtml = `<iframe src="../${response.media}" width="100%" height="500px" style="border:none;"></iframe>`;
+                        if (response.medias && response.medias.length > 0) {
+                            // Definir classe do container baseado no número de mídias
+                            if (response.medias.length === 1) {
+                                mediaContainer.className = 'media-container single';
+                            } else if (response.medias.length === 2) {
+                                mediaContainer.className = 'media-container double';
+                            } else {
+                                mediaContainer.className = 'media-container multiple';
                             }
 
-                            if (mediaHtml) {
-                                mediaContainer.innerHTML = mediaHtml;
-                            }
+                            response.medias.forEach((media, index) => {
+                                const mediaItem = document.createElement('div');
+                                mediaItem.className = 'media-item';
+
+                                let mediaHtml = '';
+                                if (media.tipo === 'imagem') {
+                                    mediaHtml = `
+                                        <img src="../main/publicacoes/${media.media}" alt="Imagem da publicação" class="post-media">
+                                        <div class="media-type-badge">IMG</div>
+                                    `;
+                                } else if (media.tipo === 'video') {
+                                    mediaHtml = `
+                                        <video controls class="post-video">
+                                            <source src="../main/publicacoes/${media.media}" type="video/mp4">
+                                            Seu navegador não suporta o elemento de vídeo.
+                                        </video>
+                                        <div class="media-type-badge">VID</div>
+                                    `;
+                                }
+
+                                mediaItem.innerHTML = mediaHtml;
+                                mediaContainer.appendChild(mediaItem);
+                            });
+                        } else {
+                            mediaContainer.innerHTML = '<p style="text-align: center; color: #666;">Nenhuma mídia encontrada</p>';
                         }
 
                         // Esconder loading e mostrar conteúdo
                         document.querySelector('#postModalContent .loading').style.display = 'none';
                         document.querySelector('#postModalContent .post-content').style.display = 'block';
                     } else {
-                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
+                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação: ' + (response.message || 'Erro desconhecido');
                     }
                 },
-                error: function () {
-                    document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
+                error: function (xhr, status, error) {
+                    console.error('Erro AJAX:', error);
+                    document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação. Verifique a conexão.';
                 }
             });
         }
+
+        // Prevenir fechamento acidental do modal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar event listeners para os botões de fechar
+            document.querySelectorAll('.close').forEach(function(closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+
+            // Prevenir fechamento quando clicar no conteúdo do modal
+            document.querySelectorAll('.modal-content').forEach(function(content) {
+                content.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
     </script>
 </body>
 
