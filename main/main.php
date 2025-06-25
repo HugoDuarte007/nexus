@@ -1358,84 +1358,27 @@ $publicacoes = mysqli_query($con, $sql);
 
         // Função para carregar comentários
         async function carregarComentarios(postId) {
-            console.log(`Iniciando carregamento de comentários para post ${postId}`);
+            console.log(`Carregando comentários para post ${postId}`);
 
-            try {
-                const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
+            
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+            const comentariosContainer = document.getElementById('comentarios');
+            const template = document.getElementById('comentarioTemplate');
 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    const text = await response.text();
-                    throw new Error(`Resposta não é JSON: ${text}`);
-                }
+            comentariosContainer.innerHTML = '';
 
-                const comentarios = await response.json();
-                console.log('Comentários recebidos:', comentarios);
+            comentariosMock.forEach(comentario => {
+                const comentarioElement = template.cloneNode(true);
+                comentarioElement.id = '';
+                comentarioElement.classList.remove('hidden');
 
-                const comentariosContainer = document.getElementById('comentarios');
-                const template = document.getElementById('comentarioTemplate');
+                comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil;
+                comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
+                comentarioElement.querySelector('.comentario-data').textContent = comentario.data;
+                comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
 
-                // Limpar comentários existentes (exceto o template)
-                comentariosContainer.innerHTML = '';
-
-                if (comentarios.error) {
-                    throw new Error(comentarios.error);
-                }
-
-                if (comentarios.length > 0) {
-                    comentarios.forEach(comentario => {
-                        const comentarioElement = template.cloneNode(true);
-                        comentarioElement.id = '';
-                        comentarioElement.classList.remove('hidden');
-
-                        // Verificar se os campos existem
-                        if (!comentario.ft_perfil || !comentario.user || !comentario.data || !comentario.conteudo) {
-                            console.error('Comentário com campos faltando:', comentario);
-                            return;
-                        }
-
-                        comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil;
-                        comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
-
-                        // Formatando a data para exibição
-                        const dataComentario = new Date(comentario.data);
-                        const dataFormatada = dataComentario.toLocaleString('pt-PT', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-
-                        comentarioElement.querySelector('.comentario-data').textContent = dataFormatada;
-                        comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
-
-                        comentariosContainer.appendChild(comentarioElement);
-                    });
-                } else {
-                    const noComments = document.createElement('p');
-                    noComments.style.textAlign = 'center';
-                    noComments.style.color = '#666';
-                    noComments.style.padding = '20px';
-                    noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
-                    comentariosContainer.appendChild(noComments);
-                }
-            } catch (error) {
-                console.error('Erro detalhado ao carregar comentários:', error);
-
-                const comentariosContainer = document.getElementById('comentarios');
-                comentariosContainer.innerHTML = '';
-
-                const errorMsg = document.createElement('p');
-                errorMsg.style.textAlign = 'center';
-                errorMsg.style.color = '#e74c3c';
-                errorMsg.textContent = 'Erro ao carregar comentários: ' + error.message;
-                comentariosContainer.appendChild(errorMsg);
-            }
+                comentariosContainer.appendChild(comentarioElement);
+            });
         }
 
         // Função para toggle like
