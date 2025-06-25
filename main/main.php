@@ -101,9 +101,7 @@ $publicacoes = mysqli_query($con, $sql);
             color: gray;
             font-size: 0.9em;
             margin-left: auto;
-            /* Isso empurra a data para a direita */
             margin-right: 10px;
-            /* Espaço entre a data e o botão */
         }
 
         .post-options {
@@ -764,7 +762,8 @@ $publicacoes = mysqli_query($con, $sql);
     <div class="container">
         <?php if (mysqli_num_rows($publicacoes) > 0): ?>
             <?php while ($publicacao = mysqli_fetch_assoc($publicacoes)): ?>
-                <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>" id="post_<?= $publicacao['idpublicacao'] ?>">
+                <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>"
+                    id="post_<?= $publicacao['idpublicacao'] ?>">
                     <div class="post-header">
                         <a href="../perfil/perfil.php?id=<?= $publicacao['idutilizador'] ?>" style="text-decoration: none;">
                             <img src="<?= $publicacao['ft_perfil'] ? 'data:image/jpeg;base64,' . base64_encode($publicacao['ft_perfil']) : 'default.png' ?>"
@@ -1359,16 +1358,33 @@ $publicacoes = mysqli_query($con, $sql);
 
         // Função para carregar comentários
         async function carregarComentarios(postId) {
+            console.log(`Iniciando carregamento de comentários para post ${postId}`);
+
             try {
                 const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const text = await response.text();
+                    throw new Error(`Resposta não é JSON: ${text}`);
+                }
+
                 const comentarios = await response.json();
+                console.log('Comentários recebidos:', comentarios);
 
                 const comentariosContainer = document.getElementById('comentarios');
                 const template = document.getElementById('comentarioTemplate');
 
                 // Limpar comentários existentes (exceto o template)
-                const existingComments = comentariosContainer.querySelectorAll(':not(#comentarioTemplate)');
-                existingComments.forEach(comment => comment.remove());
+                comentariosContainer.innerHTML = '';
+
+                if (comentarios.error) {
+                    throw new Error(comentarios.error);
+                }
 
                 if (comentarios.length > 0) {
                     comentarios.forEach(comentario => {
@@ -1376,9 +1392,26 @@ $publicacoes = mysqli_query($con, $sql);
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
 
-                        comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil !== 'default.png' ? comentario.ft_perfil : 'default.png';
+                        // Verificar se os campos existem
+                        if (!comentario.ft_perfil || !comentario.user || !comentario.data || !comentario.conteudo) {
+                            console.error('Comentário com campos faltando:', comentario);
+                            return;
+                        }
+
+                        comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil;
                         comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
-                        comentarioElement.querySelector('.comentario-data').textContent = comentario.data;
+
+                        // Formatando a data para exibição
+                        const dataComentario = new Date(comentario.data);
+                        const dataFormatada = dataComentario.toLocaleString('pt-PT', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        comentarioElement.querySelector('.comentario-data').textContent = dataFormatada;
                         comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
 
                         comentariosContainer.appendChild(comentarioElement);
@@ -1392,12 +1425,16 @@ $publicacoes = mysqli_query($con, $sql);
                     comentariosContainer.appendChild(noComments);
                 }
             } catch (error) {
-                console.error('Erro ao carregar comentários:', error);
+                console.error('Erro detalhado ao carregar comentários:', error);
+
+                const comentariosContainer = document.getElementById('comentarios');
+                comentariosContainer.innerHTML = '';
+
                 const errorMsg = document.createElement('p');
                 errorMsg.style.textAlign = 'center';
                 errorMsg.style.color = '#e74c3c';
-                errorMsg.textContent = 'Erro ao carregar comentários';
-                document.getElementById('comentarios').appendChild(errorMsg);
+                errorMsg.textContent = 'Erro ao carregar comentários: ' + error.message;
+                comentariosContainer.appendChild(errorMsg);
             }
         }
 

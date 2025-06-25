@@ -8,7 +8,7 @@ if (!isset($_SESSION["user"])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $idPublicacao = $_POST['id_publicacao'] ?? null;
+    $idPublicacao = $_POST['idpublicacao'] ?? null;
     
     if (!$idPublicacao) {
         echo json_encode(['success' => false, 'message' => 'ID inválido']);
