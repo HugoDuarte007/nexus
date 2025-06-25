@@ -700,6 +700,11 @@ $publicacoes = mysqli_query($con, $sql);
             animation: fadeIn 0.3s ease;
         }
 
+        .action-btn.saved {
+            color: #f39c12;
+            /* ou qualquer outra cor que deseje para o estado guardado */
+        }
+
         /* Estados de carregamento */
         .loading {
             display: flex;
@@ -1190,38 +1195,20 @@ $publicacoes = mysqli_query($con, $sql);
                     const modalImagem = document.getElementById('modalImagem');
                     const modalVideo = document.getElementById('modalVideo');
 
+                    // Sempre esconder os elementos de mídia única primeiro
+                    modalImagem.style.display = 'none';
+                    modalVideo.style.display = 'none';
+
                     if (data.medias && data.medias.length > 0) {
                         modalMedias = data.medias;
                         modalCurrentIndex = 0;
 
-                        if (data.medias.length > 1) {
-                            // Mostrar container de múltiplas mídias
-                            modalMediaContainer.style.display = 'block';
-                            modalImagem.style.display = 'none';
-                            modalVideo.style.display = 'none';
-                            mostrarModalMediaAtual();
-                        } else {
-                            // Mostrar mídia única
-                            modalMediaContainer.style.display = 'none';
-                            const media = data.medias[0];
-
-                            if (media.tipo === 'video') {
-                                modalImagem.style.display = 'none';
-                                modalVideo.style.display = 'block';
-                                modalVideo.querySelector('source').src = `publicacoes/${media.media}`;
-                                modalVideo.querySelector('source').type = `video/${media.media.split('.').pop()}`;
-                                modalVideo.load();
-                            } else {
-                                modalVideo.style.display = 'none';
-                                modalImagem.style.display = 'block';
-                                modalImagem.src = `publicacoes/${media.media}`;
-                            }
-                        }
+                        // Mostrar container de múltiplas mídias para qualquer quantidade
+                        modalMediaContainer.style.display = 'block';
+                        mostrarModalMediaAtual();
                     } else {
                         // Sem mídias
                         modalMediaContainer.style.display = 'none';
-                        modalImagem.style.display = 'none';
-                        modalVideo.style.display = 'none';
                     }
 
                     // Carregar comentários
@@ -1358,29 +1345,71 @@ $publicacoes = mysqli_query($con, $sql);
 
         // Função para carregar comentários
         async function carregarComentarios(postId) {
-            console.log(`Carregando comentários para post ${postId}`);
-
-            
-
             const comentariosContainer = document.getElementById('comentarios');
-            const template = document.getElementById('comentarioTemplate');
+            comentariosContainer.innerHTML = '<div class="loading">Carregando comentários...</div>';
 
-            comentariosContainer.innerHTML = '';
+            try {
+                const response = await fetch(`obter_comentarios.php?idpublicacao=${postId}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
-            comentariosMock.forEach(comentario => {
-                const comentarioElement = template.cloneNode(true);
-                comentarioElement.id = '';
-                comentarioElement.classList.remove('hidden');
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Resposta não é JSON: ${text.substring(0, 100)}...`);
+                }
 
-                comentarioElement.querySelector('.comentario-ft-perfil').src = comentario.ft_perfil;
-                comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
-                comentarioElement.querySelector('.comentario-data').textContent = comentario.data;
-                comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
+                const comentarios = await response.json();
 
-                comentariosContainer.appendChild(comentarioElement);
-            });
+                // Verificar se é um array
+                if (!Array.isArray(comentarios)) {
+                    throw new Error('Resposta não é um array de comentários');
+                }
+
+                const template = document.getElementById('comentarioTemplate');
+                comentariosContainer.innerHTML = '';
+
+                if (comentarios.length === 0) {
+                    comentariosContainer.innerHTML = '<p class="no-comments">Nenhum comentário ainda</p>';
+                    return;
+                }
+
+                comentarios.forEach(comentario => {
+                    const comentarioElement = template.cloneNode(true);
+                    comentarioElement.id = '';
+                    comentarioElement.classList.remove('hidden');
+
+                    // Preencher dados do comentário
+                    const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
+                    imgElement.src = comentario.ft_perfil || 'default.png';
+                    imgElement.onerror = () => { imgElement.src = 'default.png'; };
+
+                    comentarioElement.querySelector('.comentario-username').textContent = comentario.user;
+
+                    // Formatando a data
+                    const dataObj = new Date(comentario.data);
+                    const options = { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    const dataFormatada = dataObj.toLocaleDateString('pt-PT', options);
+                    comentarioElement.querySelector('.comentario-data').textContent = dataFormatada;
+
+                    comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
+
+                    comentariosContainer.appendChild(comentarioElement);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+                comentariosContainer.innerHTML = `
+            <div class="error">
+                Erro ao carregar comentários
+                <button onclick="carregarComentarios(${postId})">Tentar novamente</button>
+            </div>
+        `;
+            }
         }
-
         // Função para toggle like
         async function toggleLike(postId, button) {
             try {
@@ -1411,27 +1440,47 @@ $publicacoes = mysqli_query($con, $sql);
         // Função para toggle save
         async function toggleSave(postId, button) {
             try {
-                const formData = new FormData();
-                formData.append('idpublicacao', postId);
+                // Mostrar estado de carregamento
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span class="spinner"></span>';
 
                 const response = await fetch('interacoes/guardar.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `idpublicacao=${postId}`
                 });
+
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Resposta inválida: ${text.substring(0, 100)}...`);
+                }
 
                 const data = await response.json();
 
-                if (data.success) {
-                    if (data.guardado) {
-                        button.classList.add('saved');
-                    } else {
-                        button.classList.remove('saved');
-                    }
-                } else {
-                    console.error('Erro ao guardar:', data.message);
+                if (!data.success) {
+                    throw new Error(data.message || 'Erro desconhecido');
                 }
+
+                // Atualizar visual do botão
+                button.classList.toggle('saved', data.guardado);
+
+                // Feedback visual
+                button.innerHTML = data.guardado ? 'Guardado' : 'Guardar';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+
             } catch (error) {
                 console.error('Erro ao guardar publicação:', error);
+                alert('Erro: ' + error.message);
+            } finally {
+                button.disabled = false;
             }
         }
 

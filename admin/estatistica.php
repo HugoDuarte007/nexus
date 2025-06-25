@@ -13,7 +13,9 @@ $sqlUsers = "SELECT COUNT(*) as total FROM utilizador";
 $resultUsers = mysqli_query($con, $sqlUsers);
 $totalUsers = mysqli_fetch_assoc($resultUsers)['total'];
 
-$sqlPosts = "SELECT COUNT(*) as total FROM publicacao";
+$sqlPosts = "SELECT COUNT(DISTINCT p.idpublicacao) as total 
+             FROM publicacao p
+             LEFT JOIN publicacao_media pm ON p.idpublicacao = pm.idpublicacao";
 $resultPosts = mysqli_query($con, $sqlPosts);
 $totalPosts = mysqli_fetch_assoc($resultPosts)['total'];
 
@@ -25,18 +27,30 @@ $sqlLikes = "SELECT COUNT(*) as total FROM likes";
 $resultLikes = mysqli_query($con, $sqlLikes);
 $totalLikes = mysqli_fetch_assoc($resultLikes)['total'];
 
+// Estatísticas de media
+$sqlMediaStats = "SELECT 
+                 COUNT(*) as total_media,
+                 SUM(CASE WHEN tipo = 'imagem' THEN 1 ELSE 0 END) as total_imagens,
+                 SUM(CASE WHEN tipo = 'video' THEN 1 ELSE 0 END) as total_videos
+                 FROM publicacao_media";
+$resultMediaStats = mysqli_query($con, $sqlMediaStats);
+$mediaStats = mysqli_fetch_assoc($resultMediaStats);
+
 // Buscar todos os utilizadores para o modal
 $sqlAllUsers = "SELECT idutilizador, nome, email, data_registo FROM utilizador ORDER BY data_registo DESC";
 $resultAllUsers = mysqli_query($con, $sqlAllUsers);
 
 // Buscar todas as publicações para o modal
-$sqlAllPosts = "SELECT p.idpublicacao, p.descricao, p.data, u.nome as autor 
+$sqlAllPosts = "SELECT p.idpublicacao, p.descricao, p.data, u.nome as autor, 
+                COUNT(pm.id) as total_media
                 FROM publicacao p 
-                JOIN utilizador u ON p.idutilizador = u.idutilizador 
+                JOIN utilizador u ON p.idutilizador = u.idutilizador
+                LEFT JOIN publicacao_media pm ON p.idpublicacao = pm.idpublicacao
+                GROUP BY p.idpublicacao
                 ORDER BY p.data DESC";
 $resultAllPosts = mysqli_query($con, $sqlAllPosts);
 
-// Buscar últimos registros
+// Buscar últimos registos
 $sqlRecentUsers = "SELECT nome, data_registo FROM utilizador ORDER BY data_registo DESC LIMIT 5";
 $resultRecentUsers = mysqli_query($con, $sqlRecentUsers);
 
@@ -63,6 +77,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 ?>
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -86,7 +101,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             height: auto;
             margin-right: 10px;
         }
-        
+
         .stats-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -94,7 +109,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             width: 90%;
             margin: 20px auto;
         }
-        
+
         .stat-card {
             background-color: white;
             border-radius: 10px;
@@ -104,23 +119,23 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             cursor: pointer;
             transition: transform 0.3s;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-5px);
         }
-        
+
         .stat-card h3 {
             color: #0e2b3b;
             margin-bottom: 10px;
             font-size: 1.1rem;
         }
-        
+
         .stat-card .value {
             font-size: 2rem;
             font-weight: bold;
             color: #0e2b3b;
         }
-        
+
         .data-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -128,21 +143,21 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             width: 90%;
             margin: 30px auto;
         }
-        
+
         .data-card {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        
+
         .data-card h2 {
             color: #0e2b3b;
             border-bottom: 2px solid #0e2b3b;
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
-        
+
         .activity-item {
             display: flex;
             align-items: center;
@@ -150,11 +165,11 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             border-bottom: 1px solid #eee;
             position: relative;
         }
-        
+
         .activity-item:last-child {
             border-bottom: none;
         }
-        
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -167,16 +182,16 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             margin-right: 15px;
             font-weight: bold;
         }
-        
+
         .activity-details {
             flex: 1;
         }
-        
+
         .activity-time {
             color: #7f8c8d;
             font-size: 0.8rem;
         }
-        
+
         /* Modal styles */
         .modal {
             display: none;
@@ -187,9 +202,9 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
-        
+
         .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
@@ -201,7 +216,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             max-height: 80vh;
             overflow-y: auto;
         }
-        
+
         .close {
             color: #aaa;
             float: right;
@@ -209,11 +224,11 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             font-weight: bold;
             cursor: pointer;
         }
-        
+
         .close:hover {
             color: black;
         }
-        
+
         .modal-title {
             color: #0e2b3b;
             margin-bottom: 20px;
@@ -221,28 +236,29 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             border-bottom: 2px solid #0e2b3b;
             padding-bottom: 10px;
         }
-        
+
         .modal-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        
-        .modal-table th, .modal-table td {
+
+        .modal-table th,
+        .modal-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
-        
+
         .modal-table th {
             background-color: #0e2b3b;
             color: white;
         }
-        
+
         .modal-table tr:hover {
             background-color: #f5f5f5;
         }
-        
+
         .view-btn {
             background-color: #0e2b3b;
             color: white;
@@ -257,22 +273,22 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             top: 50%;
             transform: translateY(-50%);
         }
-        
+
         .view-btn:hover {
             background-color: #1a4b6b;
         }
-        
+
         .post-content {
             margin-top: 20px;
         }
-        
+
         .post-description {
             font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 20px;
             white-space: pre-line;
         }
-        
+
         .post-media {
             max-width: 100%;
             max-height: 400px;
@@ -282,21 +298,21 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             margin-left: auto;
             margin-right: auto;
         }
-        
+
         .post-video {
             width: 100%;
             max-height: 400px;
             margin-bottom: 20px;
             border-radius: 8px;
         }
-        
+
         .post-date {
             color: #7f8c8d;
             font-size: 0.9rem;
             margin-top: 10px;
             text-align: right;
         }
-        
+
         .loading {
             text-align: center;
             padding: 20px;
@@ -305,9 +321,10 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
         }
     </style>
 </head>
+
 <body>
     <h1><img src="../imagens/logo.png" alt="Logo"> Estatísticas da Plataforma</h1>
-    
+
     <div class="stats-container">
         <div class="stat-card" onclick="openModal('usersModal')">
             <h3>Total de Utilizadores</h3>
@@ -322,7 +339,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <div class="value"><?= $totalComments ?></div>
         </div>
     </div>
-    
+
     <div class="data-section">
         <div class="data-card">
             <h2>Últimos Registos</h2>
@@ -336,7 +353,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                 </div>
             <?php endwhile; ?>
         </div>
-        
+
         <div class="data-card">
             <h2>Atividade Recente</h2>
             <?php while ($activity = mysqli_fetch_assoc($resultRecentActivity)): ?>
@@ -345,7 +362,8 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                     <div class="activity-details">
                         <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
                         <?php if ($activity['acao'] == 'publicou'): ?>
-                            <button class="view-btn" onclick="loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['post_descricao'])) ?>')">Ver</button>
+                            <button class="view-btn"
+                                onclick="loadPostDetails(<?= $reg['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($reg['descricao'])) ?>', event)">Ver</button>
                         <?php endif; ?>
                         <div class="activity-time"><?= $activity['data_acao'] ?></div>
                     </div>
@@ -353,7 +371,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <?php endwhile; ?>
         </div>
     </div>
-    
+
     <!-- Modal para Utilizadores -->
     <div id="usersModal" class="modal">
         <div class="modal-content">
@@ -381,7 +399,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             </table>
         </div>
     </div>
-    
+
     <!-- Modal para Publicações -->
     <div id="postsModal" class="modal">
         <div class="modal-content">
@@ -404,14 +422,16 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                             <td><?= htmlspecialchars($post['descricao']) ?></td>
                             <td><?= htmlspecialchars($post['autor']) ?></td>
                             <td><?= $post['data'] ?></td>
-                            <td><button class="view-btn" onclick="loadPostDetails(<?= $post['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($post['descricao'])) ?>')">Ver</button></td>
+                            <td><button class="view-btn"
+                                    onclick="loadPostDetails(<?= $post['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($post['descricao'])) ?>')">Ver</button>
+                            </td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
         </div>
     </div>
-    
+
     <!-- Modal para Visualizar Publicação -->
     <div id="postModal" class="modal">
         <div class="modal-content">
@@ -427,9 +447,9 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             </div>
         </div>
     </div>
-    
+
     <div style="height:100px;"></div>
-    
+
     <footer>
         <div class="footer-container" style="text-align: center;">
             <a href="utilizadores.php"><button class="footerbutton">Utilizadores</button></a>
@@ -438,72 +458,76 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <a href="admin_choice.php"><button class="footerbutton">Sair</button></a>
         </div>
     </footer>
-    
+
     <script>
+
         // Funções para abrir e fechar modais
         function openModal(modalId) {
             document.getElementById(modalId).style.display = "block";
         }
-        
+
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
-        
+
         // Fechar modal quando clicar fora do conteúdo
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target.className === "modal") {
                 event.target.style.display = "none";
             }
         }
-        
+
         // Função para carregar os detalhes da publicação
         function loadPostDetails(postId, postTitle) {
             // Abrir o modal
+            event.stopPropagation(); // Adicione esta linha para evitar que o evento se propague
+
+            // Restante do código permanece o mesmo
             openModal('postModal');
-            
-            // Atualizar o título
             document.getElementById('postModalTitle').textContent = postTitle;
-            
+
+            // Atualizar o título
+
             // Mostrar loading e esconder conteúdo
             document.querySelector('#postModalContent .loading').style.display = 'block';
             document.querySelector('#postModalContent .post-content').style.display = 'none';
-            
+
             // Fazer chamada AJAX para buscar os detalhes da publicação
             $.ajax({
                 url: 'get_publicacao.php',
                 type: 'GET',
                 data: { id: postId },
                 dataType: 'json',
-                success: function(response) {
-                    if(response.success) {
+                success: function (response) {
+                    if (response.success) {
                         // Preencher os dados da publicação
                         document.getElementById('postDescription').textContent = response.descricao;
                         document.getElementById('postDate').textContent = 'Publicado em: ' + response.data;
-                        
+
                         // Limpar e adicionar media se existir
                         const mediaContainer = document.getElementById('postMediaContainer');
                         mediaContainer.innerHTML = '';
-                        
-                        if(response.media) {
+
+                        if (response.media) {
                             let mediaHtml = '';
                             const mediaExt = response.media.split('.').pop().toLowerCase();
-                            
-                            if(['jpeg', 'jpg', 'gif', 'png', 'webp'].includes(mediaExt)) {
+
+                            if (['jpeg', 'jpg', 'gif', 'png', 'webp'].includes(mediaExt)) {
                                 mediaHtml = `<img src="../main/publicacoes/${response.media}" alt="Imagem da publicação" class="post-media">`;
-                            } else if(['mp4', 'webm', 'ogg'].includes(mediaExt)) {
+                            } else if (['mp4', 'webm', 'ogg'].includes(mediaExt)) {
                                 mediaHtml = `<video controls class="post-video">
                                                 <source src="../${response.media}" type="video/${mediaExt}">
                                                 Seu navegador não suporta o elemento de vídeo.
                                             </video>`;
-                            } else if(mediaExt === 'pdf') {
+                            } else if (mediaExt === 'pdf') {
                                 mediaHtml = `<iframe src="../${response.media}" width="100%" height="500px" style="border:none;"></iframe>`;
                             }
-                            
-                            if(mediaHtml) {
+
+                            if (mediaHtml) {
                                 mediaContainer.innerHTML = mediaHtml;
                             }
                         }
-                        
+
                         // Esconder loading e mostrar conteúdo
                         document.querySelector('#postModalContent .loading').style.display = 'none';
                         document.querySelector('#postModalContent .post-content').style.display = 'block';
@@ -511,11 +535,12 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                         document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
                     }
                 },
-                error: function() {
+                error: function () {
                     document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação.';
                 }
             });
         }
     </script>
 </body>
+
 </html>
