@@ -988,32 +988,7 @@ $publicacoes = mysqli_query($con, $sql);
                     </video>
                 </div>
 
-                <!-- Ações da publicação -->
-                <div class="flex justify-between items-center px-4 py-2 border-t border-b border-gray-100 mb-4">
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Gostar</span>
-                    </button>
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-green-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Guardar</span>
-                    </button>
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-purple-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path
-                                d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                        </svg>
-                        <span>Partilhar</span>
-                    </button>
-                </div>
+
 
                 <!-- Formulário de comentário -->
                 <div class="mb-6">

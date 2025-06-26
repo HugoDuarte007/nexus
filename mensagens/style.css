@@ -141,9 +141,11 @@ body {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.1);
     }
+
     100% {
         transform: scale(1);
     }
@@ -388,4 +390,71 @@ body {
     color: #999;
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+/* Estilos para o modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: #0e2b3b;
+    font-size: 1.2rem;
+}
+
+.modal p {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.modal-btn.cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.modal-btn.confirm {
+    background-color: #ff4757;
+    color: white;
+}
+
+.modal-btn.confirm:hover {
+    background-color: #e8413d;
+}
+
+/* Estilo para o botão de lixeira */
+.delete-conversation:hover svg {
+    fill: #e8413d;
 }

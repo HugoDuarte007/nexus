@@ -126,10 +126,10 @@ if ($destinatario) {
                     </a>
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
-                        <button class="action-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="#0e2b3b"
-                                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        <button class="action-btn delete-conversation" title="Apagar conversa" id="deleteConversationBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+                                fill="#ff4757">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                             </svg>
                         </button>
                     </div>
@@ -165,29 +165,32 @@ if ($destinatario) {
                         </div>
                     <?php endif; ?>
                 </div>
-
-                <form class="mensagem-form" id="form" action="enviar_mensagem.php" method="POST" id="formMensagem">
-                    <input type="hidden" name="destinatario" value="<?= $destinatario ?>">
-                    <div class="input-container">
-                        <textarea name="mensagem" id="form_mensagem" placeholder="Escreve uma mensagem..." autofocus
-                            required id="inputMensagem"></textarea>
-                        <button type="submit" class="send-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="#0e2b3b" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                            </svg>
-                        </button>
+                <!-- Modal de confirmação -->
+                <div id="confirmDeleteModal" class="modal"
+                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+                    <div class="modal-content"
+                        style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
+                        <h3 style="margin-top: 0; color: #0e2b3b;">Apagar conversa</h3>
+                        <p style="margin-bottom: 20px;">Tem certeza que deseja apagar esta conversa permanentemente?</p>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <button id="cancelDelete"
+                                style="padding: 8px 16px; border-radius: 4px; border: none; background: #f0f0f0; cursor: pointer;">Cancelar</button>
+                            <button id="confirmDelete"
+                                style="padding: 8px 16px; border-radius: 4px; border: none; background: #ff4757; color: white; cursor: pointer;">Apagar</button>
+                        </div>
                     </div>
-                    <script>
-                        var form = document.querySelector("#form");
-                        var form_mensagem = document.querySelector("#form_mensagem");
+                </div>
+                <script>
+                    var form = document.querySelector("#form");
+                    var form_mensagem = document.querySelector("#form_mensagem");
 
-                        form_mensagem.addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                form.submit();
-                            }
-                        });
-                    </script>
+                    form_mensagem.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            form.submit();
+                        }
+                    });
+                </script>
                 </form>
             <?php else: ?>
                 <div class="no-conversa-selected">
@@ -205,48 +208,45 @@ if ($destinatario) {
             <?php endif; ?>
         </div>
     </div>
+    <!-- Modal de confirmação -->
+    <div id="confirmDeleteModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Apagar conversa</h3>
+            <p>Tem certeza que deseja apagar esta conversa permanentemente?</p>
+            <div class="modal-actions">
+                <button id="cancelDelete" class="modal-btn cancel">Cancelar</button>
+                <button id="confirmDelete" class="modal-btn confirm">Apagar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Funções para a barra de pesquisa
         const searchList = document.querySelector('#searchList');
-        const usersList = Array.from(searchList.children);
+        const usersList = Array.from(searchList?.children || []);
 
         function searchDropdown(inputEl) {
             var search = inputEl.value;
 
-            searchList.style.width = searchList.parentElement.offsetWidth + "px";
+            if (searchList) {
+                searchList.style.width = searchList.parentElement.offsetWidth + "px";
 
-            if (search == "") {
-                searchList.classList.add('hidden');
-                return;
-            } else {
-                searchList.classList.remove('hidden');
-            }
-
-            usersList.forEach(userEl => {
-                if (userEl.name.toLowerCase().search(search.toLowerCase()) != -1) {
-                    userEl.classList.remove('hidden');
+                if (search == "") {
+                    searchList.classList.add('hidden');
+                    return;
                 } else {
-                    userEl.classList.add('hidden');
+                    searchList.classList.remove('hidden');
                 }
-            });
-        }
 
-        // Funções para o dropdown do perfil
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            const menu = document.getElementById("dropdownMenu");
-            const isOpen = menu.style.display === "block";
-            menu.style.display = isOpen ? "none" : "block";
-        }
-
-        // Fechar dropdown ao clicar fora
-        window.addEventListener("click", function () {
-            const menu = document.getElementById("dropdownMenu");
-            if (menu) {
-                menu.style.display = "none";
+                usersList.forEach(userEl => {
+                    if (userEl.name.toLowerCase().search(search.toLowerCase()) != -1) {
+                        userEl.classList.remove('hidden');
+                    } else {
+                        userEl.classList.add('hidden');
+                    }
+                });
             }
-        });
+        }
 
         // Rolagem automática para a última mensagem
         document.addEventListener('DOMContentLoaded', function () {
@@ -261,62 +261,68 @@ if ($destinatario) {
                 inputMensagem.focus();
             }
 
-            // Atualizar notificações periodicamente
-            setInterval(atualizarNotificacoes, 5000); // A cada 5 segundos
+            // Configurar o modal de apagar conversa
+            const deleteBtn = document.getElementById('deleteConversationBtn');
+            const modal = document.getElementById('confirmDeleteModal');
+            const cancelBtn = document.getElementById('cancelDelete');
+            const confirmBtn = document.getElementById('confirmDelete');
+
+            if (deleteBtn && modal) {
+                deleteBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    modal.style.display = 'flex';
+                });
+
+                cancelBtn.addEventListener('click', function () {
+                    modal.style.display = 'none';
+                });
+
+                confirmBtn.addEventListener('click', function () {
+                    apagarConversa();
+                    modal.style.display = 'none';
+                });
+
+                // Fechar modal ao clicar fora
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
         });
 
-        // Envio de mensagem com AJAX
-        document.getElementById('formMensagem')?.addEventListener('submit', function (e) {
-            e.preventDefault();
+        function apagarConversa() {
+            const destinatario = <?= $destinatario ? $destinatario : 'null' ?>;
 
-            const form = this;
-            const formData = new FormData(form);
-            const mensagensContainer = document.getElementById('mensagensContainer');
-            const inputMensagem = document.getElementById('inputMensagem');
-            const mensagemTexto = inputMensagem.value.trim();
+            if (!destinatario) {
+                alert('Nenhum destinatário selecionado');
+                return;
+            }
 
-            if (!mensagemTexto) return;
-
-            fetch(form.action, {
+            fetch('apagar_conversa.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'destinatario=' + destinatario
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Adiciona a nova mensagem ao chat
-                        const novaMensagem = document.createElement('div');
-                        novaMensagem.className = 'mensagem enviada';
-                        novaMensagem.innerHTML = `
-                        <div class="mensagem-conteudo">
-                            <p>${data.mensagem}</p>
-                            <span class="mensagem-hora">${data.hora}</span>
-                        </div>
-                    `;
-                        mensagensContainer.appendChild(novaMensagem);
-
-                        // Remove a mensagem de "nenhuma mensagem"
-                        const noMessages = document.querySelector('.no-messages');
-                        if (noMessages) {
-                            noMessages.remove();
-                        }
-
-                        // Limpa o campo de texto
-                        inputMensagem.value = '';
-
-                        // Rolagem para a nova mensagem
-                        mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
+                        window.location.href = 'mensagens.php';
                     } else {
-                        alert('Erro ao enviar mensagem: ' + data.message);
+                        alert('Erro ao apagar conversa: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
                     alert('Erro na comunicação com o servidor');
                 });
-        });
+        }
 
-        // Função para atualizar notificações
+        // Atualizar notificações periodicamente
+        setInterval(atualizarNotificacoes, 5000);
+
         function atualizarNotificacoes() {
             fetch('get_mensagens_nao_lidas.php')
                 .then(response => response.json())

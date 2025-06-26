@@ -387,11 +387,9 @@ function isImage($filename)
                     </div>
                 </div>
 
-                <!-- Conteúdo da publicação no modal -->
                 <div class="modal-post-content">
                     <p id="modalDescricao" class="modal-post-description" style="text-align: left;"></p>
 
-                    <!-- Container para múltiplas mídias no modal -->
                     <div id="modalMediaContainer" class="modal-media-container" style="display: none;">
                         <div class="modal-media-viewer">
                             <div class="modal-media-current">
@@ -407,7 +405,6 @@ function isImage($filename)
                         </div>
                     </div>
 
-                    <!-- Container para mídia única -->
                     <div id="modalSingleMediaContainer" class="flex justify-center my-4" style="display: none;">
                         <img id="modalSingleImage" src="" style="max-width: 100%; max-height: 400px; display: none;"
                             alt="Imagem da publicação" onclick="ampliarMedia(this.src, 'image')">
@@ -419,34 +416,8 @@ function isImage($filename)
                     </div>
                 </div>
 
-                <!-- Ações da publicação -->
-                <div class="flex justify-between items-center px-4 py-2 border-t border-b border-gray-100 mb-4">
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Gostar</span>
-                    </button>
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-green-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Guardar</span>
-                    </button>
-                    <button class="flex items-center gap-1 text-gray-600 hover:text-purple-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path
-                                d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                        </svg>
-                        <span>Partilhar</span>
-                    </button>
-                </div>
 
-                <!-- Formulário de comentário -->
+
                 <div class="mb-6">
                     <form class="flex gap-2 items-center" method="POST" action="../main/interacoes/comentar.php">
                         <input type="hidden" name="idpublicacao" id="idpublicacao_modal" value="">
@@ -461,11 +432,9 @@ function isImage($filename)
                     </form>
                 </div>
 
-                <!-- Lista de comentários -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Comentários</h3>
                     <div id="comentarios" class="space-y-4">
-                        <!-- Comentários serão carregados aqui -->
                         <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
                                 <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
@@ -492,7 +461,6 @@ function isImage($filename)
         </div>
     </div>
 
-    <!-- Modal de Seguidores -->
     <div id="modalSeguidores" class="modal-seguidores">
         <div class="modal-content-seguidores">
             <div class="modal-header">
@@ -506,7 +474,6 @@ function isImage($filename)
         </div>
     </div>
 
-    <!-- Modal de Seguindo -->
     <div id="modalSeguindo" class="modal-seguidores">
         <div class="modal-content-seguidores">
             <div class="modal-header">
@@ -521,7 +488,6 @@ function isImage($filename)
     </div>
 
     <script>
-        // Variáveis globais para o modal de imagem
         let currentPostId = null;
         let currentImageIndex = 0;
         let currentMedias = [];
