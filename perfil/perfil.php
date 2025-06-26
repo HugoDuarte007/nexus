@@ -75,17 +75,38 @@ $querySeguindo = "SELECT COUNT(*) as total FROM seguidor WHERE id_seguidor = '$i
 $resultSeguindo = mysqli_query($con, $querySeguindo);
 $totalSeguindo = mysqli_fetch_assoc($resultSeguindo)['total'];
 
+// Verificar se está visualizando publicações normais ou guardadas
+$viewingSaved = isset($_GET['view']) && $_GET['view'] === 'saved';
+$publicacoesTitle = $viewingSaved ? 'Publicações Guardadas' : 'Publicações';
+
 // Obter contagem de publicações
 $queryPublicacoes = "SELECT COUNT(*) as total FROM publicacao WHERE idutilizador = '$idperfil'";
 $resultPublicacoes = mysqli_query($con, $queryPublicacoes);
 $totalPublicacoes = mysqli_fetch_assoc($resultPublicacoes)['total'];
 
-// Obter publicações do perfil
-$queryPublicacoes = "SELECT p.*, u.user, u.ft_perfil 
-                    FROM publicacao p
-                    JOIN utilizador u ON p.idutilizador = u.idutilizador
-                    WHERE p.idutilizador = '$idperfil'
-                    ORDER BY p.data DESC";
+// Obter contagem de publicações guardadas
+$querySavedPosts = "SELECT COUNT(*) as total FROM guardado WHERE idutilizador = '$idperfil'";
+$resultSavedPosts = mysqli_query($con, $querySavedPosts);
+$totalSavedPosts = mysqli_fetch_assoc($resultSavedPosts)['total'];
+
+// Obter publicações do perfil (normais ou guardadas)
+if ($viewingSaved) {
+    // Publicações guardadas
+    $queryPublicacoes = "SELECT p.*, u.user, u.ft_perfil 
+                        FROM publicacao p
+                        JOIN utilizador u ON p.idutilizador = u.idutilizador
+                        JOIN guardado g ON p.idpublicacao = g.idpublicacao
+                        WHERE g.idutilizador = '$idperfil'
+                        ORDER BY g.data_guardado DESC";
+} else {
+    // Publicações normais
+    $queryPublicacoes = "SELECT p.*, u.user, u.ft_perfil 
+                        FROM publicacao p
+                        JOIN utilizador u ON p.idutilizador = u.idutilizador
+                        WHERE p.idutilizador = '$idperfil'
+                        ORDER BY p.data DESC";
+}
+
 $resultPublicacoes = mysqli_query($con, $queryPublicacoes);
 $publicacoes = [];
 if ($resultPublicacoes) {
@@ -183,6 +204,7 @@ function isImage($filename)
                 <div class="profile-stats">
                     <div class="stat-item">
                         <div class="stat-number"><?= $totalPublicacoes ?></div>
+                        <!-- Sempre mostra o total de publicações -->
                         <div class="stat-label">Publicações</div>
                     </div>
                     <div class="stat-item" onclick="abrirModalSeguidores()">
@@ -201,7 +223,21 @@ function isImage($filename)
 
         <div class="profile-details">
             <div class="detail-card">
-                <h3 class="detail-title">Publicações</h3>
+                <div class="flex gap-4 mb-4">
+                    <button
+                        onclick="window.location.href='perfil.php<?= $idperfil != $iduser ? '?id=' . $idperfil : '' ?>'"
+                        class="<?= !$viewingSaved ? 'bg-[#0e2b3b] text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' ?> px-4 py-2 rounded-lg font-medium transition-colors">
+                        Publicações
+                    </button>
+                    <?php if ($idperfil == $iduser): ?>
+                        <button
+                            onclick="window.location.href='perfil.php<?= $idperfil != $iduser ? '?id=' . $idperfil : '' ?>?view=saved'"
+                            class="<?= $viewingSaved ? 'bg-[#0e2b3b] text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' ?> px-4 py-2 rounded-lg font-medium transition-colors">
+                            Publicações Guardadas (<?= $totalSavedPosts ?>)
+                        </button>
+                    <?php endif; ?>
+                </div>
+
                 <?php if (count($publicacoes) > 0): ?>
                     <div class="perfil-posts">
                         <?php foreach ($publicacoes as $pub): ?>
@@ -340,7 +376,7 @@ function isImage($filename)
                     <div class="detail-item">
                         <i class="fas fa-info-circle detail-icon"></i>
                         <div class="detail-text">
-                            Nenhuma publicação encontrada.
+                            Nenhuma publicação <?= $viewingSaved ? 'guardada' : '' ?> encontrada.
                         </div>
                     </div>
                 <?php endif; ?>
@@ -362,7 +398,6 @@ function isImage($filename)
         </div>
     </div>
 
-    <!-- Modal de visualização de publicação -->
     <!-- Modal de visualização de publicação -->
     <div id="modalVerPublicacao" class="modal">
         <div class="modal-content modal-publicacao" style="width: 700px; max-height: 90vh;">
@@ -415,8 +450,6 @@ function isImage($filename)
                         </video>
                     </div>
                 </div>
-
-
 
                 <div class="mb-6">
                     <form class="flex gap-2 items-center" method="POST" action="../main/interacoes/comentar.php">

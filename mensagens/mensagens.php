@@ -146,7 +146,8 @@ if ($destinatario) {
                     ?>
                     <?php if (count($mensagens_array) > 0): ?>
                         <?php foreach ($mensagens_array as $msg): ?>
-                            <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>">
+                            <div class="mensagem <?= ($msg['idremetente'] == $id_utilizador) ? 'enviada' : 'recebida' ?>"
+                                data-message-id="<?= $msg['idmensagem'] ?>">
                                 <?php if ($msg['idremetente'] != $id_utilizador): ?>
                                     <a href="../perfil/perfil.php?id=<?= $msg['remetente_id'] ?>" style="text-decoration: none;">
                                         <img src="<?= $msg['remetente_foto'] ? 'data:image/jpeg;base64,' . base64_encode($msg['remetente_foto']) : '../imagens/default.png' ?>"
@@ -155,7 +156,31 @@ if ($destinatario) {
                                 <?php endif; ?>
                                 <div class="mensagem-conteudo">
                                     <p><?= nl2br(htmlspecialchars($msg['mensagem'])) ?></p>
-                                    <span class="mensagem-hora"><?= date("H:i", strtotime($msg['dataenvio'])) ?></span>
+                                    <div class="mensagem-footer">
+                                        <span class="mensagem-hora"><?= date("H:i", strtotime($msg['dataenvio'])) ?></span>
+                                        <?php if ($msg['idremetente'] == $id_utilizador): ?>
+                                            <div class="mensagem-options">
+                                                <button class="options-btn" onclick="toggleOptionsMenu(<?= $msg['idmensagem'] ?>)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                        fill="currentColor">
+                                                        <circle cx="12" cy="5" r="2" />
+                                                        <circle cx="12" cy="12" r="2" />
+                                                        <circle cx="12" cy="19" r="2" />
+                                                    </svg>
+                                                </button>
+                                                <div class="options-menu" id="options-<?= $msg['idmensagem'] ?>">
+                                                    <button onclick="apagarMensagem(<?= $msg['idmensagem'] ?>)">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                            viewBox="0 0 24 24" fill="currentColor">
+                                                            <path
+                                                                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                                        </svg>
+                                                        Apagar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -165,24 +190,23 @@ if ($destinatario) {
                         </div>
                     <?php endif; ?>
                 </div>
-                <!-- Modal de confirmação -->
-                <div id="confirmDeleteModal" class="modal"
-                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-                    <div class="modal-content"
-                        style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
-                        <h3 style="margin-top: 0; color: #0e2b3b;">Apagar conversa</h3>
-                        <p style="margin-bottom: 20px;">Tem certeza que deseja apagar esta conversa permanentemente?</p>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                            <button id="cancelDelete"
-                                style="padding: 8px 16px; border-radius: 4px; border: none; background: #f0f0f0; cursor: pointer;">Cancelar</button>
-                            <button id="confirmDelete"
-                                style="padding: 8px 16px; border-radius: 4px; border: none; background: #ff4757; color: white; cursor: pointer;">Apagar</button>
-                        </div>
+
+                <form class="mensagem-form" id="form" action="enviar_mensagem.php" method="POST">
+                    <input type="hidden" name="destinatario" value="<?= $destinatario ?>">
+                    <div class="input-container">
+                        <textarea name="mensagem" id="inputMensagem" placeholder="Escreva uma mensagem..." rows="1"
+                            required></textarea>
+                        <button type="submit" class="send-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0e2b3b">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                            </svg>
+                        </button>
                     </div>
-                </div>
+                </form>
+
                 <script>
                     var form = document.querySelector("#form");
-                    var form_mensagem = document.querySelector("#form_mensagem");
+                    var form_mensagem = document.querySelector("#inputMensagem");
 
                     form_mensagem.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -191,7 +215,6 @@ if ($destinatario) {
                         }
                     });
                 </script>
-                </form>
             <?php else: ?>
                 <div class="no-conversa-selected">
                     <div class="empty-state">
@@ -208,7 +231,8 @@ if ($destinatario) {
             <?php endif; ?>
         </div>
     </div>
-    <!-- Modal de confirmação -->
+
+    <!-- Modal de confirmação para apagar conversa -->
     <div id="confirmDeleteModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h3>Apagar conversa</h3>
@@ -220,7 +244,21 @@ if ($destinatario) {
         </div>
     </div>
 
+    <!-- Modal de confirmação para apagar mensagem individual -->
+    <div id="confirmDeleteMessageModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Apagar mensagem</h3>
+            <p>Tem certeza que deseja apagar esta mensagem?</p>
+            <div class="modal-actions">
+                <button id="cancelDeleteMessage" class="modal-btn cancel">Cancelar</button>
+                <button id="confirmDeleteMessage" class="modal-btn confirm">Apagar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let messageToDelete = null;
+
         // Funções para a barra de pesquisa
         const searchList = document.querySelector('#searchList');
         const usersList = Array.from(searchList?.children || []);
@@ -261,35 +299,143 @@ if ($destinatario) {
                 inputMensagem.focus();
             }
 
-            // Configurar o modal de apagar conversa
+            // Configurar modais
+            setupModals();
+
+            // Fechar menus de opções ao clicar fora
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.mensagem-options')) {
+                    document.querySelectorAll('.options-menu').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                }
+            });
+        }); function abrirModalApagarConversa() {
+            const modal = document.getElementById('confirmDeleteModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function setupModals() {
+            // Modal de apagar conversa
+            const deleteBtn = document.querySelector('.delete-conversation');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', abrirModalApagarConversa);
+            }
             const deleteBtn = document.getElementById('deleteConversationBtn');
             const modal = document.getElementById('confirmDeleteModal');
             const cancelBtn = document.getElementById('cancelDelete');
             const confirmBtn = document.getElementById('confirmDelete');
-
-            if (deleteBtn && modal) {
-                deleteBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    modal.style.display = 'flex';
-                });
-
+            if (cancelBtn) {
                 cancelBtn.addEventListener('click', function () {
                     modal.style.display = 'none';
                 });
+            }
 
+            if (confirmBtn) {
                 confirmBtn.addEventListener('click', function () {
                     apagarConversa();
                     modal.style.display = 'none';
                 });
+            }
 
-                // Fechar modal ao clicar fora
-                modal.addEventListener('click', function (e) {
-                    if (e.target === modal) {
-                        modal.style.display = 'none';
-                    }
+            // Modal de apagar mensagem
+            const messageModal = document.getElementById('confirmDeleteMessageModal');
+            const cancelMessageBtn = document.getElementById('cancelDeleteMessage');
+            const confirmMessageBtn = document.getElementById('confirmDeleteMessage');
+
+            if (cancelMessageBtn) {
+                cancelMessageBtn.addEventListener('click', function () {
+                    messageModal.style.display = 'none';
+                    messageToDelete = null;
                 });
             }
-        });
+
+            if (confirmMessageBtn) {
+                confirmMessageBtn.addEventListener('click', function () {
+                    if (messageToDelete) {
+                        confirmarApagarMensagem();
+                    }
+                    messageModal.style.display = 'none';
+                });
+            }
+
+            // Fechar modais ao clicar fora
+            [modal, messageModal].forEach(m => {
+                if (m) {
+                    m.addEventListener('click', function (e) {
+                        if (e.target === m) {
+                            m.style.display = 'none';
+                            messageToDelete = null;
+                        }
+                    });
+                }
+            });
+        }
+
+        function abrirModalApagarConversa() {
+            const modal = document.getElementById('confirmDeleteModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function toggleOptionsMenu(messageId) {
+            // Fechar todos os outros menus
+            document.querySelectorAll('.options-menu').forEach(menu => {
+                if (menu.id !== `options-${messageId}`) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            // Toggle do menu atual
+            const menu = document.getElementById(`options-${messageId}`);
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        function apagarMensagem(messageId) {
+            messageToDelete = messageId;
+            const modal = document.getElementById('confirmDeleteMessageModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+            // Fechar o menu de opções
+            document.getElementById(`options-${messageId}`).style.display = 'none';
+        }
+
+        function confirmarApagarMensagem() {
+            if (!messageToDelete) return;
+
+            fetch('apagar_mensagem.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'idmensagem=' + messageToDelete
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover a mensagem da interface
+                        const messageElement = document.querySelector(`[data-message-id="${messageToDelete}"]`);
+                        if (messageElement) {
+                            messageElement.remove();
+                        }
+                    } else {
+                        alert('Erro ao apagar mensagem: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                })
+                .finally(() => {
+                    messageToDelete = null;
+                });
+        }
 
         function apagarConversa() {
             const destinatario = <?= $destinatario ? $destinatario : 'null' ?>;

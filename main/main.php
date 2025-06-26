@@ -32,15 +32,22 @@ $aniversario = $data_nascimento ? date("m-d", strtotime($data_nascimento)) : nul
 $mensagem_aniversario = ($aniversario === $hoje) ? "Feliz aniversário, $utilizador! 🎉🥳" : null;
 
 // Buscar publicações da base de dados com informações de likes e se o usuário curtiu
+// Substitua a consulta SQL atual por esta:
 $idutilizador_logado = $_SESSION["idutilizador"];
 $sql = "SELECT p.*, u.user, u.ft_perfil,
-               (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao) as total_likes,
-               (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_liked,
-               (SELECT COUNT(*) FROM guardado WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_saved
-        FROM publicacao p
-        JOIN utilizador u ON p.idutilizador = u.idutilizador
-        ORDER BY p.data DESC";
+       (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao) as total_likes,
+       (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_liked,
+       (SELECT COUNT(*) FROM guardado WHERE idpublicacao = p.idpublicacao AND idutilizador = $idutilizador_logado) as user_saved
+FROM publicacao p
+JOIN utilizador u ON p.idutilizador = u.idutilizador
+WHERE ? = 'para_ti' OR p.idutilizador IN (
+    SELECT id_seguido FROM seguidor WHERE id_seguidor = $idutilizador_logado
+)
+ORDER BY p.data DESC";
 
+// Adicione esta linha para definir o parâmetro do filtro
+$filtro = isset($_GET['filtro']) && $_GET['filtro'] === 'a_seguir' ? 'a_seguir' : 'para_ti';
+$sql = str_replace('?', "'$filtro'", $sql);
 $publicacoes = mysqli_query($con, $sql);
 ?>
 <!DOCTYPE html>
@@ -763,6 +770,46 @@ $publicacoes = mysqli_query($con, $sql);
             font-size: 13px;
             margin-top: 10px;
         }
+
+        /* Estilos para os botões de filtro */
+        .feed-filter {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .feed-filter-buttons {
+            display: flex;
+            gap: 30px;
+        }
+
+        .feed-filter-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .feed-filter-btn.active {
+            color: #0e2b3b;
+        }
+
+        .feed-filter-indicator {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            height: 2px;
+            background-color: #0e2b3b;
+            transition: all 0.3s ease;
+            border-radius: 2px 2px 0 0;
+        }
     </style>
 </head>
 
@@ -777,6 +824,13 @@ $publicacoes = mysqli_query($con, $sql);
     <?php require '../partials/header.php'; ?>
 
     <div class="container">
+        <div class="feed-filter">
+            <div class="feed-filter-buttons">
+                <button class="feed-filter-btn active" id="btnParaTi" onclick="mudarFeed('para_ti')">Para ti</button>
+                <button class="feed-filter-btn" id="btnASeguir" onclick="mudarFeed('a_seguir')">A seguir</button>
+                <div class="feed-filter-indicator" id="feedIndicator"></div>
+            </div>
+        </div>
         <?php if (mysqli_num_rows($publicacoes) > 0): ?>
             <?php while ($publicacao = mysqli_fetch_assoc($publicacoes)): ?>
                 <div class="post" data-post-id="<?= $publicacao['idpublicacao'] ?>"
@@ -1625,6 +1679,108 @@ $publicacoes = mysqli_query($con, $sql);
                 console.error('Erro ao carregar vídeo:', this.querySelector('source').src);
             });
         });
+        // Variável para controlar o tipo de feed
+        let currentFeed = 'para_ti';
+
+        // Função para mudar entre os feeds
+        function mudarFeed(tipo) {
+            if (tipo === currentFeed) return;
+
+            currentFeed = tipo;
+
+            // Atualizar UI dos botões
+            document.getElementById('btnParaTi').classList.toggle('active', tipo === 'para_ti');
+            document.getElementById('btnASeguir').classList.toggle('active', tipo === 'a_seguir');
+
+            // Mover o indicador
+            const indicator = document.getElementById('feedIndicator');
+            const activeBtn = tipo === 'para_ti' ? document.getElementById('btnParaTi') : document.getElementById('btnASeguir');
+
+            indicator.style.width = `${activeBtn.offsetWidth}px`;
+            indicator.style.left = `${activeBtn.offsetLeft}px`;
+
+            // Filtrar as publicações
+            filtrarPublicacoes();
+        }
+
+        // Função para filtrar publicações
+        function filtrarPublicacoes() {
+            const posts = document.querySelectorAll('.post');
+
+            if (currentFeed === 'a_seguir') {
+                // Aqui você precisará fazer uma requisição AJAX para obter as publicações das pessoas que o usuário segue
+                // Por enquanto, vou apenas esconder todas e mostrar uma mensagem
+                posts.forEach(post => post.style.display = 'none');
+
+                const noPostsMsg = document.createElement('div');
+                noPostsMsg.className = 'post';
+                noPostsMsg.innerHTML = `
+            <p style="text-align: center; color: #666; padding: 40px;">
+                Nenhuma publicação encontrada das pessoas que segue. Comece a seguir mais pessoas!
+            </p>
+        `;
+
+                const container = document.querySelector('.container');
+                if (!document.querySelector('.no-following-posts')) {
+                    container.insertBefore(noPostsMsg, container.firstChild.nextSibling);
+                    noPostsMsg.classList.add('no-following-posts');
+                }
+            } else {
+                // Mostrar todas as publicações
+                posts.forEach(post => post.style.display = 'block');
+                const noPostsMsg = document.querySelector('.no-following-posts');
+                if (noPostsMsg) {
+                    noPostsMsg.remove();
+                }
+            }
+        }
+
+        // Inicializar o indicador
+        document.addEventListener('DOMContentLoaded', function () {
+            const activeBtn = document.querySelector('.feed-filter-btn.active');
+            const indicator = document.getElementById('feedIndicator');
+
+            indicator.style.width = `${activeBtn.offsetWidth}px`;
+            indicator.style.left = `${activeBtn.offsetLeft}px`;
+        });
+        // Atualize a função filtrarPublicacoes para:
+        function filtrarPublicacoes() {
+            const container = document.querySelector('.container');
+
+            // Mostrar loading
+            const loading = document.createElement('div');
+            loading.className = 'post';
+            loading.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Carregando...</p>';
+            container.insertBefore(loading, container.firstChild.nextSibling);
+
+            // Fazer requisição AJAX
+            fetch(`main.php?filtro=${currentFeed}`)
+                .then(response => response.text())
+                .then(html => {
+                    // Parsear o HTML recebido
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Obter as novas publicações
+                    const newPosts = doc.querySelectorAll('.post');
+
+                    // Remover posts antigos (exceto o filtro e mensagens)
+                    const posts = document.querySelectorAll('.container > .post:not(.no-following-posts)');
+                    posts.forEach(post => post.remove());
+
+                    // Adicionar os novos posts
+                    newPosts.forEach(post => {
+                        container.appendChild(post);
+                    });
+
+                    // Remover loading
+                    loading.remove();
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    loading.innerHTML = '<p style="text-align: center; color: red; padding: 40px;">Erro ao carregar publicações</p>';
+                });
+        }
     </script>
 </body>
 
