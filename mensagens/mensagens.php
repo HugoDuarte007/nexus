@@ -126,7 +126,8 @@ if ($destinatario) {
                     </a>
                     <span class="destinatario-nome"><?= htmlspecialchars($destinatario_data['user']) ?></span>
                     <div class="conversa-actions">
-                        <button class="action-btn delete-conversation" title="Apagar conversa" id="deleteConversationBtn">
+                        <button class="action-btn delete-conversation" title="Apagar conversa"
+                            onclick="abrirModalApagarConversa()">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
                                 fill="#ff4757">
                                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
@@ -175,7 +176,7 @@ if ($destinatario) {
                                                             <path
                                                                 d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                                                         </svg>
-                                                        Apagar
+                                                        Apagar mensagem
                                                     </button>
                                                 </div>
                                             </div>
@@ -244,136 +245,12 @@ if ($destinatario) {
         </div>
     </div>
 
-    <!-- Modal de confirmação para apagar mensagem individual -->
-    <div id="confirmDeleteMessageModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>Apagar mensagem</h3>
-            <p>Tem certeza que deseja apagar esta mensagem?</p>
-            <div class="modal-actions">
-                <button id="cancelDeleteMessage" class="modal-btn cancel">Cancelar</button>
-                <button id="confirmDeleteMessage" class="modal-btn confirm">Apagar</button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // Variáveis globais
         let messageToDelete = null;
+        const destinatarioAtual = <?= $destinatario ? $destinatario : 'null' ?>;
 
-        // Funções para a barra de pesquisa
-        const searchList = document.querySelector('#searchList');
-        const usersList = Array.from(searchList?.children || []);
-
-        function searchDropdown(inputEl) {
-            var search = inputEl.value;
-
-            if (searchList) {
-                searchList.style.width = searchList.parentElement.offsetWidth + "px";
-
-                if (search == "") {
-                    searchList.classList.add('hidden');
-                    return;
-                } else {
-                    searchList.classList.remove('hidden');
-                }
-
-                usersList.forEach(userEl => {
-                    if (userEl.name.toLowerCase().search(search.toLowerCase()) != -1) {
-                        userEl.classList.remove('hidden');
-                    } else {
-                        userEl.classList.add('hidden');
-                    }
-                });
-            }
-        }
-
-        // Rolagem automática para a última mensagem
-        document.addEventListener('DOMContentLoaded', function () {
-            const container = document.getElementById('mensagensContainer');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
-
-            // Focar no campo de texto ao carregar
-            const inputMensagem = document.getElementById('inputMensagem');
-            if (inputMensagem) {
-                inputMensagem.focus();
-            }
-
-            // Configurar modais
-            setupModals();
-
-            // Fechar menus de opções ao clicar fora
-            document.addEventListener('click', function (e) {
-                if (!e.target.closest('.mensagem-options')) {
-                    document.querySelectorAll('.options-menu').forEach(menu => {
-                        menu.style.display = 'none';
-                    });
-                }
-            });
-        }); function abrirModalApagarConversa() {
-            const modal = document.getElementById('confirmDeleteModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
-        }
-
-        function setupModals() {
-            // Modal de apagar conversa
-            const deleteBtn = document.querySelector('.delete-conversation');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', abrirModalApagarConversa);
-            }
-            const deleteBtn = document.getElementById('deleteConversationBtn');
-            const modal = document.getElementById('confirmDeleteModal');
-            const cancelBtn = document.getElementById('cancelDelete');
-            const confirmBtn = document.getElementById('confirmDelete');
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', function () {
-                    modal.style.display = 'none';
-                });
-            }
-
-            if (confirmBtn) {
-                confirmBtn.addEventListener('click', function () {
-                    apagarConversa();
-                    modal.style.display = 'none';
-                });
-            }
-
-            // Modal de apagar mensagem
-            const messageModal = document.getElementById('confirmDeleteMessageModal');
-            const cancelMessageBtn = document.getElementById('cancelDeleteMessage');
-            const confirmMessageBtn = document.getElementById('confirmDeleteMessage');
-
-            if (cancelMessageBtn) {
-                cancelMessageBtn.addEventListener('click', function () {
-                    messageModal.style.display = 'none';
-                    messageToDelete = null;
-                });
-            }
-
-            if (confirmMessageBtn) {
-                confirmMessageBtn.addEventListener('click', function () {
-                    if (messageToDelete) {
-                        confirmarApagarMensagem();
-                    }
-                    messageModal.style.display = 'none';
-                });
-            }
-
-            // Fechar modais ao clicar fora
-            [modal, messageModal].forEach(m => {
-                if (m) {
-                    m.addEventListener('click', function (e) {
-                        if (e.target === m) {
-                            m.style.display = 'none';
-                            messageToDelete = null;
-                        }
-                    });
-                }
-            });
-        }
-
+        // Função para abrir modal de apagar conversa
         function abrirModalApagarConversa() {
             const modal = document.getElementById('confirmDeleteModal');
             if (modal) {
@@ -381,6 +258,46 @@ if ($destinatario) {
             }
         }
 
+        // Função para fechar modal de apagar conversa
+        function fecharModalApagarConversa() {
+            const modal = document.getElementById('confirmDeleteModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Função para confirmar e apagar conversa
+        function confirmarApagarConversa() {
+            if (!destinatarioAtual) {
+                alert('Nenhum destinatário selecionado');
+                return;
+            }
+
+            fetch('apagar_conversa.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'destinatario=' + destinatarioAtual
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'mensagens.php';
+                    } else {
+                        alert('Erro ao apagar conversa: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                })
+                .finally(() => {
+                    fecharModalApagarConversa();
+                });
+        }
+
+        // Função para toggle do menu de opções das mensagens
         function toggleOptionsMenu(messageId) {
             // Fechar todos os outros menus
             document.querySelectorAll('.options-menu').forEach(menu => {
@@ -396,75 +313,87 @@ if ($destinatario) {
             }
         }
 
+        // Função para apagar mensagem individual
         function apagarMensagem(messageId) {
-            messageToDelete = messageId;
-            const modal = document.getElementById('confirmDeleteMessageModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
             // Fechar o menu de opções
-            document.getElementById(`options-${messageId}`).style.display = 'none';
-        }
-
-        function confirmarApagarMensagem() {
-            if (!messageToDelete) return;
-
-            fetch('apagar_mensagem.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'idmensagem=' + messageToDelete
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remover a mensagem da interface
-                        const messageElement = document.querySelector(`[data-message-id="${messageToDelete}"]`);
-                        if (messageElement) {
-                            messageElement.remove();
-                        }
-                    } else {
-                        alert('Erro ao apagar mensagem: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro na comunicação com o servidor');
-                })
-                .finally(() => {
-                    messageToDelete = null;
-                });
-        }
-
-        function apagarConversa() {
-            const destinatario = <?= $destinatario ? $destinatario : 'null' ?>;
-
-            if (!destinatario) {
-                alert('Nenhum destinatário selecionado');
-                return;
+            const menu = document.getElementById(`options-${messageId}`);
+            if (menu) {
+                menu.style.display = 'none';
             }
 
-            fetch('apagar_conversa.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'destinatario=' + destinatario
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = 'mensagens.php';
-                    } else {
-                        alert('Erro ao apagar conversa: ' + data.message);
-                    }
+            // Confirmar e apagar diretamente
+            if (confirm('Tem certeza que deseja apagar esta mensagem?')) {
+                fetch('apagar_mensagem.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'idmensagem=' + messageId
                 })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro na comunicação com o servidor');
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remover a mensagem da interface
+                            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                            if (messageElement) {
+                                messageElement.remove();
+                            }
+                        } else {
+                            alert('Erro ao apagar mensagem: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro na comunicação com o servidor');
+                    });
+            }
         }
+
+        // Inicialização quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configurar eventos do modal de apagar conversa
+            const cancelBtn = document.getElementById('cancelDelete');
+            const confirmBtn = document.getElementById('confirmDelete');
+            const modal = document.getElementById('confirmDeleteModal');
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', fecharModalApagarConversa);
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', confirmarApagarConversa);
+            }
+
+            // Fechar modal ao clicar fora
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        fecharModalApagarConversa();
+                    }
+                });
+            }
+
+            // Fechar menus de opções ao clicar fora
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.mensagem-options')) {
+                    document.querySelectorAll('.options-menu').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                }
+            });
+
+            // Rolagem automática para a última mensagem
+            const container = document.getElementById('mensagensContainer');
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Focar no campo de texto ao carregar
+            const inputMensagem = document.getElementById('inputMensagem');
+            if (inputMensagem) {
+                inputMensagem.focus();
+            }
+        });
 
         // Atualizar notificações periodicamente
         setInterval(atualizarNotificacoes, 5000);

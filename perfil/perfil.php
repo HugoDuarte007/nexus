@@ -6,6 +6,33 @@ if (!isset($_SESSION["user"])) {
     header("Location: ../login.php");
     exit();
 }
+function formatarDataEmPortugues($dataString, $prefixo = '', $sufixo = '')
+{
+    if (!$dataString)
+        return null;
+
+    $meses = [
+        1 => 'janeiro',
+        2 => 'fevereiro',
+        3 => 'março',
+        4 => 'abril',
+        5 => 'maio',
+        6 => 'junho',
+        7 => 'julho',
+        8 => 'agosto',
+        9 => 'setembro',
+        10 => 'outubro',
+        11 => 'novembro',
+        12 => 'dezembro'
+    ];
+
+    $data = new DateTime($dataString);
+    $dia = (int) $data->format('d'); // sem zero à esquerda
+    $mes = $meses[(int) $data->format('m')];
+    $ano = $data->format('Y');
+
+    return trim("$prefixo $dia de $mes de $ano $sufixo");
+}
 
 $iduser = htmlspecialchars($_SESSION["idutilizador"]);
 $idperfil = htmlspecialchars($_SESSION["idutilizador"]);
@@ -35,10 +62,13 @@ if ($result) {
     $perfil_pais = $row['pais'] ?? null;
 
     setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
-    $perfil_data_registo = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
-
+    $perfil_data_registo = isset($row['data_registo'])
+        ? formatarDataEmPortugues($row['data_registo'], 'dia')
+        : "um dia.";
     // Formatar data de nascimento
-    $perfil_data_nascimento_formatada = $perfil_data_nascimento ? strftime("%e de %B de %Y", strtotime($perfil_data_nascimento)) : null;
+    $perfil_data_nascimento_formatada = $perfil_data_nascimento
+        ? formatarDataEmPortugues($perfil_data_nascimento)
+        : null;
     $idade = $perfil_data_nascimento ? date_diff(date_create($perfil_data_nascimento), date_create('today'))->y : null;
 } else {
     $perfil_foto_perfil = null;
@@ -60,7 +90,9 @@ if ($result) {
     $utilizador = $row['user'] ?? "Username não disponível";
 
     setlocale(LC_TIME, 'pt_PT.UTF-8', 'Portuguese_Portugal', 'Portuguese');
-    $data = isset($row['data_registo']) ? strftime("dia %e de %B de %Y", strtotime($row['data_registo'])) : "um dia.";
+    $data = isset($row['data_registo'])
+        ? formatarDataEmPortugues($row['data_registo'], 'dia')
+        : "um dia.";
 } else {
     $foto_perfil = null;
     $foto_capa = null;
@@ -293,7 +325,7 @@ function isImage($filename)
                                         <?php endif; ?>
                                     </div>
                                     <div class="perfil-post-content">
-                                        <?= nl2br(htmlspecialchars($pub['descricao'])); ?>
+                                        <?= nl2br(htmlspecialchars(strval($pub['descricao']))); ?>
                                     </div>
 
                                     <?php if (!empty($medias)): ?>
