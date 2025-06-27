@@ -153,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
     <?php endif; ?>
     
-    <div class="container">
+    <div class="container" style="justify-content: center;">
         <img src="imagens/background.jpg" alt="Background" class="background">
         <div class="logo">
             <img class="logo" src="imagens/logo.png" alt="Nexus Logo">

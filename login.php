@@ -144,7 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="justify-content: center;">
         <div class="form-container1">
             <h2><a href="index.php"><img src="imagens/logo4.png"></a><br>
                 Iniciar Sessão</h2><br>
