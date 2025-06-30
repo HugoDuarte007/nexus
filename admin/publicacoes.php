@@ -9,7 +9,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["id_tipos_utilizador"] != 0) {
 }
 
 // Configurações de paginação
-$porPagina = 5;
+$porPagina = 6;
 $paginaAtual = isset($_GET['pagina']) ? max(1, (int) $_GET['pagina']) : 1;
 $offset = ($paginaAtual - 1) * $porPagina;
 
@@ -77,23 +77,12 @@ $resultado = mysqli_query($con, $sql);
             margin-bottom: 20px;
         }
 
-        .paginacao a {
-            padding: 8px 12px;
-            background-color: #0e2b3b;
-            color: white;
-            border: 1px solid #0e2b3b;
-            text-decoration: none;
-            border-radius: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .paginacao a:hover {
-            background-color: white;
-            color: #0e2b3b;
-        }
-
-        .footerbutton {
-            margin: 0 10px;
+        .sucesso {
+            color: green;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         /* Modal styles */
@@ -106,7 +95,7 @@ $resultado = mysqli_query($con, $sql);
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0,0,0,0.4);
         }
 
         .modal-content {
@@ -114,7 +103,7 @@ $resultado = mysqli_query($con, $sql);
             margin: 5% auto;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             width: 80%;
             max-width: 800px;
             max-height: 80vh;
@@ -235,18 +224,197 @@ $resultado = mysqli_query($con, $sql);
             position: absolute;
             top: 8px;
             right: 8px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0,0,0,0.7);
             color: white;
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 10px;
             text-transform: uppercase;
         }
+
+        /* Modal de confirmação - estilo do utilizadores.php */
+        .modal-confirmacao {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-confirmacao-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .modal-confirmacao-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-confirmacao-buttons button {
+            margin: 0 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-confirmar {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Estilo da tabela como em utilizadores.php */
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #0e2b3b;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        td {
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #0e2b3b;
+            box-shadow: 0 0 5px #0e2b3b;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: #0e2b3b;
+            color: white;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #0e2b3b;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: white;
+            color: #0e2b3b;
+        }
+
+        .paginacao a {
+            padding: 8px 12px;
+            background-color: #0e2b3b;
+            color: white;
+            border: 1px solid #0e2b3b;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0 5px;
+        }
+
+        .paginacao a:hover {
+            background-color: white;
+            color: #0e2b3b;
+        }
+
+        .footer-container {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .footerbutton {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            transition: 0.3s ease;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .footerbutton:hover {
+            background-color: white;
+            color: #0e2b3b;
+        }
     </style>
 </head>
 
 <body>
     <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Publicações</h1>
+
+    <?php if (isset($_SESSION["erro"])): ?>
+        <div class="erro"><?= $_SESSION["erro"] ?></div>
+        <?php unset($_SESSION["erro"]); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["sucesso"])): ?>
+        <div class="sucesso"><?= $_SESSION["sucesso"] ?></div>
+        <?php unset($_SESSION["sucesso"]); ?>
+    <?php endif; ?>
+
+    <!-- Modal de confirmação para remoção -->
+    <div id="modalConfirmacao" class="modal-confirmacao">
+        <div class="modal-confirmacao-content">
+            <h3>Confirmar Remoção</h3>
+            <p>Tem a certeza que deseja remover esta publicação?</p>
+            <p><strong>Esta ação irá remover:</strong></p>
+            <ul style="text-align: left; margin: 10px 0;">
+                <li>Todas as mídias associadas</li>
+                <li>Todos os comentários</li>
+                <li>Todas as reações</li>
+            </ul>
+            <p style="color: red; font-weight: bold;">Esta ação não pode ser desfeita!</p>
+            <div class="modal-confirmacao-buttons">
+                <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn-confirmar" onclick="confirmarRemocao()">Remover</button>
+            </div>
+        </div>
+    </div>
 
     <table>
         <tr>
@@ -261,24 +429,24 @@ $resultado = mysqli_query($con, $sql);
             <form id="form<?= $reg['idpublicacao'] ?>" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="idpublicacao" value="<?= $reg['idpublicacao'] ?>">
                 <tr>
-                    <td><?= $reg['idpublicacao'] ?></td>
-                    <td><?= htmlspecialchars($reg['nome']) ?></td>
-                    <td><textarea name="descricao"
-                            style="width: 100%;"><?= htmlspecialchars($reg['descricao']) ?></textarea></td>
-                    <td><?= $reg['data'] ?></td>
-                    <td>
+                    <td style="text-align: center;"><?= $reg['idpublicacao'] ?></td>
+                    <td style="text-align: center;"><?= htmlspecialchars($reg['nome']) ?></td>
+                    <td><textarea name="descricao" <?= empty($reg['descricao'] ?? "") ? "disabled" : "" ?>
+                            style="width: 100%; resize:none; justify-content:center; "><?= htmlspecialchars($reg['descricao'] ?? "") ?></textarea></td>
+                    <td style="text-align: center;"><?= $reg['data'] ?></td>
+                    <td style="text-align: center;">
                         <?php if ($reg['total_media'] > 0): ?>
                             <button type="button" class="view-btn"
-                                onclick="loadPostDetails(<?= $reg['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($reg['descricao'])) ?>')">
-                                Ver (<?= $reg['total_media'] ?>)
+                                onclick="loadPostDetails(<?= $reg['idpublicacao'] ?>, '<?= isset($reg['descricao']) ? htmlspecialchars(addslashes($reg['descricao'])) : '' ?>')">
+                                Ver (<?= $reg['total_media'] ?? 0 ?>)
                             </button>
                         <?php else: ?>
                             (sem media)
                         <?php endif; ?>
                     </td>
-                    <td>
+                    <td style="text-align: center;">
                         <button type="submit" onclick="gravar('form<?= $reg['idpublicacao'] ?>')">Gravar</button>
-                        <button type="submit" onclick="remover('form<?= $reg['idpublicacao'] ?>')">Remover</button>
+                        <button type="button" onclick="confirmarRemover('form<?= $reg['idpublicacao'] ?>')">Remover</button>
                         <a href="gerir_publicacao_media.php?id=<?= $reg['idpublicacao'] ?>">
                             <button type="button">Gerir Media</button>
                         </a>
@@ -317,7 +485,7 @@ $resultado = mysqli_query($con, $sql);
     <div style="height:100px;"></div>
 
     <footer>
-        <div class="footer-container" style="text-align: center;">
+        <div class="footer-container">
             <a href="utilizadores.php"><button class="footerbutton">Utilizadores</button></a>
             <a href="publicacoes.php"><button class="footerbutton">Publicações</button></a>
             <a href="estatistica.php"><button class="footerbutton">Estatística</button></a>
@@ -326,6 +494,35 @@ $resultado = mysqli_query($con, $sql);
     </footer>
 
     <script>
+        // Variável para armazenar o formulário a ser removido
+        var formParaRemover = "";
+        
+        // Função para abrir modal de confirmação
+        function confirmarRemover(idForm) {
+            formParaRemover = idForm;
+            document.getElementById('modalConfirmacao').style.display = 'block';
+        }
+        
+        // Função para confirmar a remoção
+        function confirmarRemocao() {
+            if (formParaRemover) {
+                document.getElementById(formParaRemover).action = "remover_publicacao.php";
+                document.getElementById(formParaRemover).submit();
+            }
+        }
+        
+        // Função para fechar o modal
+        function fecharModal() {
+            document.getElementById('modalConfirmacao').style.display = 'none';
+            formParaRemover = "";
+        }
+        
+        // Função para gravar alterações
+        function gravar(idForm) {
+            document.getElementById(idForm).action = "gravar_publicacao.php";
+            document.getElementById(idForm).submit();
+        }
+
         // Funções para abrir e fechar modais
         function openModal(modalId) {
             document.getElementById(modalId).style.display = "block";
@@ -337,7 +534,7 @@ $resultado = mysqli_query($con, $sql);
 
         // Fechar modal quando clicar fora do conteúdo
         window.onclick = function (event) {
-            if (event.target.classList.contains("modal")) {
+            if (event.target.classList.contains("modal") || event.target.classList.contains("modal-confirmacao")) {
                 event.target.style.display = "none";
             }
         }
@@ -420,46 +617,6 @@ $resultado = mysqli_query($con, $sql);
                 }
             });
         }
-
-        function remover(idForm) {
-            document.getElementById(idForm).action = "remover_publicacao.php";
-        }
-
-        function gravar(idForm) {
-            document.getElementById(idForm).action = "gravar_publicacao.php";
-        }
-
-        function aplicarFiltros() {
-            const tipo = document.getElementById('filtroTipo').value;
-            const ordenacao = document.getElementById('ordenacao').value;
-            let url = 'publicacoes.php?';
-
-            if (tipo) url += `tipo=${tipo}&`;
-            if (ordenacao) url += `ordenar=${ordenacao}`;
-
-            window.location.href = url;
-        }
-
-        // Prevenir fechamento acidental do modal
-        document.addEventListener('DOMContentLoaded', function() {
-            // Adicionar event listeners para os botões de fechar
-            document.querySelectorAll('.close').forEach(function(closeBtn) {
-                closeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const modal = this.closest('.modal');
-                    if (modal) {
-                        modal.style.display = 'none';
-                    }
-                });
-            });
-
-            // Prevenir fechamento quando clicar no conteúdo do modal
-            document.querySelectorAll('.modal-content').forEach(function(content) {
-                content.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            });
-        });
     </script>
 </body>
 

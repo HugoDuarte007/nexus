@@ -32,7 +32,6 @@ $aniversario = $data_nascimento ? date("m-d", strtotime($data_nascimento)) : nul
 $mensagem_aniversario = ($aniversario === $hoje) ? "Feliz aniversário, $utilizador! 🎉🥳" : null;
 
 // Buscar publicações da base de dados com informações de likes e se o usuário curtiu
-// Substitua a consulta SQL atual por esta:
 $idutilizador_logado = $_SESSION["idutilizador"];
 $sql = "SELECT p.*, u.user, u.ft_perfil,
        (SELECT COUNT(*) FROM likes WHERE idpublicacao = p.idpublicacao) as total_likes,
@@ -102,8 +101,6 @@ $publicacoes = mysqli_query($con, $sql);
             padding: 10px;
         }
 
-
-
         .post-time {
             color: gray;
             font-size: 0.9em;
@@ -141,7 +138,6 @@ $publicacoes = mysqli_query($con, $sql);
 
         .post-content {
             margin-bottom: 15px;
-
         }
 
         .post-content p {
@@ -273,11 +269,6 @@ $publicacoes = mysqli_query($con, $sql);
             /* Isso empurrará o botão para a direita */
         }
 
-        .save-btn {
-            margin-left: auto;
-            /* Isso empurrará o botão para a direita */
-        }
-
         .action-btn.saved {
             color: #f39c12;
         }
@@ -350,11 +341,6 @@ $publicacoes = mysqli_query($con, $sql);
             border-radius: 50%;
             transition: all 0.3s;
             z-index: 2001;
-        }
-
-        .image-nav:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: translateY(-50%) scale(1.1);
         }
 
         .image-nav.prev {
@@ -539,11 +525,6 @@ $publicacoes = mysqli_query($con, $sql);
             border-radius: 50%;
             transition: all 0.3s;
             z-index: 10;
-        }
-
-        .modal-nav:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: translateY(-50%) scale(1.1);
         }
 
         .modal-nav.prev {
@@ -1006,7 +987,6 @@ $publicacoes = mysqli_query($con, $sql);
 
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-
                             <span id="modalData" class="post-time" style="color: #6b7280; font-size: 0.875rem;"></span>
                         </div>
                     </div>
@@ -1041,8 +1021,6 @@ $publicacoes = mysqli_query($con, $sql);
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
                 </div>
-
-
 
                 <!-- Formulário de comentário -->
                 <div class="mb-6">
@@ -1118,6 +1096,7 @@ $publicacoes = mysqli_query($con, $sql);
                 setTimeout(() => notificacao.remove(), 500);
             }
         }
+
         async function apagarComentario(button, idUtilizadorLogado, idComentario) {
             if (!confirm('Tem certeza que deseja apagar este comentário?')) {
                 return;
@@ -1443,6 +1422,7 @@ $publicacoes = mysqli_query($con, $sql);
                 const comentariosContainer = document.getElementById('comentarios');
                 const template = document.getElementById('comentarioTemplate');
                 const idUtilizadorLogado = <?= $_SESSION['idutilizador'] ?>;
+                const idAutorPublicacao = document.getElementById('modalPerfilLink').href.split('id=')[1];
 
                 // Limpar comentários existentes (exceto o template)
                 comentariosContainer.innerHTML = '';
@@ -1470,9 +1450,11 @@ $publicacoes = mysqli_query($con, $sql);
                         const deleteBtn = comentarioElement.querySelector('.delete-comment-btn');
                         deleteBtn.setAttribute('onclick', `apagarComentario(this, ${idUtilizadorLogado}, ${comentario.idcomentario})`);
 
-                        // Mostrar apenas se o usuário logado for o autor
-                        if (comentario.idutilizador == idUtilizadorLogado) {
-                            deleteBtn.style.display = 'block'; // Alterado de 'inline-block' para 'block'
+                        // Mostrar o botão de apagar se:
+                        // 1. O usuário logado é o autor do comentário OU
+                        // 2. O usuário logado é o autor da publicação
+                        if (comentario.idutilizador == idUtilizadorLogado || idUtilizadorLogado == idAutorPublicacao) {
+                            deleteBtn.style.display = 'block';
                         } else {
                             deleteBtn.style.display = 'none';
                         }
@@ -1495,10 +1477,10 @@ $publicacoes = mysqli_query($con, $sql);
                 console.error('Erro ao carregar comentários:', error);
                 const comentariosContainer = document.getElementById('comentarios');
                 comentariosContainer.innerHTML = `
-            <p style="color: red; text-align: center; padding: 20px;">
-                Erro ao carregar comentários: ${error.message}
-            </p>
-        `;
+                    <p style="color: red; text-align: center; padding: 20px;">
+                        Erro ao carregar comentários: ${error.message}
+                    </p>
+                `;
             }
         }
 
@@ -1516,6 +1498,7 @@ $publicacoes = mysqli_query($con, $sql);
         function base64_encode(str) {
             return btoa(unescape(encodeURIComponent(str)));
         }
+
         // Função para toggle like
         async function toggleLike(postId, button) {
             try {
@@ -1673,12 +1656,14 @@ $publicacoes = mysqli_query($con, $sql);
             post.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             postObserver.observe(post);
         });
+
         // Adicione isso no seu JavaScript
         document.querySelectorAll('video').forEach(video => {
             video.addEventListener('error', function () {
                 console.error('Erro ao carregar vídeo:', this.querySelector('source').src);
             });
         });
+
         // Variável para controlar o tipo de feed
         let currentFeed = 'para_ti';
 
@@ -1704,46 +1689,6 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         // Função para filtrar publicações
-        function filtrarPublicacoes() {
-            const posts = document.querySelectorAll('.post');
-
-            if (currentFeed === 'a_seguir') {
-                // Aqui você precisará fazer uma requisição AJAX para obter as publicações das pessoas que o usuário segue
-                // Por enquanto, vou apenas esconder todas e mostrar uma mensagem
-                posts.forEach(post => post.style.display = 'none');
-
-                const noPostsMsg = document.createElement('div');
-                noPostsMsg.className = 'post';
-                noPostsMsg.innerHTML = `
-            <p style="text-align: center; color: #666; padding: 40px;">
-                Nenhuma publicação encontrada das pessoas que segue. Comece a seguir mais pessoas!
-            </p>
-        `;
-
-                const container = document.querySelector('.container');
-                if (!document.querySelector('.no-following-posts')) {
-                    container.insertBefore(noPostsMsg, container.firstChild.nextSibling);
-                    noPostsMsg.classList.add('no-following-posts');
-                }
-            } else {
-                // Mostrar todas as publicações
-                posts.forEach(post => post.style.display = 'block');
-                const noPostsMsg = document.querySelector('.no-following-posts');
-                if (noPostsMsg) {
-                    noPostsMsg.remove();
-                }
-            }
-        }
-
-        // Inicializar o indicador
-        document.addEventListener('DOMContentLoaded', function () {
-            const activeBtn = document.querySelector('.feed-filter-btn.active');
-            const indicator = document.getElementById('feedIndicator');
-
-            indicator.style.width = `${activeBtn.offsetWidth}px`;
-            indicator.style.left = `${activeBtn.offsetLeft}px`;
-        });
-        // Atualize a função filtrarPublicacoes para:
         function filtrarPublicacoes() {
             const container = document.querySelector('.container');
 
@@ -1771,6 +1716,11 @@ $publicacoes = mysqli_query($con, $sql);
                     // Adicionar os novos posts
                     newPosts.forEach(post => {
                         container.appendChild(post);
+                    // Observar o novo post para animação
+                        post.style.opacity = '0';
+                        post.style.transform = 'translateY(30px)';
+                        post.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        postObserver.observe(post);
                     });
 
                     // Remover loading
@@ -1781,6 +1731,15 @@ $publicacoes = mysqli_query($con, $sql);
                     loading.innerHTML = '<p style="text-align: center; color: red; padding: 40px;">Erro ao carregar publicações</p>';
                 });
         }
+
+        // Inicializar o indicador
+        document.addEventListener('DOMContentLoaded', function () {
+            const activeBtn = document.querySelector('.feed-filter-btn.active');
+            const indicator = document.getElementById('feedIndicator');
+
+            indicator.style.width = `${activeBtn.offsetWidth}px`;
+            indicator.style.left = `${activeBtn.offsetLeft}px`;
+        });
     </script>
 </body>
 

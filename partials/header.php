@@ -105,18 +105,29 @@
                 </div>
             </div>
 
-            <!-- Dropdown do perfil -->
-            <div class="h_profile-dropdown" onclick="toggleDropdown(event)">
-                <div class="h_user-info">
-                    <p><?php echo htmlspecialchars($_SESSION["user"]); ?></p>
-                    <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
+            <!-- Perfil - Comportamento diferente para admin e usuário normal -->
+            <?php if ($_SESSION["id_tipos_utilizador"] == 0): ?>
+                <!-- Dropdown para administradores -->
+                <div class="h_profile-dropdown" onclick="toggleDropdown(event)">
+                    <div class="h_user-info">
+                        <p><?php echo htmlspecialchars($_SESSION["user"]); ?></p>
+                        <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
+                    </div>
+                    <div id="dropdownMenu" class="h_dropdown-content">
+                        <a href="../perfil/perfil.php">Ver perfil</a>
+                        <a href="../admin/utilizadores.php">Administração</a>
+                        <a href="../logout.php">Terminar sessão</a>
+                    </div>
                 </div>
-                <div id="dropdownMenu" class="h_dropdown-content">
-                    <a href="../perfil/perfil.php">Ver perfil</a>
-                    <a href="../perfil/editar_perfil.php">Definições</a>
-                    <a href="../logout.php">Terminar sessão</a>
-                </div>
-            </div>
+            <?php else: ?>
+                <!-- Link direto para usuários normais -->
+                <a href="../perfil/perfil.php" class="h_profile-link">
+                    <div class="h_user-info">
+                        <p><?php echo htmlspecialchars($_SESSION["user"]); ?></p>
+                        <img src="<?php echo $foto_base64; ?>" alt="Foto de Perfil" class="h_profile-picture">
+                    </div>
+                </a>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -177,6 +188,13 @@
         .h_profile-dropdown {
             position: relative;
             display: inline-block;
+            cursor: pointer;
+        }
+
+        /* Novo estilo para link direto do perfil */
+        .h_profile-link {
+            text-decoration: none;
+            color: inherit;
             cursor: pointer;
         }
 
@@ -733,15 +751,17 @@
         setInterval(atualizarNotificacoesMensagens, 10000);
     });
 
-    // Funções para o dropdown do perfil
+    // Funções para o dropdown do perfil (apenas para administradores)
     function toggleDropdown(event) {
         event.stopPropagation();
         const menu = document.getElementById("dropdownMenu");
-        const isOpen = menu.style.display === "block";
-        menu.style.display = isOpen ? "none" : "block";
+        if (menu) {
+            const isOpen = menu.style.display === "block";
+            menu.style.display = isOpen ? "none" : "block";
+        }
     }
 
-    // Fechar dropdown ao clicar fora
+    // Fechar dropdown ao clicar fora (apenas para administradores)
     window.addEventListener("click", function() {
         const menu = document.getElementById("dropdownMenu");
         if (menu) {

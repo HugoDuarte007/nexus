@@ -31,9 +31,7 @@
     }
 
     .form-container {
-        margin: 0 auto;
         margin-top: 20px;
-        margin-right: 20%;
         background-color: rgba(0, 0, 0, 0.8);
         border-radius: 40px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -43,12 +41,15 @@
     }
 
     .platforms {
-        position: absolute;
-        left: 20%;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 500px;
+        width: min(500px, 30%);
         height: auto;
+        display: flex;
+    }
+    @media (max-width: 768px) {
+        .platforms {
+            display: none;
+        }
+
     }
 
     .column {
@@ -114,6 +115,10 @@
     }
 
     .background {
+        background-image: url("imagens/background.jpg");
+        background-size: 100% auto;
+        background-position: center;
+        background-repeat: no-repeat;
         position: absolute;
         top: 0;
         left: 0;
