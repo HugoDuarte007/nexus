@@ -4,7 +4,6 @@
         <a href="../main/main.php" class="flex flex-1 justify-start" style="color:white;text-decoration: none;">
             <h1 class="h_logo">Nexus</h1>
         </a>
-
         <!-- Barra de pesquisa -->
         <div class="flex-1">
             <input type="text" id="searchInput" class="h_search-bar w-full" placeholder="Pesquisar utilizadores..."
@@ -53,25 +52,30 @@
                     <div class="h_modal-header">
                         <h2>Criar Nova Publicação</h2>
                         <button class="h_close" onclick="fecharModal()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0e2b3b">
-                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="#0e2b3b">
+                                <path
+                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                             </svg>
                         </button>
                     </div>
                     <div class="h_modal-body">
-                        <form action="interacoes/publicar.php" method="post" id="publicacaoForm" enctype="multipart/form-data">
+                        <form action="interacoes/publicar.php" method="post" id="publicacaoForm"
+                            enctype="multipart/form-data">
                             <textarea id="descricao" name="descricao" placeholder="Em que está a pensar?"></textarea>
 
                             <div class="h_media-upload">
                                 <!-- Área de arrastar e soltar -->
                                 <div class="h_drop-area" id="dropArea">
                                     <div class="h_drop-content">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#0e2b3b" viewBox="0 0 24 24">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#0e2b3b"
+                                            viewBox="0 0 24 24">
                                             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                                         </svg>
                                         <p>Arraste e solte fotos ou vídeos aqui</p>
                                         <p class="h_subtext">Ou clique para selecionar arquivos</p>
-                                        <p class="h_file-types">Suportados: JPG, PNG, GIF, MP4, MOV, AVI (máx. 10 arquivos)</p>
+                                        <p class="h_file-types">Suportados: JPG, PNG, GIF, MP4, MOV, AVI (máx. 10
+                                            arquivos)</p>
                                     </div>
                                     <input type="file" id="mediaInput" name="media[]" accept="image/*,video/*" multiple>
                                 </div>
@@ -81,8 +85,10 @@
                                     <div class="h_preview-header">
                                         <span id="previewTitle">Pré-visualização</span>
                                         <button type="button" onclick="removerTodasMedias()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0e2b3b">
-                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24" fill="#0e2b3b">
+                                                <path
+                                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                                             </svg>
                                         </button>
                                     </div>
@@ -94,7 +100,8 @@
 
                             <div class="h_modal-footer">
                                 <button type="submit" class="h_botao-publicar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="white">
                                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                                     </svg>
                                     Publicar
@@ -171,9 +178,17 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .h_navbar {
@@ -248,6 +263,55 @@
         .h_logo {
             font-size: 24px;
             font-weight: bold;
+            position: relative;
+            display: inline-block;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: all 0.5s ease;
+            transform-origin: center;
+        }
+
+        .h_logo:hover {
+            animation: nexusGlow 1.5s infinite alternate;
+            text-shadow: 0 0 15px #fff, 0 0 30px #00b4d8;
+        }
+
+        .h_logo::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #00b4d8;
+            overflow: hidden;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%);
+            animation: nexusSplit 1.5s infinite alternate;
+            opacity: 0.8;
+        }
+
+        @keyframes nexusGlow {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 10px #fff, 0 0 20px #00b4d8;
+            }
+
+            100% {
+                transform: scale(1.1);
+                text-shadow: 0 0 20px #fff, 0 0 40px #00b4d8, 0 0 60px #0096c7;
+            }
+        }
+
+        @keyframes nexusSplit {
+            0% {
+                transform: translateY(0);
+                clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%);
+            }
+
+            100% {
+                transform: translateY(-5px);
+                clip-path: polygon(0% 30%, 100% 30%, 100% 70%, 0% 70%);
+            }
         }
 
         .h_search-bar {
@@ -494,8 +558,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @media (max-width: 600px) {
@@ -555,7 +624,7 @@
         document.getElementById('publicacaoForm').reset();
         document.getElementById('previewContainer').style.display = "none";
         document.getElementById('dropArea').style.display = "block";
-        
+
         // Limpar arquivos selecionados
         selectedFiles = [];
         atualizarPreview();
@@ -564,7 +633,7 @@
     function preverMedias() {
         const input = document.getElementById('mediaInput');
         const files = Array.from(input.files);
-        
+
         if (files.length === 0) return;
 
         // Verificar limite de 10 arquivos
@@ -578,7 +647,7 @@
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/webm'];
             const extensoes_permitidas = [...validImageTypes, ...validVideoTypes];
-            
+
             if (!extensoes_permitidas.includes(file.type)) {
                 alert('Por favor, selecione apenas imagens (JPEG, PNG, GIF, WEBP) ou vídeos (MP4, MOV, AVI, WEBM)');
                 return;
@@ -658,16 +727,16 @@
     function atualizarInputFile() {
         const input = document.getElementById('mediaInput');
         const dt = new DataTransfer();
-        
+
         selectedFiles.forEach(file => {
             dt.items.add(file);
         });
-        
+
         input.files = dt.files;
     }
 
     // Inicialização quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Configurar drag and drop
         const dropArea = document.getElementById('dropArea');
         const input = document.getElementById('mediaInput');
@@ -706,13 +775,13 @@
             function handleDrop(e) {
                 const dt = e.dataTransfer;
                 const files = Array.from(dt.files);
-                
+
                 // Adicionar aos arquivos selecionados
                 if (selectedFiles.length + files.length > 10) {
                     alert('Máximo de 10 arquivos permitidos');
                     return;
                 }
-                
+
                 selectedFiles = selectedFiles.concat(files);
                 atualizarPreview();
                 atualizarInputFile();
@@ -726,7 +795,7 @@
         }
 
         // Fechar modal ao pressionar ESC
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 fecharModal();
             }
@@ -735,9 +804,9 @@
         // Verificar envio do formulário
         const form = document.getElementById('publicacaoForm');
         if (form) {
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 const descricao = document.getElementById('descricao').value;
-                
+
                 if (!descricao && selectedFiles.length === 0) {
                     e.preventDefault();
                     alert('Por favor, adicione uma descrição ou uma mídia');
@@ -762,7 +831,7 @@
     }
 
     // Fechar dropdown ao clicar fora (apenas para administradores)
-    window.addEventListener("click", function() {
+    window.addEventListener("click", function () {
         const menu = document.getElementById("dropdownMenu");
         if (menu) {
             menu.style.display = "none";

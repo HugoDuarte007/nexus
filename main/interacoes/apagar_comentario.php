@@ -1,6 +1,8 @@
 <?php
 session_start();
-require "../ligabd.php";
+require "../../ligabd.php";
+
+header('Content-Type: application/json');
 
 if (!isset($_SESSION['idutilizador'])) {
     echo json_encode(['success' => false, 'message' => 'Não autenticado']);
@@ -12,39 +14,64 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$idComentario = filter_input(INPUT_POST, 'idcomentario', FILTER_VALIDATE_INT);
+$idComentario = isset($_POST['idcomentario']) ? intval($_POST['idcomentario']) : null;
 
-if (!$idComentario) {
+if (!$idComentario || $idComentario <= 0) {
     echo json_encode(['success' => false, 'message' => 'ID do comentário inválido']);
     exit;
 }
 
-// Verificar se o comentário pertence ao usuário logado
-$query = "SELECT idutilizador FROM comentario WHERE idcomentario = ?";
-$stmt = mysqli_prepare($con, $query);
-mysqli_stmt_bind_param($stmt, "i", $idComentario);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$comentario = mysqli_fetch_assoc($result);
+try {
+    // Verificar se o comentário existe e se o usuário tem permissão
+    $query = "SELECT c.idutilizador, p.idutilizador as idautor 
+              FROM comentario c
+              JOIN publicacao p ON c.idpublicacao = p.idpublicacao
+              WHERE c.idcomentario = ?";
+    $stmt = mysqli_prepare($con, $query);
 
-if (!$comentario) {
-    echo json_encode(['success' => false, 'message' => 'Comentário não encontrado']);
-    exit;
-}
+    if (!$stmt) {
+        throw new Exception("Erro na preparação da query: " . mysqli_error($con));
+    }
 
-if ($comentario['idutilizador'] != $_SESSION['idutilizador']) {
-    echo json_encode(['success' => false, 'message' => 'Não autorizado']);
-    exit;
-}
+    mysqli_stmt_bind_param($stmt, "i", $idComentario);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-// Apagar o comentário
-$query = "DELETE FROM comentario WHERE idcomentario = ?";
-$stmt = mysqli_prepare($con, $query);
-mysqli_stmt_bind_param($stmt, "i", $idComentario);
-$success = mysqli_stmt_execute($stmt);
+    if (mysqli_num_rows($result) === 0) {
+        echo json_encode(['success' => false, 'message' => 'Comentário não encontrado']);
+        exit;
+    }
 
-if ($success) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Erro ao apagar comentário']);
+    $comentario = mysqli_fetch_assoc($result);
+
+    // Verificar permissões
+    if (
+        $comentario['idutilizador'] != $_SESSION['idutilizador'] &&
+        $comentario['idautor'] != $_SESSION['idutilizador']
+    ) {
+        echo json_encode(['success' => false, 'message' => 'Não autorizado']);
+        exit;
+    }
+
+    // Apagar o comentário
+    $query = "DELETE FROM comentario WHERE idcomentario = ?";
+    $stmt = mysqli_prepare($con, $query);
+
+    if (!$stmt) {
+        throw new Exception("Erro na preparação da query: " . mysqli_error($con));
+    }
+
+    mysqli_stmt_bind_param($stmt, "i", $idComentario);
+    $success = mysqli_stmt_execute($stmt);
+
+    if ($success) {
+        echo json_encode(['success' => true]);
+    } else {
+        throw new Exception("Erro ao executar a query: " . mysqli_error($con));
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro: ' . $e->getMessage()
+    ]);
 }

@@ -17,7 +17,7 @@ if (!isset($_GET["idpublicacao"])) {
 $idpublicacao = intval($_GET["idpublicacao"]);
 
 try {
-    $sql = "SELECT c.conteudo, c.data, u.user, u.ft_perfil 
+    $sql = "SELECT c.idcomentario, c.idutilizador, c.conteudo, c.data, u.user, u.ft_perfil 
             FROM comentario c
             JOIN utilizador u ON c.idutilizador = u.idutilizador
             WHERE c.idpublicacao = ?

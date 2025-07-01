@@ -172,8 +172,20 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         .media-grid.triple {
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
+            grid-template-areas:
+                "first first"
+                "second third";
+        }
+
+        .media-item.first-triple {
+            grid-area: first;
+            height: 100%;
+        }
+
+        .media-item:not(.first-triple) {
+            height: 100%;
         }
 
         .media-grid.multiple {
@@ -791,6 +803,19 @@ $publicacoes = mysqli_query($con, $sql);
             transition: all 0.3s ease;
             border-radius: 2px 2px 0 0;
         }
+
+        /* Estilo para o popup de confirmação */
+        #confirmPopup {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #confirmPopup .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+        }
     </style>
 </head>
 
@@ -890,8 +915,9 @@ $publicacoes = mysqli_query($con, $sql);
                                 <?php
                                 $medias_to_show = ($total_medias > 4) ? array_slice($medias, 0, 4) : $medias;
                                 foreach ($medias_to_show as $index => $media):
+                                    $first_triple_class = ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '';
                                     ?>
-                                    <div class="media-item <?= ($grid_class == 'triple' && $index == 0) ? 'first-triple' : '' ?>"
+                                    <div class="media-item <?= $first_triple_class ?>"
                                         onclick="abrirModalImagem(<?= $publicacao['idpublicacao'] ?>, <?= $index ?>)">
                                         <?php if ($media['tipo'] == 'video'): ?>
                                             <video muted controls>
@@ -1078,7 +1104,6 @@ $publicacoes = mysqli_query($con, $sql);
             </div>
         </div>
     </div>
-
     <script>
         // Variáveis globais para o modal de imagem
         let currentPostId = null;
@@ -1098,9 +1123,10 @@ $publicacoes = mysqli_query($con, $sql);
         }
 
         async function apagarComentario(button, idUtilizadorLogado, idComentario) {
-            if (!confirm('Tem certeza que deseja apagar este comentário?')) {
-                return;
-            }
+            // Usar confirm padrão do navegador
+            const confirmacao = confirm("Tem certeza que deseja apagar este comentário?");
+
+            if (!confirmacao) return;
 
             try {
                 const response = await fetch('interacoes/apagar_comentario.php', {
@@ -1114,27 +1140,46 @@ $publicacoes = mysqli_query($con, $sql);
                 const data = await response.json();
 
                 if (data.success) {
-                    // Remove o elemento do comentário
-                    button.closest('.flex.gap-3').remove();
+                    // Remove o comentário com animação
+                    const commentElement = button.closest('.flex.gap-3');
+                    commentElement.style.transition = 'opacity 0.3s, transform 0.3s';
+                    commentElement.style.opacity = '0';
+                    commentElement.style.transform = 'translateX(20px)';
 
-                    // Se não houver mais comentários, mostra mensagem
-                    const comentariosContainer = document.getElementById('comentarios');
-                    if (comentariosContainer.children.length === 1) { // Apenas o template
-                        const noComments = document.createElement('p');
-                        noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
-                        noComments.style.textAlign = 'center';
-                        noComments.style.color = '#666';
-                        noComments.style.padding = '20px';
-                        comentariosContainer.appendChild(noComments);
-                    }
+                    setTimeout(() => {
+                        commentElement.remove();
+
+                        // Verifica se não há mais comentários
+                        const comentariosContainer = document.getElementById('comentarios');
+                        if (comentariosContainer.children.length === 1) { // Apenas o template
+                            const noComments = document.createElement('p');
+                            noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                            noComments.style.textAlign = 'center';
+                            noComments.style.color = '#666';
+                            noComments.style.padding = '20px';
+                            comentariosContainer.appendChild(noComments);
+                        }
+                    }, 300);
                 } else {
-                    alert('Erro ao apagar comentário: ' + data.message);
+                    alert('Erro ao apagar comentário: ' + (data.message || 'Erro desconhecido'));
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao apagar comentário');
+                alert('Erro ao apagar comentário: ' + error.message);
             }
         }
+        function verificarComentariosRestantes() {
+            const comentariosContainer = document.getElementById('comentarios');
+            if (comentariosContainer.children.length === 1) { // Apenas o template
+                const noComments = document.createElement('p');
+                noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                noComments.className = 'text-center text-gray-500 py-5';
+                comentariosContainer.appendChild(noComments);
+            }
+        }
+
+        // Função para mostrar notificação bonita
+
 
         // Função para toggle do menu de opções
         function toggleOptions(postId) {
@@ -1415,6 +1460,7 @@ $publicacoes = mysqli_query($con, $sql);
         });
 
         // Função para carregar comentários
+        // Função para carregar comentários
         async function carregarComentarios(postId) {
             try {
                 const response = await fetch(`interacoes/obter_comentarios.php?idpublicacao=${postId}`);
@@ -1477,10 +1523,10 @@ $publicacoes = mysqli_query($con, $sql);
                 console.error('Erro ao carregar comentários:', error);
                 const comentariosContainer = document.getElementById('comentarios');
                 comentariosContainer.innerHTML = `
-                    <p style="color: red; text-align: center; padding: 20px;">
-                        Erro ao carregar comentários: ${error.message}
-                    </p>
-                `;
+            <p style="color: red; text-align: center; padding: 20px;">
+                Erro ao carregar comentários: ${error.message}
+            </p>
+        `;
             }
         }
 
@@ -1716,7 +1762,7 @@ $publicacoes = mysqli_query($con, $sql);
                     // Adicionar os novos posts
                     newPosts.forEach(post => {
                         container.appendChild(post);
-                    // Observar o novo post para animação
+                        // Observar o novo post para animação
                         post.style.opacity = '0';
                         post.style.transform = 'translateY(30px)';
                         post.style.transition = 'opacity 0.5s ease, transform 0.5s ease';

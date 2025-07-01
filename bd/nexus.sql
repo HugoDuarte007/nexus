@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 25-Jun-2025 às 18:34
+-- Tempo de geração: 30-Jun-2025 às 19:17
 -- Versão do servidor: 10.4.32-MariaDB
 -- versão do PHP: 8.2.12
 
@@ -32,13 +32,6 @@ CREATE TABLE `banidos` (
   `idutilizador` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Extraindo dados da tabela `banidos`
---
-
-INSERT INTO `banidos` (`idbanimento`, `idutilizador`) VALUES
-(21, 64);
-
 -- --------------------------------------------------------
 
 --
@@ -58,11 +51,10 @@ CREATE TABLE `comentario` (
 --
 
 INSERT INTO `comentario` (`idcomentario`, `idutilizador`, `idpublicacao`, `conteudo`, `data`) VALUES
-(20, 2, 76, 'a', '2025-06-25 10:46:37'),
-(21, 2, 76, 'a', '2025-06-25 11:12:51'),
 (22, 81, 81, 'a', '2025-06-25 15:21:28'),
 (23, 2, 81, 'GOAT is back', '2025-06-25 15:30:07'),
-(24, 2, 82, 'Dudzz é rabolho', '2025-06-25 15:57:41');
+(25, 2, 85, '216', '2025-06-26 16:33:50'),
+(27, 2, 86, 'a', '2025-06-30 12:18:51');
 
 -- --------------------------------------------------------
 
@@ -82,7 +74,8 @@ CREATE TABLE `guardado` (
 
 INSERT INTO `guardado` (`idpublicacao`, `idutilizador`, `data_guardado`) VALUES
 (81, 2, '2025-06-25'),
-(76, 2, '2025-06-25');
+(81, 81, '2025-06-25'),
+(89, 2, '2025-06-30');
 
 -- --------------------------------------------------------
 
@@ -102,10 +95,9 @@ CREATE TABLE `likes` (
 --
 
 INSERT INTO `likes` (`id`, `idutilizador`, `idpublicacao`, `data`) VALUES
-(4, 81, 81, '2025-06-25 16:25:11'),
-(5, 81, 76, '2025-06-25 16:25:20'),
-(6, 81, 74, '2025-06-25 16:25:21'),
-(7, 2, 81, '2025-06-25 16:30:10');
+(36, 2, 85, '2025-06-26 17:44:35'),
+(37, 2, 84, '2025-06-26 17:44:36'),
+(39, 2, 81, '2025-06-26 17:44:38');
 
 -- --------------------------------------------------------
 
@@ -136,35 +128,20 @@ INSERT INTO `listadestinatarios` (`idlistadestinatarios`, `idmensagem`, `iddesti
 (9, 12, 14, 1),
 (10, 13, 14, 1),
 (11, 14, 14, 1),
-(12, 15, 2, 1),
-(13, 16, 2, 1),
-(14, 17, 2, 1),
-(15, 18, 2, 1),
-(16, 19, 2, 1),
-(17, 20, 2, 1),
-(18, 21, 1, 0),
-(19, 22, 2, 1),
-(20, 23, 2, 1),
-(21, 24, 2, 1),
-(22, 25, 2, 1),
 (23, 26, 14, 1),
-(24, 27, 15, 1),
-(25, 28, 15, 1),
-(26, 29, 15, 1),
-(27, 30, 2, 1),
-(28, 31, 2, 1),
-(29, 32, 2, 1),
 (30, 33, 2, 1),
 (31, 34, 2, 1),
 (32, 35, 2, 1),
-(33, 36, 15, 1),
-(34, 37, 15, 1),
-(35, 38, 2, 1),
 (36, 39, 14, 1),
-(37, 40, 15, 0),
+(37, 40, 15, 1),
 (38, 41, 14, 1),
 (39, 42, 14, 1),
-(40, 43, 14, 1);
+(40, 43, 14, 1),
+(41, 44, 81, 1),
+(42, 45, 2, 1),
+(43, 46, 81, 1),
+(44, 47, 81, 1),
+(45, 48, 14, 1);
 
 -- --------------------------------------------------------
 
@@ -195,35 +172,21 @@ INSERT INTO `mensagem` (`idmensagem`, `mensagem`, `idremetente`, `dataenvio`) VA
 (12, 'aloo', 2, '2025-06-19 18:27:27'),
 (13, 'bofa', 2, '2025-06-19 18:27:44'),
 (14, 'boda di bofa violeta', 2, '2025-06-19 18:28:26'),
-(15, 'boda di bofa violeta', 15, '2025-06-19 18:28:26'),
-(16, 'oi oi oiii', 15, '2025-06-19 20:18:53'),
-(17, 'a\r\na\r\na\r\na\r\na\r\na', 15, '2025-06-19 20:18:57'),
-(18, 'a', 15, '2025-06-19 20:18:58'),
-(19, 'a', 15, '2025-06-19 20:18:59'),
-(20, 'aaaaaaa\r\na\r\n\r\na\r\na\r\n\r\na\r\n\r\na\r\n\r\na\r\na\r\n\r\na\r\n\r\na\r\n\r\na\r\na\r\n\r\na\r\na\r\na', 15, '2025-06-19 20:19:03'),
 (21, 'alooo', 15, '2025-06-19 20:19:55'),
-(22, 'oiii', 15, '2025-06-19 20:53:04'),
-(23, 'aloo\r\nasdoasd', 15, '2025-06-19 20:53:08'),
-(24, 'dasljdnaskjdas', 15, '2025-06-19 20:53:18'),
-(25, 'dasljdjsaldjasljldasjd\r\n\r\n\r\ndasldjasljdas', 15, '2025-06-19 20:53:24'),
 (26, 'aloooooooooooooooooo', 15, '2025-06-19 20:53:59'),
-(27, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 2, '2025-06-19 20:59:57'),
-(28, 'bofa di bofa violeta', 2, '2025-06-20 12:46:57'),
-(29, 'bofa di bofa violeta aaaaaaaaaaa', 2, '2025-06-20 13:13:52'),
-(30, 'a', 15, '2025-06-20 13:14:26'),
-(31, 'a', 15, '2025-06-20 13:14:29'),
-(32, 'a', 15, '2025-06-20 13:14:31'),
 (33, 'modibo', 14, '2025-06-20 13:14:56'),
 (34, 'hoje tem granja', 14, '2025-06-20 13:15:02'),
 (35, 'di ulmeiro', 14, '2025-06-20 13:15:08'),
-(36, 'a', 2, '2025-06-20 13:16:28'),
-(37, 'a', 2, '2025-06-20 13:16:30'),
-(38, 'aloooooo', 15, '2025-06-20 16:12:24'),
 (39, 'YEAAAAAAAAAAAAAA', 2, '2025-06-23 13:42:15'),
 (40, 'modibofa violeta', 14, '2025-06-23 17:37:32'),
 (41, 'alooooooooo', 2, '2025-06-25 17:01:42'),
 (42, 'tas ocupada', 2, '2025-06-25 17:01:46'),
-(43, 'tas a fim de ver nascer a mnh', 2, '2025-06-25 17:01:51');
+(43, 'tas a fim de ver nascer a mnh', 2, '2025-06-25 17:01:51'),
+(44, 's1mple vai assinar em definitivo?', 2, '2025-06-25 18:51:10'),
+(45, 'sim vai', 81, '2025-06-25 18:51:21'),
+(46, 'NO WAY', 2, '2025-06-25 18:52:04'),
+(47, '💚', 2, '2025-06-25 18:53:11'),
+(48, 'silva es gay', 2, '2025-06-26 19:17:33');
 
 -- --------------------------------------------------------
 
@@ -243,11 +206,12 @@ CREATE TABLE `publicacao` (
 --
 
 INSERT INTO `publicacao` (`idpublicacao`, `idutilizador`, `descricao`, `data`) VALUES
-(72, 14, NULL, '2025-06-23 17:14:26'),
 (74, 2, NULL, '2025-06-24 12:05:08'),
-(76, 2, NULL, '2025-06-24 14:08:34'),
 (81, 81, 'Welcome s1mple', '2025-06-25 15:21:20'),
-(82, 2, NULL, '2025-06-25 15:43:07');
+(84, 2, NULL, '2025-06-26 15:35:01'),
+(85, 64, 'MonoBofa', '2025-06-26 16:02:25'),
+(86, 15, NULL, '2025-06-26 16:04:43'),
+(89, 2, 'Absoluto Cinema', '2025-06-30 14:54:45');
 
 -- --------------------------------------------------------
 
@@ -269,12 +233,15 @@ CREATE TABLE `publicacao_media` (
 --
 
 INSERT INTO `publicacao_media` (`id`, `idpublicacao`, `media`, `tipo`, `ordem`, `data_upload`) VALUES
-(29, 72, 'vid_68597d62c9a733.05129783.mp4', 'video', 1, '2025-06-23 16:14:26'),
 (32, 74, 'vid_685a8664109873.96887681.mp4', 'video', 1, '2025-06-24 11:05:08'),
 (33, 74, 'vid_685a8664112473.97461963.mp4', 'video', 2, '2025-06-24 11:05:08'),
-(37, 76, 'vid_685aa352639963.90791896.mp4', 'video', 1, '2025-06-24 13:08:34'),
 (42, 81, 'pub_685c05e053aaa1.72155365.jpg', 'imagem', 1, '2025-06-25 14:21:20'),
-(43, 82, 'pub_685c0afbb95214.54385530.png', 'imagem', 1, '2025-06-25 14:43:07');
+(45, 84, 'pub_685d5a952ee4c2.41944466.png', 'imagem', 1, '2025-06-26 14:35:01'),
+(46, 84, 'pub_685d5a952f1df3.56467555.jpg', 'imagem', 2, '2025-06-26 14:35:01'),
+(47, 84, 'pub_685d5a952f4ce9.10408379.jpg', 'imagem', 3, '2025-06-26 14:35:01'),
+(48, 85, 'pub_685d6101787f75.71140694.jpg', 'imagem', 1, '2025-06-26 15:02:25'),
+(49, 86, 'pub_685d618b4624e4.70965470.png', 'imagem', 1, '2025-06-26 15:04:43'),
+(56, 89, 'pub_686297258e8523.90633783.png', 'imagem', 1, '2025-06-30 13:54:45');
 
 -- --------------------------------------------------------
 
@@ -293,13 +260,15 @@ CREATE TABLE `seguidor` (
 --
 
 INSERT INTO `seguidor` (`id_seguidor`, `id_seguido`, `data_seguido`) VALUES
-(2, 64, '2025-06-13'),
 (15, 2, '2025-06-19'),
 (15, 64, '2025-06-20'),
-(2, 15, '2025-06-23'),
 (14, 2, '2025-06-23'),
-(2, 14, '2025-06-24'),
-(14, 81, '2025-06-25');
+(14, 81, '2025-06-25'),
+(2, 81, '2025-06-25'),
+(81, 2, '2025-06-25'),
+(81, 14, '2025-06-25'),
+(64, 2, '2025-06-26'),
+(2, 15, '2025-06-30');
 
 -- --------------------------------------------------------
 
@@ -479,43 +448,43 @@ ALTER TABLE `banidos`
 -- AUTO_INCREMENT de tabela `comentario`
 --
 ALTER TABLE `comentario`
-  MODIFY `idcomentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `idcomentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de tabela `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT de tabela `listadestinatarios`
 --
 ALTER TABLE `listadestinatarios`
-  MODIFY `idlistadestinatarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `idlistadestinatarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de tabela `mensagem`
 --
 ALTER TABLE `mensagem`
-  MODIFY `idmensagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `idmensagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT de tabela `publicacao`
 --
 ALTER TABLE `publicacao`
-  MODIFY `idpublicacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `idpublicacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT de tabela `publicacao_media`
 --
 ALTER TABLE `publicacao_media`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT de tabela `utilizador`
 --
 ALTER TABLE `utilizador`
-  MODIFY `idutilizador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+  MODIFY `idutilizador` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT de tabela `vizualizacoes`
