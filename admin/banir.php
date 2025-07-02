@@ -43,10 +43,8 @@ if ($n_registos > 0) {
         exit();
     }
 
-    /*$assunto = "Conta Reativada - Nexus";
-    $mensagem = "Olá,\n\nInformamos que a sua conta na NEXUS foi reativada e já pode voltar a utilizar os nossos serviços.\n\nCumprimentos,\nEquipa Nexus.";
-    mail($email_utilizador, $assunto, $mensagem, "From: geral.nexusapp@gmail.com\r\nContent-Type: text/plain; charset=UTF-8\r\n");*/
-
+    $_SESSION["sucesso"] = "Utilizador desbanido com sucesso.";
+    $_SESSION["banido"] = false; // Adiciona esta linha
 } else {
     $sql_banir = "INSERT INTO banidos (idbanimento, idutilizador) VALUES (NULL, '$idutilizador')";
     $banir = mysqli_query($con, $sql_banir);
@@ -57,10 +55,8 @@ if ($n_registos > 0) {
         exit();
     }
 
-    /*$assunto = "Conta Banida - Nexus";
-    $mensagem = "Olá,\n\nInformamos que a sua conta na NEXUS foi banida devido a uma violação dos nossos termos e condições.\n\nSe acha que isso foi um erro, entre em contato com o suporte.\n\nCumprimentos,\nEquipa Nexus.";
-    mail($email_utilizador, $assunto, $mensagem, "From: geral.nexusapp@gmail.com\r\nContent-Type: text/plain; charset=UTF-8\r\n");*/
-
+    $_SESSION["sucesso"] = "Utilizador banido com sucesso.";
+    $_SESSION["banido"] = true; // Adiciona esta linha
 }
 
 header("Location: utilizadores.php");

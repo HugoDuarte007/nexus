@@ -312,7 +312,7 @@ function isImage($filename)
                                         <span class="perfil-post-user"><?= htmlspecialchars($pub['user']); ?></span>
                                         <span class="perfil-post-time"><?= date("d/m/Y H:i", strtotime($pub['data'])); ?></span>
 
-                                        <?php if ($perfil_utilizador == $utilizador): ?>
+                                        <?php if ($perfil_utilizador == $utilizador && !$viewingSaved): ?>
                                             <button class="delete-post-btn" onclick="confirmarDelete(<?= $pub['idpublicacao'] ?>)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                     viewBox="0 0 16 16">
@@ -320,6 +320,17 @@ function isImage($filename)
                                                         d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                                     <path fill-rule="evenodd"
                                                         d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                </svg>
+                                            </button>
+                                        <?php endif; ?>
+
+                                        <?php if ($viewingSaved): ?>
+                                            <button class="save-post-btn"
+                                                onclick="removerDosGuardados(<?= $pub['idpublicacao'] ?>)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#FFA500"
+                                                    viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
                                                 </svg>
                                             </button>
                                         <?php endif; ?>
@@ -377,6 +388,13 @@ function isImage($filename)
 
                                 <div>
                                     <div class="perfil-post-actions">
+                                        <div class="perfil-post-action" onclick="toggleLike(<?= $pub['idpublicacao'] ?>, this)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                            </svg>
+                                            <span class="like-count"><?= count($like) ?></span>
+                                        </div>
                                         <div class="perfil-post-action"
                                             onclick="abrirModalVerPublicacao(<?= $pub['idpublicacao'] ?>)">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -384,20 +402,6 @@ function isImage($filename)
                                                     d="M20 2H4a2 2 0 0 0-2 2v15.17L5.17 16H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
                                             </svg>
                                             <span><?= count($comentarios) ?></span>
-                                        </div>
-                                        <div class="perfil-post-action">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path
-                                                    d="M23 7l-5-5v3H6c-1.1 0-2 .9-2 2v5h2V7h12v3l5-5zM1 17l5 5v-3h12c1.1 0 2-.9 2-2v-5h-2v5H6v-3l-5 5z" />
-                                            </svg>
-                                            <span>0</span>
-                                        </div>
-                                        <div class="perfil-post-action">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path
-                                                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                            </svg>
-                                            <span><?= count($like) ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -510,6 +514,18 @@ function isImage($filename)
                                             <span
                                                 class="comentario-username font-semibold text-sm text-gray-800"></span>
                                             <span class="comentario-data text-xs text-gray-500"></span>
+                                            <button
+                                                class="delete-comment-btn ml-auto text-red-500 hover:text-red-700 text-xs"
+                                                onclick="apagarComentario(this, <?= $_SESSION['idutilizador'] ?>, '%%IDCOMENTARIO%%')"
+                                                style="display: none;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                    fill="currentColor" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                    <path fill-rule="evenodd"
+                                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                </svg>
+                                            </button>
                                         </div>
                                         <p class="comentario-conteudo text-gray-800 text-sm" style="text-align:left;">
                                         </p>
@@ -862,17 +878,90 @@ function isImage($filename)
         }
 
         // Função para carregar comentários
+        // Função para toggle like
+        async function toggleLike(postId, element) {
+            try {
+                const formData = new FormData();
+                formData.append('idpublicacao', postId);
+
+                const response = await fetch('../main/interacoes/like.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.text();
+                const likeCount = element.querySelector('.like-count');
+                let currentCount = parseInt(likeCount.textContent);
+
+                if (result === 'liked') {
+                    element.classList.add('liked');
+                    likeCount.textContent = currentCount + 1;
+                } else if (result === 'unliked') {
+                    element.classList.remove('liked');
+                    likeCount.textContent = Math.max(0, currentCount - 1);
+                }
+            } catch (error) {
+                console.error('Erro ao dar like:', error);
+            }
+        }
+
+        // Função para apagar comentário
+        async function apagarComentario(button, idUtilizadorLogado, idComentario) {
+            // Usar confirm padrão do navegador
+            const confirmacao = confirm("Tem certeza que deseja apagar este comentário?");
+
+            if (!confirmacao) return;
+
+            try {
+                const response = await fetch('../main/interacoes/apagar_comentario.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `idcomentario=${idComentario}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove o comentário com animação
+                    const commentElement = button.closest('.flex.gap-3');
+                    commentElement.style.transition = 'opacity 0.3s, transform 0.3s';
+                    commentElement.style.opacity = '0';
+                    commentElement.style.transform = 'translateX(20px)';
+
+                    setTimeout(() => {
+                        commentElement.remove();
+
+                        // Verifica se não há mais comentários
+                        const comentariosContainer = document.getElementById('comentarios');
+                        if (comentariosContainer.children.length === 1) { // Apenas o template
+                            const noComments = document.createElement('p');
+                            noComments.textContent = 'Nenhum comentário ainda. Seja o primeiro a comentar!';
+                            noComments.style.textAlign = 'center';
+                            noComments.style.color = '#666';
+                            noComments.style.padding = '20px';
+                            comentariosContainer.appendChild(noComments);
+                        }
+                    }, 300);
+                } else {
+                    alert('Erro ao apagar comentário: ' + (data.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao apagar comentário: ' + error.message);
+            }
+        }
+
+        // Atualize a função carregarComentarios para mostrar o botão de apagar quando apropriado
         async function carregarComentarios(postId) {
             try {
                 const response = await fetch(`../main/interacoes/obter_comentarios.php?idpublicacao=${postId}`);
-
-                if (!response.ok) {
-                    throw new Error('Erro na resposta do servidor');
-                }
-
                 const comentarios = await response.json();
                 const comentariosContainer = document.getElementById('comentarios');
                 const template = document.getElementById('comentarioTemplate');
+                const idUtilizadorLogado = <?= $_SESSION['idutilizador'] ?>;
+                const idAutorPublicacao = document.getElementById('modalPerfilLink').href.split('id=')[1];
 
                 // Limpar comentários existentes (exceto o template)
                 comentariosContainer.innerHTML = '';
@@ -896,6 +985,23 @@ function isImage($filename)
                         comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
                         comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
 
+                        // Configurar botão de apagar
+                        const deleteBtn = comentarioElement.querySelector('.delete-comment-btn');
+                        deleteBtn.setAttribute('onclick', `apagarComentario(this, ${idUtilizadorLogado}, ${comentario.idcomentario})`);
+
+                        // Mostrar o botão de apagar se:
+                        // 1. O usuário logado é o autor do comentário OU
+                        // 2. O usuário logado é o autor da publicação
+                        if (comentario.idutilizador == idUtilizadorLogado || idUtilizadorLogado == idAutorPublicacao) {
+                            deleteBtn.style.display = 'block';
+                        } else {
+                            deleteBtn.style.display = 'none';
+                        }
+
+                        // Remover o placeholder %%IDCOMENTARIO%% do template
+                        const deleteBtnHtml = deleteBtn.outerHTML.replace('%%IDCOMENTARIO%%', comentario.idcomentario);
+                        deleteBtn.outerHTML = deleteBtnHtml;
+
                         comentariosContainer.appendChild(comentarioElement);
                     });
                 } else {
@@ -916,7 +1022,6 @@ function isImage($filename)
         `;
             }
         }
-
         // Função auxiliar para formatar data (adicione ao seu código)
         function formatarData(dataString) {
             const data = new Date(dataString);
@@ -1037,6 +1142,29 @@ function isImage($filename)
                 });
         }
 
+        function removerDosGuardados(idPublicacao) {
+            fetch('../main/interacoes/remover_guardado.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'idpublicacao=' + idPublicacao
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove a publicação da lista ou recarrega a página
+                        window.location.reload();
+                    } else {
+                        alert('Erro ao remover dos guardados: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao conectar com o servidor');
+                });
+        }
+
         function criarItemUtilizador(user) {
             const li = document.createElement('li');
 
@@ -1103,7 +1231,7 @@ function isImage($filename)
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'id_publicacao=' + idPublicacao
+                body: 'idpublicacao=' + idPublicacao
             })
                 .then(response => response.json())
                 .then(data => {

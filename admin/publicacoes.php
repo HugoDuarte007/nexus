@@ -143,7 +143,7 @@ $resultado = mysqli_query($con, $sql);
 
         .post-media {
             max-width: 100%;
-            max-height: 400px;
+            max-height: 100%;
             margin-bottom: 20px;
             border-radius: 8px;
             display: block;

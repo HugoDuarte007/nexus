@@ -93,7 +93,12 @@ if (!$resultado) {
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-banido {
+            background-color: red;
+            color: white;
         }
 
         .modal-content {
@@ -132,7 +137,7 @@ if (!$resultado) {
 
 <body><br>
     <h1><img src="../imagens/logo.png" alt="Logo"> Gestão de Utilizadores</h1>
-    
+
     <!-- Modal de confirmação -->
     <div id="modalConfirmacao" class="modal">
         <div class="modal-content">
@@ -156,12 +161,12 @@ if (!$resultado) {
 
     <script>
         var formParaRemover = "";
-        
+
         function remover(idForm) {
             formParaRemover = idForm;
             document.getElementById('modalConfirmacao').style.display = 'block';
         }
-        
+
         function confirmarRemocao() {
             if (formParaRemover) {
                 // Adicionar o campo botaoRemover ao formulário
@@ -171,28 +176,29 @@ if (!$resultado) {
                 hiddenInput.name = 'botaoRemover';
                 hiddenInput.value = 'true';
                 form.appendChild(hiddenInput);
-                
+
                 // Definir a ação e submeter
                 form.action = "remover.php";
                 form.submit();
             }
         }
-        
+
         function fecharModal() {
             document.getElementById('modalConfirmacao').style.display = 'none';
             formParaRemover = "";
         }
-        
+
         function gravar(idForm) {
             document.getElementById(idForm).action = "gravar.php";
         }
-        
+
         function banir(idForm) {
             document.getElementById(idForm).action = "banir.php";
+            document.getElementById(idForm).submit();
         }
 
         // Fechar modal ao clicar fora dele
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             var modal = document.getElementById('modalConfirmacao');
             if (event.target == modal) {
                 fecharModal();
@@ -251,7 +257,12 @@ if (!$resultado) {
             </tr>
         </form>
 
-        <?php while ($registo = mysqli_fetch_array($resultado)): ?>
+        <?php while ($registo = mysqli_fetch_array($resultado)):
+            // Verifica se o usuário está banido
+            $sql_banido = "SELECT * FROM banidos WHERE idutilizador = '" . $registo["idutilizador"] . "'";
+            $result_banido = mysqli_query($con, $sql_banido);
+            $esta_banido = mysqli_num_rows($result_banido) > 0;
+            ?>
             <form id='form<?= $registo["idutilizador"] ?>' action='' method='post' enctype='multipart/form-data'>
                 <tr>
                     <td hidden>
@@ -282,8 +293,8 @@ if (!$resultado) {
                         </select>
                     </td>
                     <td>
-                        <button type="button" onclick='remover("form<?= $registo["idutilizador"] ?>")' 
-                                <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>>Remover</button>
+                        <button type="button" onclick='remover("form<?= $registo["idutilizador"] ?>")'
+                            <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>>Remover</button>
                     </td>
                     <td>
                         <button id='botaoGravar' name='botaoGravar'
@@ -291,7 +302,10 @@ if (!$resultado) {
                     </td>
                     <td>
                         <button id='botaoBanir' name='botaoBanir' onclick='banir("form<?= $registo["idutilizador"] ?>")'
-                            <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>>Banir</button>
+                            <?= ($registo["user"] == "admin" || $registo["id_tipos_utilizador"] == 0) ? "disabled" : "" ?>
+                            style="<?= $esta_banido ? 'background-color: red; color: white;' : '' ?>">
+                            <?= $esta_banido ? 'Desbanir' : 'Banir' ?>
+                        </button>
                     </td>
                 </tr>
             </form>

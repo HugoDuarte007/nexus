@@ -54,23 +54,54 @@ $resultAllPosts = mysqli_query($con, $sqlAllPosts);
 $sqlRecentUsers = "SELECT nome, data_registo FROM utilizador ORDER BY data_registo DESC LIMIT 5";
 $resultRecentUsers = mysqli_query($con, $sqlRecentUsers);
 
-// Buscar atividade recente
-$sqlRecentActivity = "SELECT 
+// Buscar atividade recente (CORRIGIDO)
+// Buscar atividade recente (versão corrigida)
+$sqlRecentActivity = "(SELECT 
                         u.nome, 
                         u.idutilizador,
-                        CASE 
-                            WHEN p.idpublicacao IS NOT NULL THEN 'publicou'
-                            WHEN c.idcomentario IS NOT NULL THEN 'comentou'
-                            WHEN l.id IS NOT NULL THEN 'curtiu'
-                        END as acao,
-                        COALESCE(p.data, c.data, l.data) as data_acao,
+                        'publicou' as acao,
+                        p.data as data_acao,
                         p.idpublicacao,
-                        p.descricao as post_descricao
-                      FROM utilizador u
-                      LEFT JOIN publicacao p ON u.idutilizador = p.idutilizador
-                      LEFT JOIN comentario c ON u.idutilizador = c.idutilizador
-                      LEFT JOIN likes l ON u.idutilizador = l.idutilizador
-                      WHERE p.idpublicacao IS NOT NULL OR c.idcomentario IS NOT NULL OR l.id IS NOT NULL
+                        p.descricao as post_descricao,
+                        NULL as comentario_id,
+                        NULL as like_id
+                      FROM publicacao p
+                      JOIN utilizador u ON p.idutilizador = u.idutilizador
+                      ORDER BY p.data DESC
+                      LIMIT 5)
+                      
+                      UNION ALL
+                      
+                      (SELECT 
+                        u.nome, 
+                        u.idutilizador,
+                        'comentou' as acao,
+                        c.data as data_acao,
+                        c.idpublicacao,
+                        NULL as post_descricao,
+                        c.idcomentario as comentario_id,
+                        NULL as like_id
+                      FROM comentario c
+                      JOIN utilizador u ON c.idutilizador = u.idutilizador
+                      ORDER BY c.data DESC
+                      LIMIT 5)
+                      
+                      UNION ALL
+                      
+                      (SELECT 
+                        u.nome, 
+                        u.idutilizador,
+                        'curtiu' as acao,
+                        l.data as data_acao,
+                        l.idpublicacao,
+                        NULL as post_descricao,
+                        NULL as comentario_id,
+                        l.id as like_id
+                      FROM likes l
+                      JOIN utilizador u ON l.idutilizador = u.idutilizador
+                      ORDER BY l.data DESC
+                      LIMIT 5)
+                      
                       ORDER BY data_acao DESC
                       LIMIT 5";
 $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
@@ -412,7 +443,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                         <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
                         <?php if ($activity['acao'] == 'publicou' && $activity['idpublicacao']): ?>
                             <button class="view-btn"
-                                onclick="loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['post_descricao'])) ?>', event)">Ver</button>
+                                onclick="loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes(substr($activity['post_descricao'], 0, 100))) ?>', event)">Ver</button>
                         <?php endif; ?>
                         <div class="activity-time"><?= $activity['data_acao'] ?></div>
                     </div>
@@ -468,7 +499,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                     <?php while ($post = mysqli_fetch_assoc($resultAllPosts)): ?>
                         <tr>
                             <td><?= $post['idpublicacao'] ?></td>
-                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50)) ?>...</td>
+                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50) ?? "")  ?>...</td>
                             <td><?= htmlspecialchars($post['autor']) ?></td>
                             <td><?= $post['data'] ?></td>
                             <td><button class="view-btn"

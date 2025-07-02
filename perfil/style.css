@@ -810,6 +810,18 @@ body {
     color: #d1d5db;
 }
 
+.save-post-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.save-post-btn:hover {
+    opacity: 0.8;
+}
+
 .loading {
     text-align: center;
     padding: 20px;
