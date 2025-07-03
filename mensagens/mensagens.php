@@ -89,7 +89,8 @@ if ($destinatario) {
             <div class="messages-header">
                 <h2>Mensagens</h2>
                 <div class="search-bar">
-                    <input type="text" placeholder="Pesquisar pessoas...">
+                    <input type="text" id="searchConversasInput" placeholder="Pesquisar pessoas..."
+                        onkeyup="pesquisarConversas(this)">
                 </div>
             </div>
 
@@ -246,7 +247,28 @@ if ($destinatario) {
     </div>
 
     <script>
-        // Variáveis globais
+
+        // Função para pesquisar conversas
+        function pesquisarConversas(inputEl) {
+            const searchTerm = inputEl.value.toLowerCase();
+            const conversas = document.querySelectorAll('.conversa-item');
+
+            if (searchTerm === "") {
+                conversas.forEach(conversa => {
+                    conversa.style.display = "flex";
+                });
+                return;
+            }
+
+            conversas.forEach(conversa => {
+                const nome = conversa.querySelector('.conversa-nome').textContent.toLowerCase();
+                if (nome.includes(searchTerm)) {
+                    conversa.style.display = "flex";
+                } else {
+                    conversa.style.display = "none";
+                }
+            });
+        }
         let messageToDelete = null;
         const destinatarioAtual = <?= $destinatario ? $destinatario : 'null' ?>;
 

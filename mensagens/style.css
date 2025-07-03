@@ -35,21 +35,24 @@ body {
 }
 
 .search-bar {
-    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 8px 12px 8px 35px;
-    border: 1px solid #dbdbdb;
+    padding: 8px 12px;
     border-radius: 20px;
-    background-color: #f0f2f5;
-    font-size: 0.9rem;
+    border: 1px solid #ddd;
     outline: none;
 }
 
 .search-bar input:focus {
     border-color: #0e2b3b;
+}
+
+.conversa-item {
+    display: flex;
 }
 
 .search-bar::before {

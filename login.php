@@ -178,7 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="form-group">
                     <div class="column">
-                        <label for="checkbox"><a href="forgot_password.php" target="_blank">Esqueceu-se da
+                        <label for="checkbox"><a href="password/forgot_password.php" target="_blank">Esqueceu-se da
                                 palavra-passe?</a></label>
                     </div>
                 </div>

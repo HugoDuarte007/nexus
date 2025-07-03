@@ -135,7 +135,8 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr 1fr;
+            /* Duas colunas de tamanho igual */
             gap: 20px;
             width: 90%;
             margin: 20px auto;
@@ -149,6 +150,8 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: transform 0.3s;
+            width: 100%;
+            /* Ocupa toda a largura disponível */
         }
 
         .stat-card:hover {
@@ -406,17 +409,9 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <h3>Total de Utilizadores</h3>
             <div class="value"><?= $totalUsers ?></div>
         </div>
-        <div class="stat-card" onclick="openModal('postsModal')">
+        <div class="stat-card">
             <h3>Publicações</h3>
             <div class="value"><?= $totalPosts ?></div>
-        </div>
-        <div class="stat-card">
-            <h3>Comentários</h3>
-            <div class="value"><?= $totalComments ?></div>
-        </div>
-        <div class="stat-card">
-            <h3>Likes</h3>
-            <div class="value"><?= $totalLikes ?></div>
         </div>
     </div>
 
@@ -443,7 +438,9 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                         <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
                         <?php if ($activity['acao'] == 'publicou' && $activity['idpublicacao']): ?>
                             <button class="view-btn"
-                                onclick="loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes(substr($activity['post_descricao'], 0, 100))) ?>', event)">Ver</button>
+                                onclick="event.stopPropagation(); loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['post_descricao'] ?? '')) ?>')">
+                                Ver
+                            </button>
                         <?php endif; ?>
                         <div class="activity-time"><?= $activity['data_acao'] ?></div>
                     </div>
@@ -499,7 +496,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                     <?php while ($post = mysqli_fetch_assoc($resultAllPosts)): ?>
                         <tr>
                             <td><?= $post['idpublicacao'] ?></td>
-                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50) ?? "")  ?>...</td>
+                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50) ?? "") ?>...</td>
                             <td><?= htmlspecialchars($post['autor']) ?></td>
                             <td><?= $post['data'] ?></td>
                             <td><button class="view-btn"
@@ -556,12 +553,10 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             }
         }
 
-        // Função para carregar os detalhes da publicação
         function loadPostDetails(postId, postTitle, event) {
             // Prevenir propagação do evento se existir
             if (event) {
                 event.stopPropagation();
-                event.preventDefault();
             }
 
             // Abrir o modal
@@ -605,17 +600,17 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                                 let mediaHtml = '';
                                 if (media.tipo === 'imagem') {
                                     mediaHtml = `
-                                        <img src="../main/publicacoes/${media.media}" alt="Imagem da publicação" class="post-media">
-                                        <div class="media-type-badge">IMG</div>
-                                    `;
+                                <img src="../main/publicacoes/${media.media}" alt="Imagem da publicação" class="post-media">
+                                <div class="media-type-badge">IMG</div>
+                            `;
                                 } else if (media.tipo === 'video') {
                                     mediaHtml = `
-                                        <video controls class="post-video">
-                                            <source src="../main/publicacoes/${media.media}" type="video/mp4">
-                                            Seu navegador não suporta o elemento de vídeo.
-                                        </video>
-                                        <div class="media-type-badge">VID</div>
-                                    `;
+                                <video controls class="post-video">
+                                    <source src="../main/publicacoes/${media.media}" type="video/mp4">
+                                    Seu navegador não suporta o elemento de vídeo.
+                                </video>
+                                <div class="media-type-badge">VID</div>
+                            `;
                                 }
 
                                 mediaItem.innerHTML = mediaHtml;
@@ -638,12 +633,11 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                 }
             });
         }
-
         // Prevenir fechamento acidental do modal
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Adicionar event listeners para os botões de fechar
-            document.querySelectorAll('.close').forEach(function(closeBtn) {
-                closeBtn.addEventListener('click', function(e) {
+            document.querySelectorAll('.close').forEach(function (closeBtn) {
+                closeBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
                     const modal = this.closest('.modal');
                     if (modal) {
@@ -653,8 +647,8 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             });
 
             // Prevenir fechamento quando clicar no conteúdo do modal
-            document.querySelectorAll('.modal-content').forEach(function(content) {
-                content.addEventListener('click', function(e) {
+            document.querySelectorAll('.modal-content').forEach(function (content) {
+                content.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             });

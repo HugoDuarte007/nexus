@@ -167,6 +167,38 @@ $publicacoes = mysqli_query($con, $sql);
             grid-template-columns: 1fr;
         }
 
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0e2b3b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: #1a3d4d;
+            transform: translateY(-2px);
+        }
+
         .media-grid.double {
             grid-template-columns: 1fr 1fr;
         }
@@ -207,7 +239,7 @@ $publicacoes = mysqli_query($con, $sql);
         .media-item img,
         .media-item video {
             width: 100%;
-            max-height: 300px;
+            height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
@@ -642,6 +674,12 @@ $publicacoes = mysqli_query($con, $sql);
             .container {
                 width: 95%;
                 margin-top: 10px;
+            }
+
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 16px;
             }
 
             .post {
@@ -1104,6 +1142,15 @@ $publicacoes = mysqli_query($con, $sql);
             </div>
         </div>
     </div>
+
+    <!-- Botão Voltar ao Topo -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
+        </svg>
+        Voltar ao Topo
+    </button>
     <script>
         // Variáveis globais para o modal de imagem
         let currentPostId = null;
@@ -1785,6 +1832,24 @@ $publicacoes = mysqli_query($con, $sql);
 
             indicator.style.width = `${activeBtn.offsetWidth}px`;
             indicator.style.left = `${activeBtn.offsetLeft}px`;
+        });
+
+        // Botão Voltar ao Topo
+        const backToTopButton = document.getElementById('backToTop');
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        window.addEventListener('scroll', function () {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
         });
     </script>
 </body>
