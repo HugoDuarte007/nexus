@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container" style="justify-content: center;">
         <div class="form-container1">
-            <h2><a href="index.php"><img src="../imagens/logo4.png"></a><br>
+            <h2><a href="../index.php"><img src="../imagens/logo4.png"></a><br>
                 Verificar Código</h2><br>
 
             <p>Foi enviado um código de 6 dígitos para o seu email.</p>

@@ -84,7 +84,6 @@ if ($destinatario) {
     <?php require '../partials/header.php'; ?>
 
     <div class="messages-container">
-        <!-- Sidebar com lista de conversas -->
         <div class="messages-sidebar">
             <div class="messages-header">
                 <h2>Mensagens</h2>
@@ -343,32 +342,30 @@ if ($destinatario) {
                 menu.style.display = 'none';
             }
 
-            // Confirmar e apagar diretamente
-            if (confirm('Tem certeza que deseja apagar esta mensagem?')) {
-                fetch('apagar_mensagem.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'idmensagem=' + messageId
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Remover a mensagem da interface
-                            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                            if (messageElement) {
-                                messageElement.remove();
-                            }
-                        } else {
-                            alert('Erro ao apagar mensagem: ' + data.message);
+            fetch('apagar_mensagem.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'idmensagem=' + messageId
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover a mensagem da interface
+                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                        if (messageElement) {
+                            messageElement.remove();
                         }
-                    })
-                    .catch(error => {
-                        console.error('Erro:', error);
-                        alert('Erro na comunicação com o servidor');
-                    });
-            }
+                    } else {
+                        alert('Erro ao apagar mensagem: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                });
+
         }
 
         // Inicialização quando o DOM estiver pronto

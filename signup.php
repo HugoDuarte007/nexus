@@ -112,7 +112,7 @@ include 'partials/paises.php';
                                 <option value="<?= htmlspecialchars($pais) ?>"><?= htmlspecialchars($pais) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="notificacao" id="erro-pais">Por favor, escolhe um país.</div>
+                        <div class="notificacao" id="erro-pais">Por favor, escolhe o seu país de origem.</div>
                     </div>
                 </div>
                 <div class="form-group">

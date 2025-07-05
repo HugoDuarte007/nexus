@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container" style="justify-content: center;">
         <div class="form-container1">
-            <h2><a href="index.php"><img src="../imagens/logo4.png"></a><br>
+            <h2><a href="../index.php"><img src="../imagens/logo4.png"></a><br>
                 Redefinir Palavra-Passe</h2><br>
 
             <?php if (isset($_SESSION['erro'])) {

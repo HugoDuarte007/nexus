@@ -173,16 +173,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } ?>
                 <div class="form-group">
                     <div class="column">
-                        <button class="login-button" type="submit" class="buttons">Iniciar Sessão</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="column">
                         <label for="checkbox"><a href="password/forgot_password.php" target="_blank">Esqueceu-se da
                                 palavra-passe?</a></label>
                     </div>
+                </div>  
+                <div class="form-group">
+                    <div class="column">
+                        <button class="login-button" type="submit" class="buttons">Iniciar Sessão</button>
+                    </div>
                 </div>
-                <div class="separator">
+
+                <!-- <div class="separator">
                     <span>ou</span>
                 </div><br>
 
@@ -191,7 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <img src="imagens/google.png" alt="Google Icon">
                         Iniciar Sessão com Google
                     </button>
-                </div><br>
+                </div><br> -->
 
                 <div class="form-group">
                     <div class="column">
