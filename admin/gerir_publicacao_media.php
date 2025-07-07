@@ -14,12 +14,12 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     exit();
 }
 
-$idpublicacao = (int)$_GET['id'];
+$idpublicacao = (int) $_GET['id'];
 
 // Processar remoção de mídia se o formulário foi submetido
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_media'])) {
-    $idmedia = (int)$_POST['idmedia'];
-    
+    $idmedia = (int) $_POST['idmedia'];
+
     // Primeiro obtem se o nome do ficheiro para apagar do servidor
     $sql = "SELECT media FROM publicacao_media WHERE id = ?";
     $stmt = mysqli_prepare($con, $sql);
@@ -27,27 +27,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_media'])) {
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     $media = mysqli_fetch_assoc($result);
-    
+
     if ($media) {
         // Apagar o ficheiro do servidor
         $filepath = "../main/publicacoes/" . $media['media'];
         if (file_exists($filepath)) {
             unlink($filepath);
         }
-        
+
         // Apagar o registo da base de dados
         $sql = "DELETE FROM publicacao_media WHERE id = ?";
         $stmt = mysqli_prepare($con, $sql);
         mysqli_stmt_bind_param($stmt, "i", $idmedia);
         if (mysqli_stmt_execute($stmt)) {
-            $_SESSION["sucesso"] = "Mídia removida com sucesso.";
+            // Verificar se a publicação ficou vazia
+            $sql_check = "SELECT COUNT(*) as total FROM publicacao_media WHERE idpublicacao = ?";
+            $stmt_check = mysqli_prepare($con, $sql_check);
+            mysqli_stmt_bind_param($stmt_check, "i", $idpublicacao);
+            mysqli_stmt_execute($stmt_check);
+            $result_check = mysqli_stmt_get_result($stmt_check);
+            $total = mysqli_fetch_assoc($result_check)['total'];
+
+            $sql_descricao = "SELECT descricao FROM publicacao WHERE idpublicacao = ?";
+            $stmt_descricao = mysqli_prepare($con, $sql_descricao);
+            mysqli_stmt_bind_param($stmt_descricao, "i", $idpublicacao);
+            mysqli_stmt_execute($stmt_descricao);
+            $result_descricao = mysqli_stmt_get_result($stmt_descricao);
+            $publicacao_info = mysqli_fetch_assoc($result_descricao);
+
+            // Se não há mídias e a descrição está vazia, apagar a publicação
+            if ($total == 0 && empty($publicacao_info['descricao'])) {
+                $sql_delete_pub = "DELETE FROM publicacao WHERE idpublicacao = ?";
+                $stmt_delete = mysqli_prepare($con, $sql_delete_pub);
+                mysqli_stmt_bind_param($stmt_delete, "i", $idpublicacao);
+                if (mysqli_stmt_execute($stmt_delete)) {
+                    $_SESSION["sucesso"] = "Mídia removida e publicação vazia apagada com sucesso.";
+                    header("Location: publicacoes.php");
+                    exit();
+                } else {
+                    $_SESSION["erro"] = "Mídia removida mas erro ao apagar publicação vazia.";
+                }
+            } else {
+                $_SESSION["sucesso"] = "Mídia removida com sucesso.";
+            }
         } else {
             $_SESSION["erro"] = "Erro ao remover mídia da base de dados.";
         }
-    } else {
-        $_SESSION["erro"] = "Mídia não encontrada.";
     }
-    
+
     // Redirecionar para evitar reenvio do formulário
     header("Location: gerir_publicacao_media.php?id=" . $idpublicacao);
     exit();
@@ -62,7 +89,7 @@ $stmt = mysqli_prepare($con, $sql_publicacao);
 mysqli_stmt_bind_param($stmt, "i", $idpublicacao);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
-$publicacao = mysqli_fetch_assoc($result); 
+$publicacao = mysqli_fetch_assoc($result);
 
 if (!$publicacao) {
     $_SESSION["erro"] = "Publicação não encontrada.";
@@ -80,6 +107,7 @@ $medias = mysqli_stmt_get_result($stmt);
 
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <title>Nexus | Gerir Mídia da Publicação</title>
@@ -92,16 +120,16 @@ $medias = mysqli_stmt_get_result($stmt);
             margin: 0;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
             color: #0e2b3b;
             text-align: center;
@@ -110,74 +138,74 @@ $medias = mysqli_stmt_get_result($stmt);
             align-items: center;
             justify-content: center;
         }
-        
+
         h1 img {
             width: 50px;
             height: auto;
             margin-right: 15px;
         }
-        
+
         .erro {
             color: red;
             font-weight: bold;
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         .sucesso {
             color: green;
             font-weight: bold;
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         .publicacao-info {
             background-color: #f0f8ff;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        
+
         .publicacao-info p {
             margin: 5px 0;
         }
-        
+
         .media-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
-        
+
         .media-item {
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
         }
-        
+
         .media-item img {
             width: 100%;
             height: auto;
             display: block;
         }
-        
+
         .media-item video {
             width: 100%;
             display: block;
         }
-        
+
         .media-info {
             padding: 10px;
             background-color: #f9f9f9;
         }
-        
+
         .media-actions {
             display: flex;
             justify-content: center;
             padding: 10px;
         }
-        
+
         .btn {
             padding: 8px 15px;
             border: none;
@@ -186,16 +214,16 @@ $medias = mysqli_stmt_get_result($stmt);
             font-weight: bold;
             margin: 0 5px;
         }
-        
+
         .btn-remover {
             background-color: #dc3545;
             color: white;
         }
-        
+
         .btn-remover:hover {
             background-color: #c82333;
         }
-        
+
         .btn-voltar {
             background-color: #6c757d;
             color: white;
@@ -204,22 +232,22 @@ $medias = mysqli_stmt_get_result($stmt);
             padding: 10px 15px;
             margin-top: 20px;
         }
-        
+
         .btn-voltar:hover {
             background-color: #5a6268;
         }
-        
+
         .media-type {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
         }
-        
+
         .no-media {
             text-align: center;
             padding: 20px;
@@ -228,28 +256,31 @@ $medias = mysqli_stmt_get_result($stmt);
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1><img src="../imagens/logo.png" alt="Logo"> Gerir Mídia da Publicação #<?= $idpublicacao ?></h1>
-        
+
         <?php if (isset($_SESSION["erro"])): ?>
             <div class="erro"><?= $_SESSION["erro"] ?></div>
             <?php unset($_SESSION["erro"]); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION["sucesso"])): ?>
             <div class="sucesso"><?= $_SESSION["sucesso"] ?></div>
             <?php unset($_SESSION["sucesso"]); ?>
         <?php endif; ?>
-        
+
         <div class="publicacao-info">
             <p><strong>Utilizador:</strong> <?= htmlspecialchars($publicacao['nome']) ?></p>
             <p><strong>Data:</strong> <?= $publicacao['data'] ?></p>
-            <p><strong>Descrição:</strong> <?= !empty($publicacao['descricao']) ? htmlspecialchars($publicacao['descricao']) : 'Sem descrição' ?></p>
+            <p><strong>Descrição:</strong>
+                <?= !empty($publicacao['descricao']) ? htmlspecialchars($publicacao['descricao']) : 'Sem descrição' ?>
+            </p>
         </div>
-        
+
         <h2>Mídias Associadas</h2>
-        
+
         <?php if (mysqli_num_rows($medias) > 0): ?>
             <div class="media-grid">
                 <?php while ($media = mysqli_fetch_assoc($medias)): ?>
@@ -262,18 +293,18 @@ $medias = mysqli_stmt_get_result($stmt);
                                 Seu navegador não suporta o elemento de vídeo.
                             </video>
                         <?php endif; ?>
-                        
+
                         <div class="media-type"><?= strtoupper($media['tipo']) ?></div>
-                        
+
                         <div class="media-info">
                             <p><strong>Ficheiro:</strong> <?= htmlspecialchars($media['media']) ?></p>
                             <p><strong>Tipo:</strong> <?= ucfirst($media['tipo']) ?></p>
                         </div>
-                        
+
                         <form method="post" class="media-actions">
                             <input type="hidden" name="idmedia" value="<?= $media['id'] ?>">
-                            <button type="submit" name="remover_media" class="btn btn-remover" 
-                                    onclick="return confirm('Tem a certeza que deseja remover esta mídia?')">
+                            <button type="submit" name="remover_media" class="btn btn-remover"
+                                onclick="return confirm('Tem a certeza que deseja remover esta mídia?')">
                                 Remover
                             </button>
                         </form>
@@ -285,10 +316,11 @@ $medias = mysqli_stmt_get_result($stmt);
                 <p>Esta publicação não tem mídias associadas.</p>
             </div>
         <?php endif; ?>
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="publicacoes.php" class="btn btn-voltar">Voltar à Lista de Publicações</a>
         </div>
     </div>
 </body>
+
 </html>

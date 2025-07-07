@@ -359,28 +359,6 @@ $resultado = mysqli_query($con, $sql);
             color: #0e2b3b;
         }
 
-        .footer-container {
-            text-align: center;
-            padding: 10px 0;
-        }
-
-        .footerbutton {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            background-color: transparent;
-            color: white;
-            transition: 0.3s ease;
-            display: inline-block;
-            margin: 0 5px;
-        }
-
-        .footerbutton:hover {
-            background-color: white;
-            color: #0e2b3b;
-        }
     </style>
 </head>
 

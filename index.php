@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 if (isset($_SESSION["idutilizador"])) {
     header("Location: main/main.php");
 }
