@@ -591,7 +591,26 @@ function isImage($filename)
                 .then(data => {
                     if (data.success) {
                         if (uploadUrl === 'upload_foto.php') {
-                            document.querySelector('.profile-picture').src = URL.createObjectURL(fileInput.files[0]);
+                            // Criar URL temporária para a nova imagem
+                            const newImageUrl = URL.createObjectURL(fileInput.files[0]);
+
+                            // Atualizar foto no perfil
+                            const profilePictures = document.querySelectorAll('.profile-picture, .perfil-post-avatar, .h_profile-picture');
+                            profilePictures.forEach(img => {
+                                img.src = newImageUrl;
+                                // Forçar recarregamento
+                                img.onload = function () {
+                                    URL.revokeObjectURL(newImageUrl); // Liberar memória
+                                };
+                            });
+
+                            // Atualizar foto na sessão (se necessário)
+                            if (data.session_updated) {
+                                // Forçar recarregamento da página para garantir sincronização completa
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            }
                         } else if (uploadUrl === 'upload_capa.php') {
                             document.querySelector('.cover-photo').src = URL.createObjectURL(fileInput.files[0]);
                         }
@@ -599,7 +618,10 @@ function isImage($filename)
                         alert("Erro ao atualizar a imagem: " + data.message);
                     }
                 })
-                .catch(error => console.error("Erro:", error));
+                .catch(error => {
+                    console.error("Erro:", error);
+                    alert("Ocorreu um erro durante o upload");
+                });
         }
 
         function seguirUtilizador(idSeguido) {

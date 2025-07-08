@@ -472,6 +472,11 @@ $publicacoes = mysqli_query($con, $sql);
             transition: background-color 0.3s;
         }
 
+        .w-10.h-10.rounded-full.object-cover {
+            background-color: #f0f0f0;
+            display: block;
+        }
+
         .close:hover {
             background-color: #f0f0f0;
         }
@@ -1090,7 +1095,8 @@ $publicacoes = mysqli_query($con, $sql);
                 <div class="mb-6">
                     <form class="flex gap-2 items-center" method="POST" action="interacoes/comentar.php">
                         <input type="hidden" name="idpublicacao" id="idpublicacao" value="">
-                        <img src="<?= $foto_base64 ?>" alt="Sua foto" class="w-10 h-10 rounded-full object-cover">
+                        <img src="<?= $foto_perfil ? $foto_base64 : 'default.png' ?>" alt="Foto de Perfil"
+                            class="w-10 h-10 rounded-full object-cover">
                         <div class="flex-1 relative">
                             <input type="text" name="comentario" required
                                 class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -1107,8 +1113,8 @@ $publicacoes = mysqli_query($con, $sql);
                         <!-- Comentários serão carregados aqui -->
                         <div id="comentarioTemplate" class="hidden">
                             <div class="flex gap-3">
-                                <img class="comentario-ft-perfil w-10 h-10 rounded-full object-cover"
-                                    alt="Foto de Perfil">
+                                <img src="<?= $foto_perfil ? $foto_base64 : 'default.png' ?>" alt="Foto de Perfil"
+                                    class="w-10 h-10 rounded-full object-cover comentario-ft-perfil">
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-lg p-3">
                                         <div class="flex items-center gap-2 mb-1">
@@ -1505,8 +1511,6 @@ $publicacoes = mysqli_query($con, $sql);
                 }
             }
         });
-
-        // Função para carregar comentários
         // Função para carregar comentários
         async function carregarComentarios(postId) {
             try {
@@ -1527,14 +1531,17 @@ $publicacoes = mysqli_query($con, $sql);
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
 
-                        // Preencher dados do comentário
+                       console.log(comentario.ft_perfil);
                         const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
-                        imgElement.src = comentario.ft_perfil ?
-                            (comentario.ft_perfil.startsWith('data:image') ?
-                                comentario.ft_perfil :
-                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil)) :
-                            'default.png';
-
+                        if (comentario.ft_perfil) {
+                            imgElement.src = comentario.ft_perfil == "default.png" ?
+                                "default.png" :
+                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil);
+                        } else {
+                            // Usar caminho absoluto para garantir que a imagem seja encontrada
+                            imgElement.src = window.location.pathname.includes('/perfil/') ?
+                                'default.png' : 'default.png';
+                        }
                         comentarioElement.querySelector('.comentario-username').textContent = comentario.user || 'Utilizador';
                         comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
                         comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
@@ -1766,7 +1773,6 @@ $publicacoes = mysqli_query($con, $sql);
 
             currentFeed = tipo;
 
-            // Atualizar UI dos botões
             document.getElementById('btnParaTi').classList.toggle('active', tipo === 'para_ti');
             document.getElementById('btnASeguir').classList.toggle('active', tipo === 'a_seguir');
 
@@ -1777,7 +1783,6 @@ $publicacoes = mysqli_query($con, $sql);
             indicator.style.width = `${activeBtn.offsetWidth}px`;
             indicator.style.left = `${activeBtn.offsetLeft}px`;
 
-            // Filtrar as publicações
             filtrarPublicacoes();
         }
 
