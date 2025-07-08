@@ -36,7 +36,15 @@ try {
     $comentarios = [];
 
     while ($row = mysqli_fetch_assoc($result)) {
-        $row["ft_perfil"] = $row["ft_perfil"] ? "data:image/jpeg;base64," . base64_encode($row["ft_perfil"]) : "default.png";
+        // Se for a imagem padrão ou NULL, usar o caminho padrão
+        if (empty($row["ft_perfil"]) || $row["ft_perfil"] === "default.png") {
+            $row["ft_perfil"] = "default.png";
+        } 
+        // Se for um blob binário, converter para base64
+        else {
+            $row["ft_perfil"] = "data:image/jpeg;base64," . base64_encode($row["ft_perfil"]);
+        }
+        
         $comentarios[] = $row;
     }
 

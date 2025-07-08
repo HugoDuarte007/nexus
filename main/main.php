@@ -1531,17 +1531,24 @@ $publicacoes = mysqli_query($con, $sql);
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
 
-                       console.log(comentario.ft_perfil);
                         const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
+
+                        // Tratar a foto de perfil
                         if (comentario.ft_perfil) {
-                            imgElement.src = comentario.ft_perfil == "default.png" ?
-                                "default.png" :
-                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil);
+                            if (comentario.ft_perfil === "default.png") {
+                                // Usar caminho absoluto para a imagem padrão
+                                imgElement.src = 'default.png';
+                            } else if (typeof comentario.ft_perfil === 'string' && comentario.ft_perfil.startsWith('data:')) {
+                                // Se já estiver em base64
+                                imgElement.src = comentario.ft_perfil;
+                            } else {
+                                // Se for um blob binário
+                                imgElement.src = 'data:image/jpeg;base64,' + comentario.ft_perfil;
+                            }
                         } else {
-                            // Usar caminho absoluto para garantir que a imagem seja encontrada
-                            imgElement.src = window.location.pathname.includes('/perfil/') ?
-                                'default.png' : 'default.png';
+                            imgElement.src = 'default.png';
                         }
+
                         comentarioElement.querySelector('.comentario-username').textContent = comentario.user || 'Utilizador';
                         comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
                         comentarioElement.querySelector('.comentario-conteudo').textContent = comentario.conteudo;
@@ -1558,10 +1565,6 @@ $publicacoes = mysqli_query($con, $sql);
                         } else {
                             deleteBtn.style.display = 'none';
                         }
-
-                        // Remover o placeholder %%IDCOMENTARIO%% do template
-                        const deleteBtnHtml = deleteBtn.outerHTML.replace('%%IDCOMENTARIO%%', comentario.idcomentario);
-                        deleteBtn.outerHTML = deleteBtnHtml;
 
                         comentariosContainer.appendChild(comentarioElement);
                     });
