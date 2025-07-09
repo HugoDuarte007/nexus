@@ -2,6 +2,7 @@
 session_start();
 require "../ligabd.php";
 
+
 if (!isset($_SESSION["user"])) {
     header("Location: ../login.php");
     exit();
@@ -26,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               data_nascimento='$data_nascimento',
               pais='$pais'
               WHERE idutilizador = '$iduser'";
-              
+
     if (mysqli_query($con, $query)) {
         $msg = "Perfil atualizado com sucesso!";
     } else {
@@ -319,6 +320,7 @@ require "../partials/paises.php";
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -330,6 +332,7 @@ require "../partials/paises.php";
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -340,7 +343,7 @@ require "../partials/paises.php";
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .submit-btn,
             .status-message,
             .form-footer {
@@ -374,39 +377,42 @@ require "../partials/paises.php";
                 Terminar Sessão
             </button>
         </div>
-        
+
         <form method="POST" class="editar-form" id="formEditar">
             <h2>Informações Pessoais</h2>
-            
+
             <div class="form-grid">
                 <div class="form-group">
                     <label for="nome">Nome Completo</label>
-                    <input type="text" name="nome" id="nome" value="<?php echo htmlspecialchars($row['nome']); ?>" required>
+                    <input type="text" name="nome" id="nome" value="<?php echo htmlspecialchars($row['nome']); ?>"
+                        required>
                     <div class="feedback-message" id="feedback-nome">O nome não pode conter números</div>
                 </div>
 
                 <div class="form-group">
                     <label for="user">Username</label>
-                    <input type="text" name="user" id="user" value="<?php echo htmlspecialchars($row['user']); ?>" required>
+                    <input type="text" name="user" id="user" value="<?php echo htmlspecialchars($row['user']); ?>"
+                        required>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($row['email']); ?>" required>
+                    <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($row['email']); ?>"
+                        required>
                     <div class="feedback-message" id="feedback-email">Por favor, insira um email válido</div>
                 </div>
 
                 <div class="form-group">
                     <label for="telemovel">Telemóvel</label>
-                    <input type="tel" name="telemovel" id="telemovel" maxlength="9" 
-                           value="<?php echo htmlspecialchars($row['telemovel']); ?>" required>
+                    <input type="tel" name="telemovel" id="telemovel" maxlength="9"
+                        value="<?php echo htmlspecialchars($row['telemovel']); ?>" required>
                     <div class="feedback-message" id="feedback-telemovel">Apenas números são permitidos</div>
                 </div>
 
                 <div class="form-group">
                     <label for="data_nascimento">Data de Nascimento</label>
-                    <input type="date" name="data_nascimento" id="data_nascimento" 
-                           value="<?php echo htmlspecialchars($row['data_nascimento']); ?>" required>
+                    <input type="date" name="data_nascimento" id="data_nascimento"
+                        value="<?php echo htmlspecialchars($row['data_nascimento']); ?>" required>
                     <div class="feedback-message" id="feedback-idade">Você deve ter pelo menos 16 anos</div>
                 </div>
 
@@ -415,8 +421,7 @@ require "../partials/paises.php";
                     <select name="pais" id="pais" required>
                         <option value="">Selecione um país</option>
                         <?php foreach ($paises as $pais): ?>
-                            <option value="<?= htmlspecialchars($pais) ?>" 
-                                <?= ($row['pais'] == $pais) ? 'selected' : '' ?>>
+                            <option value="<?= htmlspecialchars($pais) ?>" <?= ($row['pais'] == $pais) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($pais) ?>
                             </option>
                         <?php endforeach; ?>
@@ -425,7 +430,8 @@ require "../partials/paises.php";
                 </div>
 
                 <?php if (!empty($msg)): ?>
-                    <div class="status-message <?php echo strpos($msg, 'sucesso') !== false ? 'status-success' : 'status-error'; ?>">
+                    <div
+                        class="status-message <?php echo strpos($msg, 'sucesso') !== false ? 'status-success' : 'status-error'; ?>">
                         <?php echo $msg; ?>
                     </div>
                 <?php endif; ?>
@@ -510,13 +516,13 @@ require "../partials/paises.php";
                 }
             }
 
-            document.getElementById('formEditar').addEventListener('submit', function(e) {
+            document.getElementById('formEditar').addEventListener('submit', function (e) {
                 let isValid = true;
-                
+
                 Object.keys(inputs).forEach(key => {
                     const { element, feedback, validate } = inputs[key];
                     validateField(key);
-                    
+
                     if (!validate(element.value)) {
                         isValid = false;
                         feedback.style.display = 'block';
@@ -539,7 +545,7 @@ require "../partials/paises.php";
         });
 
         function logout() {
-                window.location.href = '../logout.php';
+            window.location.href = '../logout.php';
         }
     </script>
 </body>
