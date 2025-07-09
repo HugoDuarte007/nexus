@@ -105,6 +105,55 @@ $sqlRecentActivity = "(SELECT
                       ORDER BY data_acao DESC
                       LIMIT 5";
 $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
+
+// Buscar atividade recente melhorada
+$sqlRecentActivity = "
+    (SELECT 
+        u.nome, 
+        u.idutilizador,
+        'publicou' as acao,
+        p.data as data_acao,
+        p.idpublicacao,
+        SUBSTRING(p.descricao, 1, 50) as descricao_resumo,
+        'publicacao' as tipo_acao
+    FROM publicacao p
+    JOIN utilizador u ON p.idutilizador = u.idutilizador
+    ORDER BY p.data DESC
+    LIMIT 10)
+    
+    UNION ALL
+    
+    (SELECT 
+        u.nome, 
+        u.idutilizador,
+        'comentou' as acao,
+        c.data as data_acao,
+        c.idpublicacao,
+        CONCAT('\"', SUBSTRING(c.conteudo, 1, 30), '...\"') as descricao_resumo,
+        'comentario' as tipo_acao
+    FROM comentario c
+    JOIN utilizador u ON c.idutilizador = u.idutilizador
+    ORDER BY c.data DESC
+    LIMIT 10)
+    
+    UNION ALL
+    
+    (SELECT 
+        u.nome, 
+        u.idutilizador,
+        'curtiu' as acao,
+        l.data as data_acao,
+        l.idpublicacao,
+        'uma publicação' as descricao_resumo,
+        'like' as tipo_acao
+    FROM likes l
+    JOIN utilizador u ON l.idutilizador = u.idutilizador
+    ORDER BY l.data DESC
+    LIMIT 10)
+    
+    ORDER BY data_acao DESC
+    LIMIT 15";
+$resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -135,8 +184,8 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 
         .stats-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            /* Duas colunas de tamanho igual */
+            grid-template-columns: repeat(4, 1fr);
+            /* 4 colunas de tamanho igual */
             gap: 20px;
             width: 90%;
             margin: 20px auto;
@@ -151,7 +200,6 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             cursor: pointer;
             transition: transform 0.3s;
             width: 100%;
-            /* Ocupa toda a largura disponível */
         }
 
         .stat-card:hover {
@@ -398,6 +446,92 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             font-size: 10px;
             text-transform: uppercase;
         }
+
+        .recent-activity-container {
+            position: relative;
+            height: 100%;
+        }
+
+        .activity-scroll-box {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #0e2b3b #f1f1f1;
+        }
+
+        /* Estilização da barra de rolagem para WebKit */
+        .activity-scroll-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .activity-scroll-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .activity-scroll-box::-webkit-scrollbar-thumb {
+            background-color: #0e2b3b;
+            border-radius: 4px;
+        }
+
+        .activity-entry {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #0e2b3b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .activity-info {
+            flex: 1;
+            position: relative;
+        }
+
+        .activity-header {
+            margin-bottom: 4px;
+        }
+
+        .activity-preview {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .activity-time {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        .view-activity-btn {
+            background-color: #0e2b3b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.3s;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .view-activity-btn:hover {
+            background-color: #1a4b6b;
+        }
     </style>
 </head>
 
@@ -409,9 +543,17 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <h3>Total de Utilizadores</h3>
             <div class="value"><?= $totalUsers ?></div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="openModal('postsModal')">
             <h3>Publicações</h3>
             <div class="value"><?= $totalPosts ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Comentários</h3>
+            <div class="value"><?= $totalComments ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Likes</h3>
+            <div class="value"><?= $totalLikes ?></div>
         </div>
     </div>
 
@@ -429,23 +571,31 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
             <?php endwhile; ?>
         </div>
 
-        <div class="data-card">
+        <div class="data-card recent-activity-container">
             <h2>Atividade Recente</h2>
-            <?php while ($activity = mysqli_fetch_assoc($resultRecentActivity)): ?>
-                <div class="activity-item">
-                    <div class="activity-icon"><?= substr($activity['nome'], 0, 1) ?></div>
-                    <div class="activity-details">
-                        <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
-                        <?php if ($activity['acao'] == 'publicou' && $activity['idpublicacao']): ?>
-                            <button class="view-btn"
-                                onclick="event.stopPropagation(); loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['post_descricao'] ?? '')) ?>')">
-                                Ver
-                            </button>
-                        <?php endif; ?>
-                        <div class="activity-time"><?= $activity['data_acao'] ?></div>
+            <div class="activity-scroll-box">
+                <?php while ($activity = mysqli_fetch_assoc($resultRecentActivity)): ?>
+                    <div class="activity-entry">
+                        <div class="user-avatar"><?= substr($activity['nome'], 0, 1) ?></div>
+                        <div class="activity-info">
+                            <div class="activity-header">
+                                <strong><?= htmlspecialchars($activity['nome']) ?></strong> <?= $activity['acao'] ?>
+                                <?php if (!empty($activity['descricao_resumo']) && $activity['descricao_resumo'] !== 'uma publicação'): ?>
+                                    <br><span
+                                        class="activity-preview"><?= htmlspecialchars($activity['descricao_resumo']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($activity['idpublicacao']): ?>
+                                <button class="view-activity-btn"
+                                    onclick="event.stopPropagation(); loadPostDetails(<?= $activity['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($activity['nome'])) ?>')">
+                                    Ver
+                                </button>
+                            <?php endif; ?>
+                            <div class="activity-time"><?= $activity['data_acao'] ?></div>
+                        </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
+                <?php endwhile; ?>
+            </div>
         </div>
     </div>
 
@@ -561,7 +711,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
 
             // Abrir o modal
             openModal('postModal');
-            document.getElementById('postModalTitle').textContent = 'Publicação #' + postId;
+            document.getElementById('postModalTitle').textContent = 'Publicação #' + postId + (postTitle ? ' - ' + postTitle : '');
 
             // Mostrar loading e esconder conteúdo
             document.querySelector('#postModalContent .loading').style.display = 'block';
@@ -574,6 +724,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                 data: { id: postId },
                 dataType: 'json',
                 success: function (response) {
+                    console.log('Resposta da publicação:', response); // Debug
                     if (response.success) {
                         // Preencher os dados da publicação
                         document.getElementById('postDescription').textContent = response.descricao || 'Sem descrição';
@@ -624,11 +775,14 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
                         document.querySelector('#postModalContent .loading').style.display = 'none';
                         document.querySelector('#postModalContent .post-content').style.display = 'block';
                     } else {
-                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação: ' + (response.message || 'Erro desconhecido');
+                        console.error('Erro na resposta:', response);
+                        document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação: ' + (response.message || 'Publicação não encontrada');
                     }
                 },
                 error: function (xhr, status, error) {
                     console.error('Erro AJAX:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
                     document.querySelector('#postModalContent .loading').textContent = 'Erro ao carregar a publicação. Verifique a conexão.';
                 }
             });

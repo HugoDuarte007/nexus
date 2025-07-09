@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../ligabd.php";
+require "../notificacoes/criar_notificacao.php";
 
 // Verifica se o utilizador está autenticado
 if (!isset($_SESSION["user"])) {
@@ -40,6 +41,18 @@ if (mysqli_num_rows($res_check) > 0) {
     $stmt_insert = mysqli_prepare($con, $sql_insert);
     mysqli_stmt_bind_param($stmt_insert, "iis", $idutilizador_atual, $idpublicacao, $data_like);
     mysqli_stmt_execute($stmt_insert);
+    
+    // Buscar o dono da publicação para criar notificação
+    $sql_owner = "SELECT idutilizador FROM publicacao WHERE idpublicacao = ?";
+    $stmt_owner = mysqli_prepare($con, $sql_owner);
+    mysqli_stmt_bind_param($stmt_owner, "i", $idpublicacao);
+    mysqli_stmt_execute($stmt_owner);
+    $result_owner = mysqli_stmt_get_result($stmt_owner);
+    
+    if ($owner = mysqli_fetch_assoc($result_owner)) {
+        criarNotificacao($owner['idutilizador'], $idutilizador_atual, 'like', $idpublicacao);
+    }
+    
     echo "liked";
 }
 ?>

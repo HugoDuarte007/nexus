@@ -1,7 +1,9 @@
 <?php
 session_start();
 require "ligabd.php";
-
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    $msg = "Perfil atualizado com sucesso!";
+}
 if (!isset($_POST["botaoInserir"]) && !isset($_POST["verificarCodigo"])) {
     unset($_SESSION["codigoVerificacao"]);
     unset($_SESSION["emailEnviado"]);

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../ligabd.php";
+require "../notificacoes/criar_notificacao.php";
 
 // Verificar se o usuário está logado
 if (!isset($_SESSION["idutilizador"])) {
@@ -48,6 +49,9 @@ if ($result->num_rows > 0) {
     $stmt->bind_param("ii", $idSeguidor, $idSeguido);
     
     if ($stmt->execute()) {
+        // Criar notificação de novo seguidor
+        criarNotificacao($idSeguido, $idSeguidor, 'seguir', 0);
+        
         echo json_encode(['success' => true, 'seguindo' => true]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Erro ao seguir usuário']);

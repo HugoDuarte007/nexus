@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../ligabd.php";
+require "../notificacoes/criar_notificacao.php";
 
 // Desativar exibição de erros para o cliente
 ini_set('display_errors', 0);
@@ -54,6 +55,17 @@ try {
         mysqli_stmt_bind_param($stmt, "ii", $idutilizador, $idpublicacao);
         $result = mysqli_stmt_execute($stmt);
         if (!$result) throw new Exception('Erro ao adicionar aos guardados');
+        
+        // Buscar o dono da publicação para criar notificação
+        $sql_owner = "SELECT idutilizador FROM publicacao WHERE idpublicacao = ?";
+        $stmt_owner = mysqli_prepare($con, $sql_owner);
+        mysqli_stmt_bind_param($stmt_owner, "i", $idpublicacao);
+        mysqli_stmt_execute($stmt_owner);
+        $result_owner = mysqli_stmt_get_result($stmt_owner);
+        
+        if ($owner = mysqli_fetch_assoc($result_owner)) {
+            criarNotificacao($owner['idutilizador'], $idutilizador, 'save', $idpublicacao);
+        }
         
         echo json_encode(['success' => true, 'guardado' => true]);
     }

@@ -39,7 +39,6 @@ session_start();
 
 <body>
     <div class="container" style="justify-content: center;">
-        <img src="imagens/fixo_portatil_telemovel.png" alt="platforms" class="platforms">
         <div class="form-container">
             <h2><a href="index.php"><img src="imagens/logo4.png"></a><br>
                 Verificar Código</h2><br>

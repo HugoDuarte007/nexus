@@ -32,6 +32,32 @@
         </div>
 
         <div class="flex gap-1 items-center flex-1 justify-end">
+            <!-- Botão de notificações -->
+            <div class="h_notifications-dropdown" style="position: relative;">
+                <button class="h_styled-button notification-button" title="Notificações"
+                    onclick="toggleNotifications(event)" style="position: relative;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="white">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <!-- Badge para notificações não vistas -->
+                    <span id="notificacoes-badge" class="h_notification-badge" style="display: none;">0</span>
+                </button>
+
+                <!-- Dropdown de notificações -->
+                <div id="notificationsDropdown" class="h_notifications-content" style="display: none;">
+                    <div class="h_notifications-header">
+                        <h3>Notificações</h3>
+                        <button onclick="marcarTodasComoVistas()" class="h_mark-all-read">
+                            Marcar todas como vistas
+                        </button>
+                    </div>
+                    <div id="notificationsList" class="h_notifications-list">
+                        <div class="h_loading">A carregar notificações...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Botão de mensagens com badge -->
             <button class="h_styled-button message-button" title="Mensagens"
                 onclick="window.location.href='../mensagens/mensagens.php'" style="position: relative;">
@@ -189,6 +215,186 @@
             100% {
                 transform: scale(1);
             }
+        }
+
+        /* Estilos do dropdown de notificações */
+        .h_notifications-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .h_notifications-content {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 350px;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border-radius: 8px;
+            margin-top: 5px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .h_notifications-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .h_notifications-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .h_mark-all-read {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .h_mark-all-read:hover {
+            background-color: rgba(14, 43, 59, 0.1);
+        }
+
+        .h_notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .h_notification-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .h_notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .h_notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .h_notification-item.unread {
+            background-color: #f0f8ff;
+            border-left: 3px solid var(--primary);
+        }
+
+        .h_notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .h_notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .h_notification-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 4px;
+            color: #374151;
+            word-break: break-word;
+            /* Quebra palavras longas */
+            white-space: normal;
+            /* Permite quebras de linha */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            /* Limita a 3 linhas */
+            -webkit-box-orient: vertical;
+        }
+
+        .h_notification-text strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .h_notification-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .h_notification-icon {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .h_notification-icon.like {
+            background-color: #dc3545;
+        }
+
+        .h_notification-icon.comentario {
+            background-color: #28a745;
+        }
+
+        .h_notification-icon.save {
+            background-color: #ffc107;
+        }
+
+        .h_notification-icon.seguir {
+            background-color: #007bff;
+        }
+
+        .h_notification-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+
+        .h_loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .h_no-notifications {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .h_no-notifications svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
         }
 
         .h_navbar {
@@ -818,6 +1024,10 @@
         // Atualizar notificações de mensagens periodicamente
         atualizarNotificacoesMensagens();
         setInterval(atualizarNotificacoesMensagens, 10000);
+
+        // Atualizar notificações
+        atualizarNotificacoes();
+        setInterval(atualizarNotificacoes, 15000);
     });
 
     // Funções para o dropdown do perfil (apenas para administradores)
@@ -857,4 +1067,203 @@
             })
             .catch(error => console.error('Erro ao atualizar notificações:', error));
     }
+
+    // Funções para notificações
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('notificationsDropdown');
+        const isOpen = dropdown.style.display === 'block';
+
+        // Fechar outros dropdowns
+        const menu = document.getElementById("dropdownMenu");
+        if (menu) menu.style.display = "none";
+
+        if (isOpen) {
+            dropdown.style.display = 'none';
+        } else {
+            dropdown.style.display = 'block';
+            carregarNotificacoes();
+        }
+    }
+
+    function carregarNotificacoes() {
+        const lista = document.getElementById('notificationsList');
+        lista.innerHTML = '<div class="h_loading">A carregar notificações...</div>';
+
+        fetch('notificacoes/get_notificacoes.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Resposta das notificações:', data); // Debug
+                if (data.success) {
+                    renderizarNotificacoes(data.notificacoes);
+                } else {
+                    lista.innerHTML = '<div class="h_no-notifications">Erro ao carregar notificações</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                lista.innerHTML = '<div class="h_no-notifications">Erro ao carregar notificações</div>';
+            });
+    }
+
+    function renderizarNotificacoes(notificacoes) {
+        const lista = document.getElementById('notificationsList');
+
+        if (notificacoes.length === 0) {
+            lista.innerHTML = `
+                <div class="h_no-notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <p>Nenhuma notificação</p>
+                </div>
+            `;
+            return;
+        }
+
+        lista.innerHTML = notificacoes.map(notificacao => {
+            const avatar = notificacao.remetente_foto
+                ? `data:image/jpeg;base64,${notificacao.remetente_foto}`
+                : 'default.png';
+
+            let texto = '';
+            let icone = '';
+            let link = '';
+
+            switch (notificacao.tipo) {
+                case 'like':
+                    texto = `<strong>${notificacao.remetente_user}</strong> gostou da sua publicação`;
+                    icone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                    link = `main.php#post-${notificacao.id_publicacao}`;
+                    break;
+                case 'comentario':
+                    texto = `<strong>${notificacao.remetente_user}</strong> comentou na sua publicação`;
+                    if (notificacao.conteudo) {
+                        texto += `: "${notificacao.conteudo}"`;
+                    }
+                    icone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/></svg>';
+                    link = `main.php#post-${notificacao.id_publicacao}`;
+                    break;
+                case 'save':
+                    texto = `<strong>${notificacao.remetente_user}</strong> guardou a sua publicação`;
+                    icone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>';
+                    link = `main.php#post-${notificacao.id_publicacao}`;
+                    break;
+                case 'seguir':
+                    texto = `<strong>${notificacao.remetente_user}</strong> começou a seguir-te`;
+                    icone = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2 1l-3.72 5.6L8.5 11.5 7 13l4.5 4.5L14 15l2 7h4z"/></svg>';
+                    link = `../perfil/perfil.php?id=${notificacao.id_remetente}`;
+                    break;
+            }
+
+            return `
+                <div class="h_notification-item ${!notificacao.vista ? 'unread' : ''}" 
+                     onclick="abrirNotificacao('${link}', ${notificacao.id_notificacao})">
+                    <div style="position: relative;">
+                        <img src="${avatar}" alt="Avatar" class="h_notification-avatar">
+                        <div class="h_notification-icon ${notificacao.tipo}">
+                            ${icone}
+                        </div>
+                    </div>
+                    <div class="h_notification-content">
+                        <div class="h_notification-text">${texto}</div>
+                        <div class="h_notification-time">${notificacao.tempo_formatado}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function marcarComoVista(idNotificacao) {
+        fetch('notificacoes/marcar_vista.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id_notificacao=${idNotificacao}`
+        });
+    }
+
+    function abrirNotificacao(link, idNotificacao) {
+        // Marcar como vista
+        marcarComoVista(idNotificacao);
+
+        // Fechar dropdown
+        document.getElementById('notificationsDropdown').style.display = 'none';
+
+        // Navegar para o link
+        if (link.includes('perfil.php')) {
+            window.location.href = link;
+        } else {
+            // Para links do main.php, verificar se já estamos na página
+            if (window.location.pathname.includes('main.php')) {
+                // Se já estamos no main.php, apenas fazer scroll para o post
+                const postId = link.split('#')[1];
+                if (postId) {
+                    const element = document.getElementById(postId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            } else {
+                // Se não estamos no main.php, navegar para lá
+                window.location.href = link;
+            }
+        }
+
+        // Atualizar badge
+        atualizarNotificacoes();
+    }
+
+    function marcarTodasComoVistas() {
+        fetch('notificacoes/marcar_vista.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: ''
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar interface
+                    document.querySelectorAll('.h_notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+
+                    // Atualizar badge
+                    const badge = document.getElementById('notificacoes-badge');
+                    badge.style.display = 'none';
+
+                    atualizarNotificacoes();
+                }
+            });
+    }
+
+    function atualizarNotificacoes() {
+        fetch('notificacoes/get_notificacoes.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.getElementById('notificacoes-badge');
+                    if (data.nao_vistas > 0) {
+                        badge.textContent = data.nao_vistas;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => console.error('Erro ao atualizar notificações:', error));
+    }
+
+    // Fechar dropdowns ao clicar fora
+    document.addEventListener('click', function (event) {
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
+        const notificationsButton = event.target.closest('.notification-button');
+
+        if (!notificationsButton && notificationsDropdown) {
+            notificationsDropdown.style.display = 'none';
+        }
+    });
 </script>
