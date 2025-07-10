@@ -1093,12 +1093,13 @@ $publicacoes = mysqli_query($con, $sql);
 
                 <!-- Formulário de comentário -->
                 <div class="mb-6">
-                    <form class="flex gap-2 items-center" method="POST" action="interacoes/comentar.php">
+                    <!-- Substitua o formulário atual por este -->
+                    <form class="flex gap-2 items-center" id="formComentario" onsubmit="enviarComentario(event)">
                         <input type="hidden" name="idpublicacao" id="idpublicacao" value="">
                         <img src="<?= $foto_perfil ? $foto_base64 : 'default.png' ?>" alt="Foto de Perfil"
                             class="w-10 h-10 rounded-full object-cover">
                         <div class="flex-1 relative">
-                            <input type="text" name="comentario" required
+                            <input type="text" name="comentario" id="campoComentario" required
                                 class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Adicione um comentário...">
                         </div>
@@ -1859,6 +1860,49 @@ $publicacoes = mysqli_query($con, $sql);
                 backToTopButton.classList.remove('show');
             }
         });
+        async function enviarComentario(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const postId = formData.get('idpublicacao');
+            const comentario = formData.get('comentario');
+            const button = form.querySelector('button[type="submit"]');
+
+            // Mostrar estado de carregamento
+            button.disabled = true;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                const response = await fetch('interacoes/comentar.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Limpar o campo de comentário
+                    form.reset();
+
+                    // Recarregar os comentários
+                    await carregarComentarios(postId);
+
+                    // Focar novamente no campo de comentário
+                    document.getElementById('campoComentario').focus();
+                } else {
+                    alert('Erro ao enviar comentário: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao enviar comentário: ' + error.message);
+            } finally {
+                // Restaurar o botão
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
     </script>
 </body>
 

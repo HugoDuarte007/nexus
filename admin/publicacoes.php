@@ -529,7 +529,6 @@ $resultado = mysqli_query($con, $sql);
             document.querySelector('#postModalContent .loading').style.display = 'block';
             document.querySelector('#postModalContent .post-content').style.display = 'none';
 
-            // Fazer chamada AJAX para buscar os detalhes da publicação
             $.ajax({
                 url: 'get_publicacao.php',
                 type: 'GET',

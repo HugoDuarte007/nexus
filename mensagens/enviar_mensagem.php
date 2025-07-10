@@ -20,7 +20,7 @@ if (empty($mensagem)) {
     exit();
 }
 
-// Buscar id do remetente
+// Procura id do remetente
 $utilizador = htmlspecialchars($_SESSION["user"]);
 $query = "SELECT idutilizador FROM utilizador WHERE user = '$utilizador'";
 $result = mysqli_query($con, $query);

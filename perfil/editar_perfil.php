@@ -2,7 +2,6 @@
 session_start();
 require "../ligabd.php";
 
-
 if (!isset($_SESSION["user"])) {
     header("Location: ../login.php");
     exit();
@@ -29,6 +28,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               WHERE idutilizador = '$iduser'";
 
     if (mysqli_query($con, $query)) {
+        // Atualizar as variáveis de sessão
+        $_SESSION["user"] = $user;
+        $_SESSION["nome"] = $nome;
+        
         $msg = "Perfil atualizado com sucesso!";
     } else {
         $msg = "Erro ao atualizar perfil: " . mysqli_error($con);

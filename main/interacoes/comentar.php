@@ -6,18 +6,17 @@ require "../notificacoes/criar_notificacao.php";
 header('Content-Type: application/json');
 
 if (!isset($_SESSION["user"])) {
-    echo json_encode(['success' => false, 'error' => 'Não autenticado 0']);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-    echo json_encode(['success' => false, 'error' => 'Método não permitido 1']);
+    echo json_encode(['success' => false, 'error' => 'Método não permitido']);
     exit();
 }
 
 if (!isset($_POST['idpublicacao']) || !isset($_POST['comentario'])) {
-    echo json_encode(['success' => false, 'error' => 'Dados incompletos 2']);
+    echo json_encode(['success' => false, 'error' => 'Dados incompletos']);
     exit();
 }
 
@@ -26,7 +25,7 @@ $idpublicacao = intval($_POST['idpublicacao']);
 $conteudo = mysqli_real_escape_string($con, $_POST['comentario']);
 
 // Buscar ID do utilizador
-$query = "SELECT idutilizador FROM utilizador WHERE user = '$utilizador'";
+$query = "SELECT idutilizador, ft_perfil FROM utilizador WHERE user = '$utilizador'";
 $result = mysqli_query($con, $query);
 $user = mysqli_fetch_assoc($result);
 
@@ -42,6 +41,8 @@ $sql = "INSERT INTO comentario (idutilizador, idpublicacao, conteudo, data)
         VALUES ($idutilizador, $idpublicacao, '$conteudo', NOW())";
 
 if (mysqli_query($con, $sql)) {
+    $idcomentario = mysqli_insert_id($con);
+    
     // Buscar o dono da publicação para criar notificação
     $sql_owner = "SELECT idutilizador FROM publicacao WHERE idpublicacao = ?";
     $stmt_owner = mysqli_prepare($con, $sql_owner);
@@ -55,9 +56,18 @@ if (mysqli_query($con, $sql)) {
         criarNotificacao($owner['idutilizador'], $idutilizador, 'comentario', $idpublicacao, $conteudo_truncado);
     }
     
-    echo json_encode(['success' => true]);
+    // Retornar dados do novo comentário
+    $novoComentario = [
+        'idcomentario' => $idcomentario,
+        'idutilizador' => $idutilizador,
+        'conteudo' => $conteudo,
+        'data' => date('Y-m-d H:i:s'),
+        'user' => $utilizador,
+        'ft_perfil' => $user['ft_perfil'] ? "data:image/jpeg;base64," . base64_encode($user['ft_perfil']) : "default.png"
+    ];
+    
+    echo json_encode(['success' => true, 'comentario' => $novoComentario]);
 } else {
     echo json_encode(['success' => false, 'error' => mysqli_error($con)]);
 }
-
-header("Location: ../main.php");
+?>

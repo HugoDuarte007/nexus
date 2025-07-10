@@ -490,7 +490,8 @@ function isImage($filename)
                 <div class="mb-6">
                     <form class="flex gap-2 items-center" method="POST" action="../main/interacoes/comentar.php">
                         <input type="hidden" name="idpublicacao" id="idpublicacao_modal" value="">
-                        <img src="<?= $foto_base64 ?>" alt="Sua foto" class="w-10 h-10 rounded-full object-cover">
+                        <img src="<?= $foto_perfil ? $foto_base64 : 'default.png' ?>" alt="Foto de Perfil"
+                            class="w-10 h-10 rounded-full object-cover">
                         <div class="flex-1 relative">
                             <input type="text" name="comentario" required
                                 class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -995,13 +996,22 @@ function isImage($filename)
                         comentarioElement.id = '';
                         comentarioElement.classList.remove('hidden');
 
-                        // Preencher dados do comentário
                         const imgElement = comentarioElement.querySelector('.comentario-ft-perfil');
-                        imgElement.src = comentario.ft_perfil ?
-                            (comentario.ft_perfil.startsWith('data:image') ?
-                                comentario.ft_perfil :
-                                'data:image/jpeg;base64,' + base64_encode(comentario.ft_perfil)) :
-                            'default.png';
+
+                        // Tratar a foto de perfil - garantir que o caminho padrão está correto
+                        if (comentario.ft_perfil) {
+                            if (comentario.ft_perfil === "default.png") {
+                                imgElement.src = '../imagens/default.png';
+                            } else if (typeof comentario.ft_perfil === 'string' && comentario.ft_perfil.startsWith('data:')) {
+                                imgElement.src = comentario.ft_perfil;
+                            } else if (typeof comentario.ft_perfil === 'string') {
+                                imgElement.src = 'data:image/jpeg;base64,' + comentario.ft_perfil;
+                            } else {
+                                imgElement.src = '../imagens/default.png';
+                            }
+                        } else {
+                            imgElement.src = '../imagens/default.png';
+                        }
 
                         comentarioElement.querySelector('.comentario-username').textContent = comentario.user || 'Utilizador';
                         comentarioElement.querySelector('.comentario-data').textContent = formatarData(comentario.data);
@@ -1019,10 +1029,6 @@ function isImage($filename)
                         } else {
                             deleteBtn.style.display = 'none';
                         }
-
-                        // Remover o placeholder %%IDCOMENTARIO%% do template
-                        const deleteBtnHtml = deleteBtn.outerHTML.replace('%%IDCOMENTARIO%%', comentario.idcomentario);
-                        deleteBtn.outerHTML = deleteBtnHtml;
 
                         comentariosContainer.appendChild(comentarioElement);
                     });
@@ -1332,6 +1338,7 @@ function isImage($filename)
                 modalSeguindo.style.display = 'none';
             }
         }
+        
     </script>
 
 </body>

@@ -54,8 +54,7 @@ $resultAllPosts = mysqli_query($con, $sqlAllPosts);
 $sqlRecentUsers = "SELECT nome, data_registo FROM utilizador ORDER BY data_registo DESC LIMIT 5";
 $resultRecentUsers = mysqli_query($con, $sqlRecentUsers);
 
-// Buscar atividade recente (CORRIGIDO)
-// Buscar atividade recente (versão corrigida)
+// Buscar atividade recente 
 $sqlRecentActivity = "(SELECT 
                         u.nome, 
                         u.idutilizador,
@@ -628,36 +627,7 @@ $resultRecentActivity = mysqli_query($con, $sqlRecentActivity);
     </div>
 
     <!-- Modal para Publicações -->
-    <div id="postsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('postsModal')">&times;</span>
-            <h2 class="modal-title">Todas as Publicações</h2>
-            <table class="modal-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Descrição</th>
-                        <th>Autor</th>
-                        <th>Data</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($post = mysqli_fetch_assoc($resultAllPosts)): ?>
-                        <tr>
-                            <td><?= $post['idpublicacao'] ?></td>
-                            <td><?= htmlspecialchars(substr($post['descricao'], 0, 50) ?? "") ?>...</td>
-                            <td><?= htmlspecialchars($post['autor']) ?></td>
-                            <td><?= $post['data'] ?></td>
-                            <td><button class="view-btn"
-                                    onclick="loadPostDetails(<?= $post['idpublicacao'] ?>, '<?= htmlspecialchars(addslashes($post['descricao'])) ?>')">Ver</button>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    
 
     <!-- Modal para Visualizar Publicação -->
     <div id="postModal" class="modal">

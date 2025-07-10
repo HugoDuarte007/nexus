@@ -47,11 +47,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $headers .= "From: Nexus <noreply@nexus.com>" . "\r\n";
 
         if (mail($email, $assunto, $mensagem, $headers)) {
-            $_SESSION['sucesso'] = "Código de verificação enviado para o seu email.";
             header("Location: verify_code.php");
             exit();
         } else {
-            $_SESSION['erro'] = "Erro ao enviar o email. Tente novamente mais tarde.";
             header("Location: forgot_password.php");
             exit();
         }

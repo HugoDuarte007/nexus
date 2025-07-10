@@ -21,7 +21,7 @@ try {
             FROM comentario c
             JOIN utilizador u ON c.idutilizador = u.idutilizador
             WHERE c.idpublicacao = ?
-            ORDER BY c.data ASC";
+            ORDER BY c.data DESC";
 
     $stmt = mysqli_prepare($con, $sql);
 

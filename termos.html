@@ -2,125 +2,180 @@
 <html lang="pt">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termos e Condições</title>
-    <link rel="icon" href="imagens/favicon.ico" type="image/png">   
+    <title>Termos e Condições | NEXUS</title>
+    <link rel="icon" href="imagens/favicon.ico" type="image/png">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             min-height: 100vh;
-            color: black;
-            text-align: center;
-            background-color: #f4f4f4;
+            color: #2d3748;
+            margin: 0;
+            padding: 0;
         }
-
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin-top: 50px;
-            padding: 20px;
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #0e2b3b 0%, #1a535c 100%);
         }
-
-        .form-container {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-            padding: 20px;
-            text-align: center;
+        
+        .terms-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
         }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
+        
+        .terms-container:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
         }
-
-        ol {
-            text-align: left;
-            margin-top: 20px;
-            font-size: 1.1rem;
+        
+        .term-item {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1.2rem;
+            transition: all 0.2s ease;
         }
-
-        ol li {
-            margin-bottom: 10px;
+        
+        .term-item:hover {
+            transform: translateX(5px);
         }
-
-        .buttons {
-            margin-top: 30px;
+        
+        .term-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            background: linear-gradient(135deg, #1a535c 0%, #4ecdc4 100%);
+            border-radius: 50%;
         }
-
-        .buttons button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            background-color: black;
-            color: white;
-            transition: 0.3s ease;
+        
+        .back-button {
+            background: linear-gradient(135deg, #0e2b3b 0%, #1a535c 100%);
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
         }
-
-        .buttons button:hover {
-            background-color: white;
-            color: black;
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 83, 92, 0.4);
         }
-
+        
         footer {
-            color: #0e2b3b;
-            padding: 20px 0;
-            font-size: 16px;
-            text-align: center;
-            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
         }
-        h1 img {
-            width: 40px;
-            height: auto;
-            margin-right: 10px;
-
+        
+        .logo-link {
+            transition: all 0.3s ease;
+        }
+        
+        .logo-link:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
+    <header class="gradient-header py-6 shadow-md">
+        <div class="container mx-auto px-4">
+            <a href="index.php" class="logo-link inline-block">
+                <img src="imagens/logo4.png" alt="NEXUS Logo" class="h-12 mx-auto">
+            </a>
+        </div>
+    </header>
 
-    <div class="container">
-        <div class="form-container">
-            <h1><a href="index.php"><img src="imagens/logo4.png"></a><br>
-                Termos e Condições</h1>
-            <p>Bem-vindo à nossa plataforma! Ao utilizar nossos serviços, você concorda com os seguintes termos:</p>
-            <ol>
-                <li>Respeitar todas as regras e diretrizes da comunidade.</li>
-                <li>Não utilizar a plataforma para fins ilegais ou não autorizados.</li>
-                <li>Garantir a segurança e confidencialidade dos seus dados de acesso.</li>
-                <li>Comprometer-se a não divulgar informações falsas ou enganosas.</li>
-                <li>Observar as regras de conduta durante o uso da plataforma.</li>
-                <li>Não praticar atividades que possam prejudicar o funcionamento da plataforma.</li>
-                <li>Concordar com as atualizações ou modificações nos termos a qualquer momento.</li>
-                <li>Não utilizar a plataforma para disseminar conteúdo ofensivo ou discriminatório.</li>
-                <li>Reconhecer que a plataforma não se responsabiliza por ações externas de usuários.</li>
-                <li>Respeitar a propriedade intelectual, incluindo direitos autorais e marcas registradas.</li>
-            </ol>
-            <p>Se não concordar com algum termo, por favor, interrompa o uso da plataforma.</p>
-            <div class="buttons">
-                <a href="index.php"><button>Voltar</button></a>
+    <main class="flex-grow py-12">
+        <div class="container mx-auto px-4">
+            <div class="terms-container max-w-4xl mx-auto p-8 md:p-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-teal-600">
+                    Termos e Condições
+                </h1>
+                
+                <p class="text-lg text-gray-700 mb-8 text-center">
+                    Bem-vindo à nossa plataforma! Ao utilizar nossos serviços, você concorda com os seguintes termos:
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">1. Respeito às Regras</h3>
+                        <p class="text-gray-600">Respeitar todas as regras e diretrizes da comunidade.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">2. Uso Adequado</h3>
+                        <p class="text-gray-600">Não utilizar a plataforma para fins ilegais ou não autorizados.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">3. Segurança</h3>
+                        <p class="text-gray-600">Garantir a segurança e confidencialidade dos seus dados de acesso.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">4. Veracidade</h3>
+                        <p class="text-gray-600">Comprometer-se a não divulgar informações falsas ou enganosas.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">5. Conduta</h3>
+                        <p class="text-gray-600">Observar as regras de conduta durante o uso da plataforma.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">6. Integridade</h3>
+                        <p class="text-gray-600">Não praticar atividades que possam prejudicar o funcionamento da plataforma.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">7. Atualizações</h3>
+                        <p class="text-gray-600">Concordar com as atualizações ou modificações nos termos a qualquer momento.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">8. Conteúdo</h3>
+                        <p class="text-gray-600">Não utilizar a plataforma para disseminar conteúdo ofensivo ou discriminatório.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">9. Responsabilidade</h3>
+                        <p class="text-gray-600">Reconhecer que a plataforma não se responsabiliza por ações externas de usuários.</p>
+                    </div>
+                    
+                    <div class="term-item">
+                        <h3 class="text-lg font-semibold">10. Propriedade Intelectual</h3>
+                        <p class="text-gray-600">Respeitar a propriedade intelectual, incluindo direitos autorais e marcas registradas.</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-700 mt-10 mb-8 text-center italic">
+                    Se não concordar com algum termo, por favor, interrompa o uso da plataforma.
+                </p>
+                
+                <div class="text-center mt-8">
+                    <a href="signup.php" class="inline-block">
+                        <button class="back-button text-white font-medium py-3 px-8 rounded-full shadow-md">
+                            ← Voltar à Página 
+                        </button>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <footer>
-        <p>&copy; 2024 NEXUS. Todos os direitos reservados.</p>
+    <footer class="py-6 mt-12">
+        <div class="container mx-auto px-4">
+            <p class="text-center text-gray-600">
+                &copy; 2025 <span class="font-semibold text-blue-900">NEXUS</span>. Todos os direitos reservados.
+            </p>
+        </div>
     </footer>
-
 </body>
 
 </html>
